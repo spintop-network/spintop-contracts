@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SafeBEP20.sol";
 
 /// @title Spintop Staking Rewards
-/// @author Batu Dal
+/// @author Spintop.Network
 /// @notice Synthetix inspired single token staking contract.
-/// @dev Owner doesn't have control over 'stakingToken'.
+/// @dev Owner doesn't have control over 'stakingToken', this includes if both staking and reward tokens are the same.
 contract SpinStakable is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
@@ -21,10 +21,10 @@ contract SpinStakable is Ownable, ReentrancyGuard {
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 15 days;
+    uint256 public rewardsDuration = 30 days;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
-    uint256 private unlockDuration = 1 days;
+    uint256 private unlockDuration = 0;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -81,6 +81,13 @@ contract SpinStakable is Ownable, ReentrancyGuard {
     function totalRewardAdded() external view returns (uint256) {
         return reward_amount;
     }
+
+     function unstakable(address account) external view returns (bool) {
+         if (_stakingTime[account] + unlockDuration <= block.timestamp) {
+                return true;
+         }
+        return false;
+     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
     

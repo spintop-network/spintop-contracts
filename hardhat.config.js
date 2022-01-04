@@ -23,7 +23,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.FANTOM_URL,
+        url: process.env.BINANCE_URL,
       },
     },
     fantom: {
@@ -31,8 +31,13 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    binance: {
+      url: process.env.BINANCE_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_KEY,
+    apiKey: process.env.BINANCE_ETHERSCAN_KEY,
   },
 };
