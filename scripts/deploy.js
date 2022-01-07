@@ -1,5 +1,3 @@
-const hre = require("hardhat");
-
 async function main() {
   const SpinMock = await ethers.getContractFactory("SpinMock");
   const spinMock = await SpinMock.deploy();
