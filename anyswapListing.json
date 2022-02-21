@@ -1,0 +1,44 @@
+{
+  "SPIN": {
+    "srcChainID": "56",
+    "destChainID": "137",
+    "PairID": "SPIN",
+    "SrcToken": {
+      "ID": "SPIN",
+      "Name": "Spintop Network",
+      "Symbol": "SPIN",
+      "Decimals": 18,
+      "Description": "spintop.network",
+      "DepositAddress": "0x171a9377c5013bb06bca8cfe22b9c007f2c319f1",
+      "mpcAddress": "0x171a9377c5013bb06bca8cfe22b9c007f2c319f1",
+      "ContractAddress": "0x6AA217312960A21aDbde1478DC8cBCf828110A67",
+      "MaximumSwap": 20,
+      "MinimumSwap": 0.0005,
+      "BigValueThreshold": 5,
+      "SwapFeeRate": 0,
+      "MaximumSwapFee": 0,
+      "MinimumSwapFee": 0,
+      "PlusGasPricePercentage": 10,
+      "DisableSwap": false,
+      "IsDelegateContract": false
+    },
+    "DestToken": {
+      "ID": "SPIN",
+      "Name": "Spintop Network",
+      "Symbol": "SPIN",
+      "Decimals": 18,
+      "Description": "Cross chain SPIN",
+      "mpcAddress": "0x171a9377c5013bb06bca8cfe22b9c007f2c319f1",
+      "ContractAddress": "",
+      "MaximumSwap": 20,
+      "MinimumSwap": 0.002,
+      "BigValueThreshold": 2,
+      "SwapFeeRate": 0.001,
+      "MaximumSwapFee": 0.01,
+      "MinimumSwapFee": 0.001,
+      "PlusGasPricePercentage": 1,
+      "DisableSwap": false,
+      "IsDelegateContract": false
+    }
+  }
+}
