@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
+require("hardhat-gas-reporter");
 
 module.exports = {
   solidity: {
@@ -11,8 +12,8 @@ module.exports = {
       forking: {
         url: process.env.BINANCE_URL,
         accounts:
-          process.env.SPINTOP_DEPLOYER !== undefined
-            ? [process.env.SPINTOP_DEPLOYER]
+          process.env.PRIVATE_KEY !== undefined
+            ? [process.env.PRIVATE_KEY]
             : [],
       },
     },
@@ -24,9 +25,7 @@ module.exports = {
     binance: {
       url: process.env.BINANCE_URL || "",
       accounts:
-        process.env.SPINTOP_DEPLOYER !== undefined
-          ? [process.env.SPINTOP_DEPLOYER]
-          : [],
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     polygon: {
       url: process.env.POLYGON_URL || "",
@@ -37,6 +36,10 @@ module.exports = {
     },
   },
   etherscan: {
-    apiKey: process.env.POLYGON_ETHERSCAN_KEY,
+    apiKey: process.env.BINANCE_ETHERSCAN_KEY,
+  },
+  gasReporter: {
+    currency: "USD",
+    gasPrice: 7,
   },
 };

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-pragma solidity >0.8.2;
+pragma solidity ^0.8.2;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -13,8 +13,6 @@ interface IERC20 {
     function allowance(address owner, address spender) external view returns (uint256);
     function approve(address spender, uint256 amount) external returns (bool);
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-    function permit(address target, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
-    function transferWithPermit(address target, address to, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external returns (bool);
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
@@ -38,6 +36,9 @@ interface IERC2612 {
      * prevents a signature from being used multiple times.
      */
     function nonces(address owner) external view returns (uint256);
+    function permit(address target, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+    function transferWithPermit(address target, address to, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external returns (bool);
+
 }
 
 /// @dev Wrapped ERC-20 v10 (AnyswapV3ERC20) is an ERC-20 ERC-20 wrapper. You can `deposit` ERC-20 and obtain an AnyswapV3ERC20 balance which can then be operated as an ERC-20 token. You can
@@ -112,7 +113,7 @@ library SafeERC20 {
     }
 }
 
-contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
+contract AnyswapV6ERC20 is IAnyswapV3ERC20 {
     using SafeERC20 for IERC20;
     string public name;
     string public symbol;
@@ -151,10 +152,6 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
     address public pendingVault;
     uint public delayVault;
 
-    uint public pendingDelay;
-    uint public delayDelay;
-
-
     modifier onlyAuth() {
         require(isMinter[msg.sender], "AnyswapV4ERC20: FORBIDDEN");
         _;
@@ -190,12 +187,8 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
         _init = false;
     }
 
-    function setMinter(address _auth) external onlyVault {
-        pendingMinter = _auth;
-        delayMinter = block.timestamp + delay;
-    }
-
     function setVault(address _vault) external onlyVault {
+        require(_vault != address(0), "AnyswapV3ERC20: address(0x0)");
         pendingVault = _vault;
         delayVault = block.timestamp + delay;
     }
@@ -203,6 +196,12 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
     function applyVault() external onlyVault {
         require(block.timestamp >= delayVault);
         vault = pendingVault;
+    }
+
+    function setMinter(address _auth) external onlyVault {
+        require(_auth != address(0), "AnyswapV3ERC20: address(0x0)");
+        pendingMinter = _auth;
+        delayMinter = block.timestamp + delay;
     }
 
     function applyMinter() external onlyVault {
@@ -220,20 +219,11 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
         return minters;
     }
 
-
     function changeVault(address newVault) external onlyVault returns (bool) {
         require(newVault != address(0), "AnyswapV3ERC20: address(0x0)");
+        vault = newVault;
         pendingVault = newVault;
-        delayVault = block.timestamp + delay;
-        emit LogChangeVault(vault, pendingVault, delayVault);
-        return true;
-    }
-
-    function changeMPCOwner(address newVault) public onlyVault returns (bool) {
-        require(newVault != address(0), "AnyswapV3ERC20: address(0x0)");
-        pendingVault = newVault;
-        delayVault = block.timestamp + delay;
-        emit LogChangeMPCOwner(vault, pendingVault, delayVault);
+        emit LogChangeVault(vault, pendingVault, block.timestamp);
         return true;
     }
 
@@ -270,10 +260,8 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
     mapping (address => mapping (address => uint256)) public override allowance;
 
     event LogChangeVault(address indexed oldVault, address indexed newVault, uint indexed effectiveTime);
-    event LogChangeMPCOwner(address indexed oldOwner, address indexed newOwner, uint indexed effectiveHeight);
     event LogSwapin(bytes32 indexed txhash, address indexed account, uint amount);
     event LogSwapout(address indexed account, address indexed bindaddr, uint amount);
-    event LogAddAuth(address indexed auth, uint timestamp);
 
     constructor(string memory _name, string memory _symbol, uint8 _decimals, address _underlying, address _vault) {
         name = _name;
@@ -308,17 +296,6 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
     /// @dev Returns the total supply of AnyswapV3ERC20 token as the ETH held in this contract.
     function totalSupply() external view override returns (uint256) {
         return _totalSupply;
-    }
-
-    function depositWithPermit(address target, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address to) external returns (uint) {
-        IERC20(underlying).permit(target, address(this), value, deadline, v, r, s);
-        IERC20(underlying).safeTransferFrom(target, address(this), value);
-        return _deposit(value, to);
-    }
-
-    function depositWithTransferPermit(address target, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address to) external returns (uint) {
-        IERC20(underlying).transferWithPermit(target, address(this), value, deadline, v, r, s);
-        return _deposit(value, to);
     }
 
     function deposit() external returns (uint) {
@@ -494,14 +471,13 @@ contract AnyswapV5ERC20 is IAnyswapV3ERC20 {
     }
 
     function verifyPersonalSign(address target, bytes32 hashStruct, uint8 v, bytes32 r, bytes32 s) internal view returns (bool) {
-        bytes32 hash = prefixed(hashStruct);
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                DOMAIN_SEPARATOR,
+                hashStruct));
         address signer = ecrecover(hash, v, r, s);
         return (signer != address(0) && signer == target);
-    }
-
-    // Builds a prefixed hash to mimic the behavior of eth_sign.
-    function prefixed(bytes32 hash) internal view returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", DOMAIN_SEPARATOR, hash));
     }
 
     /// @dev Moves `value` AnyswapV3ERC20 token from caller's account to account (`to`).

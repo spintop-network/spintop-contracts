@@ -2,7 +2,7 @@ async function main() {
   const [owner] = await ethers.getSigners();
 
   const VAULT = "0x171a9377c5013bb06bca8cfe22b9c007f2c319f1";
-  const AnyERC = await ethers.getContractFactory("AnyswapV5ERC20");
+  const AnyERC = await ethers.getContractFactory("AnyswapV6ERC20");
   const anyERC = await AnyERC.deploy(
     "Spintop Network",
     "SPIN",
