@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
-import "./IGOStakable.sol";
+import "./IGO.sol";
 import "./ClaimToken.sol";
 
 
@@ -32,7 +32,7 @@ contract SpinVault is ERC20 {
         string memory _shareName,
         string memory _shareSymbol,
         address _pool,
-        address _tokenSpin,
+        address _tokenSpin
         ) ERC20(_shareName,_shareSymbol) {
             vaultInfo.admin = _msgSender();
             vaultInfo.shareName = _shareName;
@@ -56,13 +56,10 @@ contract SpinVault is ERC20 {
         address _tokenGame,
         uint256 _startDate,
         uint256 _length ) public onlyAdmin returns(address addr) {
-        IGOStakable _igo = new IGOStakable(_gameName, _gameSymbol, vaultInfo.tokenSpin,vaultInfo.tokenSpin, address(this));
-        bytes memory _code = type(_igo).creationCode;
-        assembly { addr := create(0, add(_code, 0x20), mload(_code)) }
-        require(addr != address(0), "deploy failed");
-        IGOs[].push(addr);
+        IGO _igo = new IGO(_gameName, _gameSymbol, vaultInfo.tokenSpin, address(this));
+        IGOs.push(address(_igo));
         ClaimToken _igoToken = new ClaimToken(_gameName, _gameSymbol);
-        _igoToken.safeTransfer(addr,10**24);    
+        _igoToken.safeTransfer(address(_igo),10**24);    
     }
 
     function getIGO (uint256 _id) public view returns(address) {
@@ -90,7 +87,10 @@ contract SpinVault is ERC20 {
 
     function deposit(uint _amount) external { // add reentrancy
         compound();
-        IGOStakable(vaultInfo.pool).update(_msgSender());
+        for (uint256 i; i<IGOs.length; i++) {
+            IGO(IGOs[i]).update(_msgSender());
+        }
+        
 
         uint256 _bal = balance();
         if (_bal > 0) {
@@ -111,7 +111,7 @@ contract SpinVault is ERC20 {
 
     function withdraw (uint _shares) external {
         compound();
-        IGOStakable(vaultInfo.pool).update(_msgSender());
+        IGO(vaultInfo.pool).update(_msgSender());
 
         uint256 r = (balance().mul(_shares)).div(totalSupply());
         _burn(msg.sender, _shares);
