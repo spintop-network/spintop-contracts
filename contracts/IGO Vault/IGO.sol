@@ -14,14 +14,13 @@ contract IGO is Ownable, ReentrancyGuard {
     IBEP20 public rewardsToken;
     string public gameName;
     string public gameSymbol;
-    uint256 public startDate = 0;
-    uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 10 days;
-    uint256 public reward_amount = 10000;
+    uint256 public startDate;
+    uint256 public rewardRate;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
     uint256 private _totalSupply;
     address public vault;
+    uint256 public rewardsDuration = 10 days;
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
@@ -29,12 +28,14 @@ contract IGO is Ownable, ReentrancyGuard {
         string memory _gameName,
         string memory _gameSymbol,
         address _rewardsToken,
-        address _vault
+        address _vault,
+        uint256 _startDate
     ) {
         gameName = _gameName;
         gameSymbol = _gameSymbol;
         rewardsToken = IBEP20(_rewardsToken);
         vault = _vault;
+        startDate = _startDate;
     }
 
     function balanceOf(address _account) public returns (uint256) {
@@ -56,19 +57,15 @@ contract IGO is Ownable, ReentrancyGuard {
     }
 
     function earned(address account) public returns (uint256) {
-        return ISpinVault(vault).vaultBalanceOf(account).mul(rewardPerToken().sub(userRewardPerTokenPaid[account])).div(1e18).add(rewards[account]);
+        return (ISpinVault(vault).vaultBalanceOf(account) * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18) + (rewards[account]);
     }
 
-    function getRewardForDuration() external view returns (uint256) {
-        return rewardRate.mul(rewardsDuration);
-    }
-    
-    function stake(address account, uint256 amount) external nonReentrant updateReward(account) {
+    function increaseSupply(address account, uint256 amount) external nonReentrant updateReward(account) {
         require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply.add(amount);
     }
 
-    function unstake(uint256 amount) public nonReentrant updateReward(msg.sender) {
+    function decreaseSupply(uint256 amount) public nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply.sub(amount);
     }
@@ -82,13 +79,21 @@ contract IGO is Ownable, ReentrancyGuard {
         }
     }
 
-    function update(address account) external {
+    function start (uint256 reward) public {
+        rewardRate = reward.div(rewardsDuration);
+    }
+
+    function updateWithVault(address account) external {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
         if (account != address(0)) {
             rewards[account] = earned(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
+    }
+
+    function checkState () external view returns(bool) {
+        return block.timestamp < startDate + rewardsDuration;
     }
 
     modifier updateReward(address account) {
@@ -98,6 +103,11 @@ contract IGO is Ownable, ReentrancyGuard {
             rewards[account] = earned(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
+        _;
+    }
+
+    modifier onlyVault {
+        require(_msgSender() == vault, "Only vault.");
         _;
     }
 
