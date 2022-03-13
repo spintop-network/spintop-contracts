@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -25,6 +25,7 @@ contract SpinVault is ERC20 {
     address[] public members;
     uint256 immutable public maxStakeAmount = 1000000;
     uint256 immutable public minStakeAmount = 1000;
+    uint256 constant private MAX_INT = 2**256 - 1;
 
     mapping(address => uint256) balances;
 
@@ -39,6 +40,7 @@ contract SpinVault is ERC20 {
             vaultInfo.shareSymbol = _shareSymbol;
             vaultInfo.pool = _pool;
             vaultInfo.tokenSpin = _tokenSpin;
+            IERC20(vaultInfo.tokenSpin).approve(vaultInfo.pool, MAX_INT);
     }
     
     modifier onlyAdmin () {
@@ -57,13 +59,11 @@ contract SpinVault is ERC20 {
         ClaimToken _igoToken = new ClaimToken(_gameName, _gameSymbol);
         IGO _igo = new IGO(
             _gameName, 
-            _gameSymbol, 
             address(_igoToken), 
             address(this), 
             _startDate);
         IGOs.push(address(_igo));
-        
-        _igoToken.transfer(address(_igo),10**24);    
+        _igoToken.transfer(address(_igo),10e24);
     }
 
     function getIGO (uint256 _id) public view returns(address) {
@@ -100,8 +100,6 @@ contract SpinVault is ERC20 {
     function deposit(uint _amount) external { // add reentrancy
         compound();
         updateIGOs();
-        
-
         uint256 _bal = balance();
         if (_bal > 0) {
             ISpinStakable(vaultInfo.pool).stake(_bal);
@@ -122,10 +120,8 @@ contract SpinVault is ERC20 {
     function withdraw (uint _shares) external {
         compound();
         updateIGOs();
-
         uint256 r = balance() * _shares / totalSupply();
         _burn(msg.sender, _shares);
-
         uint b = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (b < r) {
             uint _withdraw = r - b;

@@ -5,7 +5,20 @@ require("hardhat-gas-reporter");
 
 module.exports = {
   solidity: {
-    compilers: [{ version: "0.8.2" }, { version: "0.8.4" }],
+    version: "0.8.0",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 2000,
+        details: {
+          yul: true,
+          yulDetails: {
+            stackAllocation: true,
+            optimizerSteps: "dhfoDgvulfnTUtnIf",
+          },
+        },
+      },
+    },
   },
   networks: {
     hardhat: {
@@ -40,6 +53,9 @@ module.exports = {
   },
   gasReporter: {
     currency: "USD",
+    token: "BNB",
     gasPrice: 7,
+    gasPriceApi: "https://api.bscscan.com/api?module=proxy&action=eth_gasPrice",
+    coinmarketcap: process.env.COINMARKETCAP,
   },
 };

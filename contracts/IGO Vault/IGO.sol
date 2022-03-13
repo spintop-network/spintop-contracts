@@ -13,7 +13,6 @@ contract IGO is Ownable, ReentrancyGuard {
     
     IBEP20 public rewardsToken;
     string public gameName;
-    string public gameSymbol;
     uint256 public startDate;
     uint256 public rewardRate;
     uint256 public lastUpdateTime;
@@ -26,17 +25,35 @@ contract IGO is Ownable, ReentrancyGuard {
 
     constructor(
         string memory _gameName,
-        string memory _gameSymbol,
         address _rewardsToken,
         address _vault,
         uint256 _startDate
     ) {
         gameName = _gameName;
-        gameSymbol = _gameSymbol;
         rewardsToken = IBEP20(_rewardsToken);
         vault = _vault;
         startDate = _startDate;
     }
+    
+    modifier updateReward(address account) {
+        rewardPerTokenStored = rewardPerToken();
+        lastUpdateTime = lastTimeRewardApplicable();
+        if (account != address(0)) {
+            rewards[account] = earned(account);
+            userRewardPerTokenPaid[account] = rewardPerTokenStored;
+        }
+        _;
+    }
+    
+    modifier onlyVault {
+        require(_msgSender() == vault, "Only vault.");
+        _;
+    }
+
+    event DistributionStart(uint256 reward);
+    event Staked(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, uint256 amount);
+    event RewardPaid(address indexed user, uint256 reward);
 
     function balanceOf(address _account) public returns (uint256) {
         return ISpinVault(vault).vaultBalanceOf(_account);
@@ -51,9 +68,8 @@ contract IGO is Ownable, ReentrancyGuard {
             return rewardPerTokenStored;
         }
         return
-            rewardPerTokenStored.add(
-                lastTimeRewardApplicable().sub(lastUpdateTime).mul(rewardRate).mul(1e18).div(_totalSupply)
-            );
+            rewardPerTokenStored + 
+                (lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / _totalSupply;
     }
 
     function earned(address account) public returns (uint256) {
@@ -81,6 +97,7 @@ contract IGO is Ownable, ReentrancyGuard {
 
     function start (uint256 reward) public {
         rewardRate = reward.div(rewardsDuration);
+        emit DistributionStart(reward);
     }
 
     function updateWithVault(address account) external {
@@ -95,27 +112,4 @@ contract IGO is Ownable, ReentrancyGuard {
     function checkState () external view returns(bool) {
         return block.timestamp < startDate + rewardsDuration;
     }
-
-    modifier updateReward(address account) {
-        rewardPerTokenStored = rewardPerToken();
-        lastUpdateTime = lastTimeRewardApplicable();
-        if (account != address(0)) {
-            rewards[account] = earned(account);
-            userRewardPerTokenPaid[account] = rewardPerTokenStored;
-        }
-        _;
-    }
-
-    modifier onlyVault {
-        require(_msgSender() == vault, "Only vault.");
-        _;
-    }
-
-    event RewardAdded(uint256 reward);
-    event Staked(address indexed user, uint256 amount);
-    event Withdrawn(address indexed user, uint256 amount);
-    event RewardPaid(address indexed user, uint256 reward);
-    event RewardsDurationUpdated(uint256 newDuration);
-    event Recovered(address token, uint256 amount);
-    event UnlockDurationUpdated(uint256 newDuration);
 }
