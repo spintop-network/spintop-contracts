@@ -57,6 +57,13 @@ contract SpinVault is ERC20, ReentrancyGuard {
             _startDate);
         IGOs.push(address(_igo));
         _igoToken.transfer(address(_igo),10e24);
+        migrateBalances(address(_igo));
+    }
+
+    function migrateBalances (address _igo) internal {
+        for (uint i; i < members.length; i++) {
+            IGO(_igo).updateWithVault(members[i]);
+        }
     }
 
     function getIGO (uint256 _id) public view returns(address) {
@@ -71,7 +78,7 @@ contract SpinVault is ERC20, ReentrancyGuard {
         }
     }
 
-    function vaultBalance () public view returns (uint) {
+    function vaultBalance() public view returns (uint) {
         uint256 _vaultBalance = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         return _vaultBalance;
     }
@@ -108,6 +115,7 @@ contract SpinVault is ERC20, ReentrancyGuard {
         }
         _mint(msg.sender, shares);
         updateIGOs();
+        members.push(_msgSender());
     }
 
     function withdraw (uint _shares) external {
@@ -126,5 +134,14 @@ contract SpinVault is ERC20, ReentrancyGuard {
             }
         }
         IERC20(vaultInfo.tokenSpin).safeTransfer(msg.sender, r);
+        // delete by popping for future optimization
+        if (balanceOf(_msgSender()) == 0) {
+            for (uint i; i < members.length; i++) {
+                if (members[i] == _msgSender()) {
+                    members[i] = members[members.length - 1];
+                    members.pop();
+                }
+            }
+        }
     }
 }

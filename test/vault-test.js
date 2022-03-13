@@ -29,6 +29,10 @@ describe("Payment", function () {
     const igo = await spinVault.getIGO(0);
     console.log("First IGO's address: ", igo);
 
+    await spinVault.createIGO("Spinstarter Queen", "spinQueen", date);
+    const igo2 = await spinVault.getIGO(0);
+    console.log("First IGO's address: ", igo2);
+
     const ERC20Contract = await ethers.getContractFactory("ERC20");
     const ERC20 = ERC20Contract.connect(signer);
     const spinToken = ERC20.attach(spinAddress);
@@ -45,14 +49,15 @@ describe("Payment", function () {
     const IgoContract = await ethers.getContractFactory("IGO");
     const IgoSigner = IgoContract.connect(signer);
     const igo_ = IgoSigner.attach(igo);
+    const igo2_ = IgoSigner.attach(igo2);
     await igo_.start(ethers.utils.parseEther("10000"));
+    await igo2_.start(ethers.utils.parseEther("10000"));
     const reward1 = await igo_.earned(DEPLOYER);
     console.log("Reward#1: ", reward1);
 
     await network.provider.send("evm_increaseTime", [300]);
     await network.provider.send("evm_mine");
     await spinVault.deposit(ethers.utils.parseEther("1000"));
-
     const reward2 = await igo_.earned(DEPLOYER);
     console.log("Reward#2: ", reward2);
   });
