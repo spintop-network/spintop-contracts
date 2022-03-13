@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Libraries/SafeBEP20.sol";
 import "./ISpinVault.sol";
-import "hardhat/console.sol";
 
 contract IGO is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
@@ -51,13 +50,7 @@ contract IGO is Ownable, ReentrancyGuard {
     }
 
     event DistributionStart(uint256 reward);
-    event Staked(address indexed user, uint256 amount);
-    event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
-
-    // function balanceOf(address _account) public returns (uint256) {
-    //     return ISpinVault(vault).vaultBalanceOf(_account);
-    // }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
         return block.timestamp < (startDate + rewardsDuration) ? block.timestamp : (startDate + rewardsDuration);
@@ -69,12 +62,10 @@ contract IGO is Ownable, ReentrancyGuard {
 
     function rewardPerToken() public view returns (uint256) {
         if (totalSupply() == 0) {
-            console.log("RewardPerToken_: ", rewardPerTokenStored);
             return rewardPerTokenStored;
         }
         uint256 _x = rewardPerTokenStored + 
                 ((lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / totalSupply());
-        console.log("RewardPerToken: ", _x);
         return _x;
             
     }
@@ -84,17 +75,6 @@ contract IGO is Ownable, ReentrancyGuard {
         uint256 _earned = _balance * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
         return _earned;
     }
-    
-
-    // function increaseSupply(address account, uint256 amount) external nonReentrant updateReward(account) {
-    //     require(amount > 0, "Cannot stake 0");
-    //     _totalSupply = _totalSupply.add(amount);
-    // }
-
-    // function decreaseSupply(uint256 amount) public nonReentrant updateReward(msg.sender) {
-    //     require(amount > 0, "Cannot withdraw 0");
-    //     _totalSupply = _totalSupply.sub(amount);
-    // }
 
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];

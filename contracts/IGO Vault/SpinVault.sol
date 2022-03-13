@@ -8,10 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "./IGO.sol";
 import "./ClaimToken.sol";
-import "hardhat/console.sol";
 
-
-contract SpinVault is ERC20 {
+contract SpinVault is ERC20, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct VaultInfo {
@@ -65,17 +63,12 @@ contract SpinVault is ERC20 {
         return IGOs[_id];
     }
 
-    function updateIGOs () public {
+    function updateIGOs () internal {
         for (uint256 i; i<IGOs.length; i++) {
             if (IGO(IGOs[i]).checkState()) {
                 IGO(IGOs[i]).updateWithVault(_msgSender());
-                console.log("updateIGOs",i);
             }
         }
-    }
-
-    function timeStamp () public view returns (uint) {
-        return block.timestamp;
     }
 
     function vaultBalance () public view returns (uint) {
@@ -97,7 +90,7 @@ contract SpinVault is ERC20 {
         }
     }
 
-    function deposit(uint _amount) external { // add reentrancy
+    function deposit(uint _amount) external nonReentrant {
         compound();
         uint256 _bal = balance();
         IERC20(vaultInfo.tokenSpin).safeTransferFrom(msg.sender, address(this), _amount);
@@ -105,7 +98,8 @@ contract SpinVault is ERC20 {
             ISpinStakable(vaultInfo.pool).stake(vaultBalance());
         }
         uint256 _after = balance();
-        _amount = _after - _bal; // Additional check for deflationary tokens
+        // Additional check for deflationary tokens
+        _amount = _after - _bal;
         uint256 shares = 0;
         if (totalSupply() == 0) {
             shares = _amount;
