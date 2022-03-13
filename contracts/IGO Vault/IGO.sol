@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Libraries/SafeBEP20.sol";
 import "./ISpinVault.sol";
+import "hardhat/console.sol";
 
 contract IGO is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
@@ -17,9 +18,8 @@ contract IGO is Ownable, ReentrancyGuard {
     uint256 public rewardRate;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
-    uint256 private _totalSupply;
     address public vault;
-    uint256 public rewardsDuration = 10 days;
+    uint256 public rewardsDuration = 10 minutes;
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
@@ -55,36 +55,46 @@ contract IGO is Ownable, ReentrancyGuard {
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
 
-    function balanceOf(address _account) public returns (uint256) {
-        return ISpinVault(vault).vaultBalanceOf(_account);
-    }
+    // function balanceOf(address _account) public returns (uint256) {
+    //     return ISpinVault(vault).vaultBalanceOf(_account);
+    // }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
         return block.timestamp < (startDate + rewardsDuration) ? block.timestamp : (startDate + rewardsDuration);
     }
 
+    function totalSupply() internal view returns (uint256) {
+        return ISpinVault(vault).balance();
+    }
+
     function rewardPerToken() public view returns (uint256) {
-        if (_totalSupply == 0) {
+        if (totalSupply() == 0) {
+            console.log("RewardPerToken_: ", rewardPerTokenStored);
             return rewardPerTokenStored;
         }
-        return
-            rewardPerTokenStored + 
-                (lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / _totalSupply;
+        uint256 _x = rewardPerTokenStored + 
+                ((lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / totalSupply());
+        console.log("RewardPerToken: ", _x);
+        return _x;
+            
     }
 
-    function earned(address account) public returns (uint256) {
-        return (ISpinVault(vault).vaultBalanceOf(account) * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18) + (rewards[account]);
+    function earned(address account) public view returns (uint256) {
+        uint256 _balance = ISpinVault(vault).balanceOf(account);
+        uint256 _earned = _balance * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
+        return _earned;
     }
+    
 
-    function increaseSupply(address account, uint256 amount) external nonReentrant updateReward(account) {
-        require(amount > 0, "Cannot stake 0");
-        _totalSupply = _totalSupply.add(amount);
-    }
+    // function increaseSupply(address account, uint256 amount) external nonReentrant updateReward(account) {
+    //     require(amount > 0, "Cannot stake 0");
+    //     _totalSupply = _totalSupply.add(amount);
+    // }
 
-    function decreaseSupply(uint256 amount) public nonReentrant updateReward(msg.sender) {
-        require(amount > 0, "Cannot withdraw 0");
-        _totalSupply = _totalSupply.sub(amount);
-    }
+    // function decreaseSupply(uint256 amount) public nonReentrant updateReward(msg.sender) {
+    //     require(amount > 0, "Cannot withdraw 0");
+    //     _totalSupply = _totalSupply.sub(amount);
+    // }
 
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];

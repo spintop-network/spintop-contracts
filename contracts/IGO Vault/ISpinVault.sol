@@ -2,5 +2,6 @@
 pragma solidity ^0.8.0;
 
 interface ISpinVault {
-    function vaultBalanceOf(address _account) external returns(uint256);
+    function balanceOf(address _account) external view returns(uint256);
+    function balance() external view returns (uint);
 }

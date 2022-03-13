@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "./IGO.sol";
 import "./ClaimToken.sol";
+import "hardhat/console.sol";
 
 
 contract SpinVault is ERC20 {
@@ -27,8 +28,6 @@ contract SpinVault is ERC20 {
     uint256 immutable public minStakeAmount = 1000;
     uint256 constant private MAX_INT = 2**256 - 1;
 
-    mapping(address => uint256) balances;
-
     constructor ( 
         string memory _shareName,
         string memory _shareSymbol,
@@ -46,10 +45,6 @@ contract SpinVault is ERC20 {
     modifier onlyAdmin () {
         require(_msgSender() == vaultInfo.admin, "Only admin!");
         _;
-    }
-
-    function vaultBalanceOf(address _account) public view returns(uint256) {
-        return balances[_account];
     }
 
     function createIGO (
@@ -74,8 +69,13 @@ contract SpinVault is ERC20 {
         for (uint256 i; i<IGOs.length; i++) {
             if (IGO(IGOs[i]).checkState()) {
                 IGO(IGOs[i]).updateWithVault(_msgSender());
+                console.log("updateIGOs",i);
             }
         }
+    }
+
+    function timeStamp () public view returns (uint) {
+        return block.timestamp;
     }
 
     function vaultBalance () public view returns (uint) {
@@ -99,13 +99,11 @@ contract SpinVault is ERC20 {
 
     function deposit(uint _amount) external { // add reentrancy
         compound();
-        updateIGOs();
         uint256 _bal = balance();
-        if (_bal > 0) {
-            ISpinStakable(vaultInfo.pool).stake(_bal);
-        }
         IERC20(vaultInfo.tokenSpin).safeTransferFrom(msg.sender, address(this), _amount);
-        IERC20(vaultInfo.tokenSpin).safeTransfer(address(this), balance());
+        if (vaultBalance() > 0) {
+            ISpinStakable(vaultInfo.pool).stake(vaultBalance());
+        }
         uint256 _after = balance();
         _amount = _after - _bal; // Additional check for deflationary tokens
         uint256 shares = 0;
@@ -115,6 +113,7 @@ contract SpinVault is ERC20 {
             shares = _amount * totalSupply() / _bal;
         }
         _mint(msg.sender, shares);
+        updateIGOs();
     }
 
     function withdraw (uint _shares) external {

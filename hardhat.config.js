@@ -58,4 +58,7 @@ module.exports = {
     gasPriceApi: "https://api.bscscan.com/api?module=proxy&action=eth_gasPrice",
     coinmarketcap: process.env.COINMARKETCAP,
   },
+  mocha: {
+    timeout: 100000000,
+  },
 };
