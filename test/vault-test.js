@@ -30,8 +30,8 @@ describe("Payment", function () {
     console.log("First IGO's address: ", igo);
 
     await spinVault.createIGO("Spinstarter Queen", "spinQueen", date);
-    const igo2 = await spinVault.getIGO(0);
-    console.log("First IGO's address: ", igo2);
+    const igo2 = await spinVault.getIGO(1);
+    console.log("Second IGO's address: ", igo2);
 
     const ERC20Contract = await ethers.getContractFactory("ERC20");
     const ERC20 = ERC20Contract.connect(signer);

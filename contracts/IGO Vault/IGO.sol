@@ -64,25 +64,13 @@ contract IGO is Ownable, ReentrancyGuard {
         if (totalSupply() == 0) {
             return rewardPerTokenStored;
         }
-        uint256 _x = rewardPerTokenStored + 
+        return rewardPerTokenStored + 
                 ((lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / totalSupply());
-        return _x;
-            
     }
 
     function earned(address account) public view returns (uint256) {
         uint256 _balance = ISpinVault(vault).balanceOf(account);
-        uint256 _earned = _balance * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
-        return _earned;
-    }
-
-    function getReward() public nonReentrant updateReward(msg.sender) {
-        uint256 reward = rewards[msg.sender];
-        if (reward > 0) {
-            rewards[msg.sender] = 0;
-            rewardsToken.safeTransfer(msg.sender, reward);
-            emit RewardPaid(msg.sender, reward);
-        }
+        return _balance * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
     }
 
     function start (uint256 reward) public {
