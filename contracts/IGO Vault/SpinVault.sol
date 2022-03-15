@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "./IGO.sol";
 
-contract SpinVault is ERC20, ReentrancyGuard {
+contract IGOVault is ERC20, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct VaultInfo {
@@ -46,7 +46,6 @@ contract SpinVault is ERC20, ReentrancyGuard {
 
     function createIGO (
         string memory _gameName,
-        string memory _gameSymbol,
         uint256 _startDate) public onlyAdmin {
         IGO _igo = new IGO(
             _gameName, 

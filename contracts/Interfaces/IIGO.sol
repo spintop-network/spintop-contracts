@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Libraries/SafeBEP20.sol";
-import "./ISpinVault.sol";
+import "../Interfaces/ISpinVault.sol";
 
 interface IIGO {
     event DistributionStart(uint256 reward);
