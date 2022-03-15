@@ -11,7 +11,6 @@ contract IGO is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
     
-    IBEP20 public rewardsToken;
     string public gameName;
     uint256 public startDate;
     uint256 public rewardRate;
@@ -24,12 +23,10 @@ contract IGO is Ownable, ReentrancyGuard {
 
     constructor(
         string memory _gameName,
-        address _rewardsToken,
         address _vault,
         uint256 _startDate
     ) {
         gameName = _gameName;
-        rewardsToken = IBEP20(_rewardsToken);
         vault = _vault;
         startDate = _startDate;
     }

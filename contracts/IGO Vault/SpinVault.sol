@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "./IGO.sol";
-import "./ClaimToken.sol";
 
 contract SpinVault is ERC20, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -49,14 +48,11 @@ contract SpinVault is ERC20, ReentrancyGuard {
         string memory _gameName,
         string memory _gameSymbol,
         uint256 _startDate) public onlyAdmin {
-        ClaimToken _igoToken = new ClaimToken(_gameName, _gameSymbol);
         IGO _igo = new IGO(
             _gameName, 
-            address(_igoToken), 
             address(this), 
             _startDate);
         IGOs.push(address(_igo));
-        _igoToken.transfer(address(_igo),10e24);
         migrateBalances(address(_igo));
     }
 
