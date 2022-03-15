@@ -46,11 +46,17 @@ contract IGOVault is ERC20, ReentrancyGuard {
 
     function createIGO (
         string memory _gameName,
-        uint256 _startDate) public onlyAdmin {
+        uint256 _startDate,
+        uint256 _totalDollars,
+        uint256 _price,
+        address _paymentToken) public onlyAdmin {
         IGO _igo = new IGO(
             _gameName, 
             address(this), 
-            _startDate);
+            _startDate,
+            _totalDollars,
+            _price,
+            _paymentToken);
         IGOs.push(address(_igo));
         migrateBalances(address(_igo));
     }

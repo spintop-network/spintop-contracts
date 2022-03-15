@@ -26,7 +26,7 @@ contract IGO is Ownable, ReentrancyGuard {
         string memory _gameName,
         address _vault,
         uint256 _startDate,
-        uint256 _totalTokenPrice,
+        uint256 _totalDollars,
         uint256 _price,
         address _paymentToken
     ) {
@@ -36,7 +36,7 @@ contract IGO is Ownable, ReentrancyGuard {
         claimContract = new IGOClaim(
             vault, 
             address(this),
-            _totalTokenPrice,
+            _totalDollars,
             _price,
             _paymentToken);
     }
