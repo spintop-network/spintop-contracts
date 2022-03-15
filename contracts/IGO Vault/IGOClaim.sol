@@ -17,6 +17,7 @@ contract IGOClaim is Ownable, ReentrancyGuard {
     address public token;
     uint256 public totalTokenPrice;
     uint256 public price;
+    uint256 private decimal;
     bool public state = false;
 
     constructor (address _vault, address _igo, uint256 _totalTokenPrice, uint256 _price, address _paymentToken) {
@@ -32,16 +33,25 @@ contract IGOClaim is Ownable, ReentrancyGuard {
         _;
     }
 
-    function setTokenAddress (address _token) public onlyOwner {
+    function setTokenAddress (address _token, uint256 _decimal) public onlyOwner {
         token = _token;
+        decimal = _decimal;
     }
     
     function payForTokens (uint256 _amount) public nonReentrant {
         require(_amount > 0, "Can't do zero");
         require(state == true, "Not yet");
-        uint256 deservedShare = (IIGO(igo).earned(_msgSender())) / TOTAL_SHARES;
-        uint256 deservedDollars = deservedShare * totalTokenPrice;
+        uint256 deservedDollars = deservedShare(_msgSender()) * totalTokenPrice;
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), deservedDollars);        
+    }
+
+    function deservedShare (address _user) internal view returns (uint256 deserved_) {
+        uint256 deserved = (IIGO(igo).earned(_user)) / TOTAL_SHARES;
+        deserved_ = normalize(deserved);
+    }
+
+    function normalize(uint256 _amount) internal view returns (uint256 amount) {
+        amount = _amount / 1e18 * 10**decimal;
     }
 
     function claimTokens () public nonReentrant {

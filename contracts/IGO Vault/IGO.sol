@@ -4,11 +4,11 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IGOClaim.sol";
 import "../Libraries/SafeBEP20.sol";
 import "../Interfaces/ISpinVault.sol";
 
 contract IGO is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
     
     string public gameName;
@@ -17,6 +17,7 @@ contract IGO is Ownable, ReentrancyGuard {
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
     address public vault;
+    IGOClaim public claimContract;
     uint256 public rewardsDuration = 10 minutes;
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -24,11 +25,20 @@ contract IGO is Ownable, ReentrancyGuard {
     constructor(
         string memory _gameName,
         address _vault,
-        uint256 _startDate
+        uint256 _startDate,
+        uint256 _totalTokenPrice,
+        uint256 _price,
+        address _paymentToken
     ) {
         gameName = _gameName;
         vault = _vault;
         startDate = _startDate;
+        claimContract = new IGOClaim(
+            vault, 
+            address(this),
+            _totalTokenPrice,
+            _price,
+            _paymentToken);
     }
     
     modifier updateReward(address account) {
@@ -70,8 +80,12 @@ contract IGO is Ownable, ReentrancyGuard {
         return _balance * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
     }
 
+    function consume(address _account) public {
+        rewards[_account] = 0;
+    }
+
     function start (uint256 reward) public {
-        rewardRate = reward.div(rewardsDuration);
+        rewardRate = reward / rewardsDuration;
         emit DistributionStart(reward);
     }
 
