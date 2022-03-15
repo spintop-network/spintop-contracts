@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "../Interfaces/IIGO.sol";
 
-contract IGOClaim is Ownable, ReentrancyGuard {
+contract IGOClaim is Context, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     uint256 immutable TOTAL_SHARES = 10000;
@@ -19,6 +19,7 @@ contract IGOClaim is Ownable, ReentrancyGuard {
     uint256 public price;
     uint256 private decimal;
     bool public state = false;
+    mapping(address => uint256) claimedAmounts;
 
     constructor (address _vault, address _igo, uint256 _totalTokenPrice, uint256 _price, address _paymentToken) {
         vault = _vault;
@@ -27,22 +28,14 @@ contract IGOClaim is Ownable, ReentrancyGuard {
         price = _price;
         paymentToken = _paymentToken;
     }
-
-    modifier onlyVault {
-        require(_msgSender() == vault, "Only Vault.");
-        _;
-    }
-
-    function setTokenAddress (address _token, uint256 _decimal) public onlyOwner {
-        token = _token;
-        decimal = _decimal;
-    }
     
     function payForTokens (uint256 _amount) public nonReentrant {
         require(_amount > 0, "Can't do zero");
-        require(state == true, "Not yet");
         uint256 deservedDollars = deservedShare(_msgSender()) * totalTokenPrice;
-        IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), deservedDollars);        
+        if(_amount <= (deservedDollars-claimedAmounts[_msgSender()])) {
+            IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), deservedDollars);
+            emit UserPaid(_msgSender(), _amount);     
+        }
     }
 
     function deservedShare (address _user) internal view returns (uint256 deserved_) {
@@ -54,14 +47,30 @@ contract IGOClaim is Ownable, ReentrancyGuard {
         amount = _amount / 1e18 * 10**decimal;
     }
 
-    function claimTokens () public nonReentrant {
+    function claimTokens(uint256 _amount) public nonReentrant {
+        require(_amount > 0, "Can't do zero");
         require(state == true, "Not yet");
-        uint256 deservedShare = (IIGO(igo).earned(_msgSender())) / TOTAL_SHARES;
-        uint256 deservedTokens = deservedShare * totalTokenPrice / price;
-        IERC20(paymentToken).safeTransfer(_msgSender(), deservedTokens);
+        uint256 deservedDollars = deservedShare(_msgSender()) * totalTokenPrice;
+        if (_amount <= (deservedDollars-claimedAmounts[_msgSender()])){
+            uint256 deservedTokens = _amount / price;
+            IERC20(paymentToken).safeTransfer(_msgSender(), deservedTokens);
+            emit UserClaimed(_msgSender(), _amount);
+        }
     }
 
-    function unlockTokens () public onlyVault {
+    function unlockTokens (address _token, uint256 _decimal) public onlyVault {
         state = true;
+        token = _token;
+        decimal = _decimal;
+        emit ClaimUnlocked(igo);
     }
+
+    modifier onlyVault {
+        require(_msgSender() == vault, "Only Vault.");
+        _;
+    }
+
+    event ClaimUnlocked(address indexed igo);
+    event UserPaid(address indexed user, uint256 amount);
+    event UserClaimed(address indexed user, uint256 amount);
 }
