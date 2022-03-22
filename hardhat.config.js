@@ -2,6 +2,7 @@ require("dotenv").config();
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
+require("@nomiclabs/hardhat-ethers");
 
 module.exports = {
   solidity: {
@@ -52,6 +53,7 @@ module.exports = {
     apiKey: process.env.BINANCE_ETHERSCAN_KEY,
   },
   gasReporter: {
+    enabled: false,
     currency: "USD",
     token: "BNB",
     gasPrice: 7,

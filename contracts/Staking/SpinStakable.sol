@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Libraries/SafeBEP20.sol";
+import "hardhat/console.sol";
 
 /// @title Spintop Staking Rewards
 /// @author Spintop.Network
@@ -21,7 +22,7 @@ contract SpinStakable is Ownable, ReentrancyGuard {
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 30 days;
+    uint256 public rewardsDuration = 10 minutes;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
     uint256 private unlockDuration = 0;

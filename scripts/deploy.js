@@ -1,10 +1,10 @@
 async function main() {
-  const spinDmlgLP = "0x237734716F1Bba62a9467FbABF26C98735e84DEf";
+  const spinPartnerLP = "0x3860da8D5C595F5E1F8E1f553554bA28691dE5bc";
   const spinAddress = "0x6AA217312960A21aDbde1478DC8cBCf828110A67";
-  const dmlgAddress = "0x1c796C140de269E255372ea687EF7644BAb87935";
+  const partnerAddress = "0x496cC0b4ee12Aa2AC4c42E93067484e7Ff50294b";
 
   const SpinStakable = await ethers.getContractFactory("SpinStakable");
-  const spinStakable = await SpinStakable.deploy(dmlgAddress, spinAddress);
+  const spinStakable = await SpinStakable.deploy(spinAddress, spinPartnerLP);
   await spinStakable.deployed();
 
   console.log("Staking Pool deployed: ", spinStakable.address);
@@ -15,6 +15,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-
-// DNCX = 0.0746 USD
-// SPIN = 0.1311 USD

@@ -6,23 +6,23 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
+import "../Interfaces/IIGOClaim.sol";
 import "./IGO.sol";
+import "./IGOClaim.sol";
 
-contract IGOVault is ERC20, ReentrancyGuard {
+contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct VaultInfo {
         address admin;
-        string shareName;
-        string shareSymbol;
         address pool;
         address tokenSpin;
     }
     VaultInfo public vaultInfo;
     address[] public IGOs;
     address[] public members;
-    uint256 immutable public maxStakeAmount = 1000000;
-    uint256 immutable public minStakeAmount = 1000;
+    uint256 immutable public maxStakeAmount = 1000000e18;
+    uint256 immutable public minStakeAmount = 1000e18;
     uint256 constant private MAX_INT = 2**256 - 1;
 
     constructor ( 
@@ -32,38 +32,32 @@ contract IGOVault is ERC20, ReentrancyGuard {
         address _tokenSpin
         ) ERC20(_shareName,_shareSymbol) {
             vaultInfo.admin = _msgSender();
-            vaultInfo.shareName = _shareName;
-            vaultInfo.shareSymbol = _shareSymbol;
             vaultInfo.pool = _pool;
             vaultInfo.tokenSpin = _tokenSpin;
             IERC20(vaultInfo.tokenSpin).approve(vaultInfo.pool, MAX_INT);
     }
-    
-    modifier onlyAdmin () {
-        require(_msgSender() == vaultInfo.admin, "Only admin!");
-        _;
-    }
 
     function createIGO (
         string memory _gameName,
-        uint256 _startDate,
         uint256 _totalDollars,
-        uint256 _price,
-        address _paymentToken) public onlyAdmin {
+        address _paymentToken) public onlyOwner {
         IGO _igo = new IGO(
             _gameName, 
             address(this), 
-            _startDate,
             _totalDollars,
-            _price,
             _paymentToken);
         IGOs.push(address(_igo));
         migrateBalances(address(_igo));
+        IGO(_igo).start();
+    }
+
+    function notifyVesting (address _igo, uint256 _percentage) external onlyOwner {
+        IGOClaim(_igo).notifyVesting(_percentage);
     }
 
     function migrateBalances (address _igo) internal {
         for (uint i; i < members.length; i++) {
-            IGO(_igo).updateWithVault(members[i]);
+            IGO(_igo).stake(members[i], balanceOf(members[i]));
         }
     }
 
@@ -71,12 +65,24 @@ contract IGOVault is ERC20, ReentrancyGuard {
         return IGOs[_id];
     }
 
-    function updateIGOs () internal {
+    function addToIGOs (uint256 amount) internal {
         for (uint256 i; i<IGOs.length; i++) {
             if (IGO(IGOs[i]).checkState()) {
-                IGO(IGOs[i]).updateWithVault(_msgSender());
+                IGO(IGOs[i]).stake(_msgSender(),amount);
             }
         }
+    }
+
+    function removeFromIGOs (uint256 amount) internal {
+        for (uint256 i; i<IGOs.length; i++) {
+            if (IGO(IGOs[i]).checkState()) {
+                IGO(IGOs[i]).unstake(_msgSender(),amount);
+            }
+        }
+    }
+
+    function getUserStaked (address account) external view returns(uint256) {
+        return balance() * balanceOf(account) / totalSupply();
     }
 
     function vaultBalance() public view returns (uint) {
@@ -99,6 +105,8 @@ contract IGOVault is ERC20, ReentrancyGuard {
     }
 
     function deposit(uint _amount) external nonReentrant {
+        require(_amount >= minStakeAmount, "Minimum of 1000 SPIN can be staked.");
+        addToIGOs(_amount);
         compound();
         uint256 _bal = balance();
         IERC20(vaultInfo.tokenSpin).safeTransferFrom(msg.sender, address(this), _amount);
@@ -115,14 +123,13 @@ contract IGOVault is ERC20, ReentrancyGuard {
             shares = _amount * totalSupply() / _bal;
         }
         _mint(msg.sender, shares);
-        updateIGOs();
         members.push(_msgSender());
     }
 
     function withdraw (uint _shares) external {
         compound();
-        updateIGOs();
         uint256 r = balance() * _shares / totalSupply();
+        removeFromIGOs(r);
         _burn(msg.sender, _shares);
         uint b = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (b < r) {
@@ -135,7 +142,7 @@ contract IGOVault is ERC20, ReentrancyGuard {
             }
         }
         IERC20(vaultInfo.tokenSpin).safeTransfer(msg.sender, r);
-        // delete by popping for future optimization
+        // delete by popping for longterm optimization
         if (balanceOf(_msgSender()) == 0) {
             for (uint i; i < members.length; i++) {
                 if (members[i] == _msgSender()) {
@@ -144,5 +151,10 @@ contract IGOVault is ERC20, ReentrancyGuard {
                 }
             }
         }
+    }
+
+    function unlockIGO (address _igo, address _token, uint256 _decimal) public onlyOwner {
+        address igoClaim = IIGO(_igo).claimContract();
+        IIGOClaim(igoClaim).unlockTokens(_token,_decimal);
     }
 }
