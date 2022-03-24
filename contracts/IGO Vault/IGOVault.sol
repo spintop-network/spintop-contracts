@@ -25,6 +25,14 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     uint256 immutable public minStakeAmount = 1000e18;
     uint256 constant private MAX_INT = 2**256 - 1;
 
+    event IGOContract(
+        string gameName,
+        address vault,
+        uint256 totalDollars,
+        address paymentToken,
+        uint256 price,
+        uint256 duration);
+
     constructor ( 
         string memory _shareName,
         string memory _shareSymbol,
@@ -40,19 +48,43 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     function createIGO (
         string memory _gameName,
         uint256 _totalDollars,
-        address _paymentToken) public onlyOwner {
+        address _paymentToken,
+        uint256 _price,
+        uint256 _duration) public onlyOwner {
         IGO _igo = new IGO(
             _gameName, 
             address(this), 
             _totalDollars,
-            _paymentToken);
+            _paymentToken,
+            _price,
+            _duration);
         IGOs.push(address(_igo));
         migrateBalances(address(_igo));
         IGO(_igo).start();
+        emit IGOContract(
+            _gameName,
+            address(this),
+            _totalDollars,
+            _paymentToken,
+            _price,
+            _duration
+        );
     }
 
     function notifyVesting (address _igo, uint256 _percentage) external onlyOwner {
-        IGOClaim(_igo).notifyVesting(_percentage);
+        IGO(_igo).notifyVesting(_percentage);
+    }
+
+    function setPublicMultiplier (address _igo, uint256 _multiplier) external onlyOwner {
+        IGO(_igo).setPublicMultiplier(_multiplier);
+    }
+
+    function setToken (address _igo, address _token, uint256 _decimal) external onlyOwner {
+        IGO(_igo).setToken(_token, _decimal);
+    }
+
+    function setPeriods (address _igo, uint256 _allocationTime, uint256 _publicTime) external onlyOwner {
+        IGO(_igo).setPeriods(_allocationTime, _publicTime);
     }
 
     function migrateBalances (address _igo) internal {
@@ -67,7 +99,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
 
     function addToIGOs (uint256 amount) internal {
         for (uint256 i; i<IGOs.length; i++) {
-            if (IGO(IGOs[i]).checkState()) {
+            IGO(IGO(IGOs[i])).setStateVault();
+            if (IGO(IGOs[i]).IGOstate()) {
                 IGO(IGOs[i]).stake(_msgSender(),amount);
             }
         }
@@ -75,7 +108,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
 
     function removeFromIGOs (uint256 amount) internal {
         for (uint256 i; i<IGOs.length; i++) {
-            if (IGO(IGOs[i]).checkState()) {
+            IGO(IGO(IGOs[i])).setStateVault();
+            if (IGO(IGOs[i]).IGOstate()) {
                 IGO(IGOs[i]).unstake(_msgSender(),amount);
             }
         }
@@ -127,9 +161,9 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     }
 
     function withdraw (uint _shares) external {
-        compound();
         uint256 r = balance() * _shares / totalSupply();
         removeFromIGOs(r);
+        compound();
         _burn(msg.sender, _shares);
         uint b = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (b < r) {
@@ -151,10 +185,5 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
                 }
             }
         }
-    }
-
-    function unlockIGO (address _igo, address _token, uint256 _decimal) public onlyOwner {
-        address igoClaim = IIGO(_igo).claimContract();
-        IIGOClaim(igoClaim).unlockTokens(_token,_decimal);
     }
 }

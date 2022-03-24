@@ -13,9 +13,19 @@ async function main() {
   await spinVault.deployed();
   console.log("SpinVault deployed: ", spinVault.address);
 
-  await spinVault.transferOwnership(
-    "0xC370b50eC6101781ed1f1690A00BF91cd27D77c4"
-  );
+  // await spinVault.transferOwnership(
+  //   "0xC370b50eC6101781ed1f1690A00BF91cd27D77c4"
+  // );
+
+  const Mock20 = await ethers.getContractFactory("ERC20Mock");
+  const mock20 = await Mock20.deploy("Game1", "Game1");
+  await mock20.deployed();
+  console.log("Game1 token: ", mock20.address);
+
+  const Mock20Decimal = await ethers.getContractFactory("ERC20DecimalMock");
+  const mock20Decimal = await Mock20Decimal.deploy("Game2", "Game2");
+  await mock20Decimal.deployed();
+  console.log("Game2 token (decimal): ", mock20Decimal.address);
 }
 main()
   .then(() => process.exit(0))

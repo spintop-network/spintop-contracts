@@ -14,16 +14,15 @@ contract IGO is Ownable, ReentrancyGuard {
     
     string public gameName;
     address public vault;
-
+    IGOClaim public claimContract;
+    bool public IGOstate;
     uint256 public startDate;
-    uint256 public rewardRate = 0;
+    uint256 public rewardRate;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
-    
-    IGOClaim public claimContract;
-    uint256 public rewardsDuration = 600;
+    uint256 public rewardsDuration;
     uint256 public totalDollars;
-    bool public IGOstate;
+
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -33,22 +32,44 @@ contract IGO is Ownable, ReentrancyGuard {
     mapping(address => uint256) private _stakingTime;
     uint256 private reward_amount;
 
+    event ClaimContract(
+        address vault,
+        address igo,
+        uint256 totalDollars,
+        address paymentToken,
+        uint256 price,
+        uint256 duration
+        );
+
     constructor(
         string memory _gameName,
         address _vault,
         uint256 _totalDollars,
-        address _paymentToken
+        address _paymentToken,
+        uint256 _price,
+        uint256 _duration
     ) {
         gameName = _gameName;
         vault = _vault;
         startDate = block.timestamp;
         totalDollars = _totalDollars;
+        rewardsDuration = _duration;
+        uint256 _claimDuration = block.timestamp + rewardsDuration;
         claimContract = new IGOClaim(
             vault, 
             address(this),
             _totalDollars,
             _paymentToken,
-            (block.timestamp + rewardsDuration));
+            _price,
+            _claimDuration);
+        emit ClaimContract(
+            vault,
+            address(this),
+            _totalDollars,
+            _paymentToken,
+            _price,
+            _claimDuration
+        );
     }
 
     modifier updateReward(address account) {
@@ -69,6 +90,22 @@ contract IGO is Ownable, ReentrancyGuard {
 
     event DistributionStart(uint256 reward);
     event RewardPaid(address indexed user, uint256 reward);
+
+    function setPublicMultiplier (uint256 _multiplier) external onlyVault {
+        claimContract.setPublicMultiplier(_multiplier);
+    }
+
+    function notifyVesting (uint256 _percentage) external onlyVault {
+        claimContract.notifyVesting(_percentage);
+    }
+
+    function setToken (address _token, uint256 _decimal) external onlyVault {
+        claimContract.setToken(_token, _decimal);
+    }
+
+    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyVault {
+        claimContract.setPeriods(_allocationTime, _publicTime);
+    }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
         return block.timestamp < (startDate + rewardsDuration) ? block.timestamp : (startDate + rewardsDuration);
@@ -98,20 +135,18 @@ contract IGO is Ownable, ReentrancyGuard {
         return (_balances[account] * (rewardPerToken() - (userRewardPerTokenPaid[account])) / 1e18) + rewards[account];
     }
 
-    function start () public {
+    function start () external onlyVault {
         rewardRate = totalDollars / rewardsDuration;
         emit DistributionStart(totalDollars);
     }
 
-    function checkState () external view returns(bool) {
+    function setStateVault () external onlyVault returns(bool) {
+        IGOstate = block.timestamp < startDate + rewardsDuration;
         return IGOstate;
     }
 
     function setState () internal {
-        IGOstate = block.timestamp < startDate + rewardsDuration;
-        if (IGOstate == false) {
-
-        }
+        IGOstate = block.timestamp < (startDate + rewardsDuration);        
     }
 
     function stake(address account, uint256 amount) external nonReentrant updateReward(account) {

@@ -11,18 +11,21 @@ contract IGOClaim is Context, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address private vault;
+
     address public paymentToken;
     address public igo;
     address public token;
 
+    uint256 public decimal;
     uint256 public allocationStartDate;
     uint256 public vestingStartDate;
     uint256 public totalDollars;
+    uint256 public price;
+    uint256 public multiplier;
 
-    uint256 public allocationTime = 6 hours;
-    uint256 public fcfsTime = 24 hours;
+    uint256 public allocationTime = 20 minutes;
+    uint256 public publicTime = 20 minutes;
     uint256 public claimPercentage = 0;
-    uint256 public maxPublicBuy = 1000e18;
     bool public state = false;
 
     mapping(address => uint256) public paidAmounts;
@@ -33,34 +36,32 @@ contract IGOClaim is Context, ReentrancyGuard {
     constructor (
         address _vault, 
         address _igo, 
-        uint256 _totalDollars, 
-        address _paymentToken, 
+        uint256 _totalDollars,
+        address _paymentToken,
+        uint256 _price, 
         uint256 _allocationStartDate) {
         vault = _vault;
         igo = _igo;
         totalDollars = _totalDollars;
         paymentToken = _paymentToken;
+        price = _price;
         allocationStartDate = _allocationStartDate;
     }
-    
-    modifier onlyVault {
-        require(_msgSender() == vault, "Only Vault.");
+
+    modifier onlyIGO {
+        require(_msgSender() == igo, "Only IGO.");
         _;
     }
 
     modifier allocationTimer {
-        require(block.timestamp <= (allocationStartDate + allocationTime), "Allocation has not started yet.");
+        require(block.timestamp > allocationStartDate, "Allocation has not started yet.");
+        require(block.timestamp <= (allocationStartDate + allocationTime), "Allocation has ended.");
         _;
     }
 
     modifier publicTimer {
         require(block.timestamp > (allocationStartDate + allocationTime), "Public sale has not started yet.");
-        require(block.timestamp <= (allocationStartDate + allocationTime + fcfsTime), "FCFS has not started yet.");
-        _;
-    }
-
-    modifier vestingTimer {
-        require(block.timestamp > vestingStartDate, "Vesting has not started yet.");
+        require(block.timestamp <= (allocationStartDate + allocationTime + publicTime), "Public sale has ended.");
         _;
     }
 
@@ -68,6 +69,13 @@ contract IGOClaim is Context, ReentrancyGuard {
     event UserPaid(address indexed user, uint256 amount);
     event UserClaimed(address indexed user, uint256 amount);
 
+    function setPublicMultiplier (uint256 _multiplier) external onlyIGO {
+        multiplier = _multiplier;
+    }
+
+    function maxPublicBuy(address _user) public view returns (uint256 _buyable) {
+        _buyable = deservedAllocation(_user) * multiplier;
+    }
     function deservedAllocation (address _user) public view returns (uint256 _deserved) {
         _deserved = (IIGO(igo).earned(_user));
     }
@@ -76,12 +84,21 @@ contract IGOClaim is Context, ReentrancyGuard {
         _claimable = (paidAmounts[_user] * claimPercentage / 100) - claimedAmounts[_msgSender()];
     }
     
-    function notifyVesting (uint256 percentage) public onlyVault {
+    function notifyVesting (uint256 percentage) external onlyIGO {
         claimPercentage = percentage;
-        vestingStartDate = block.timestamp;
     }
 
-    function payForTokens (uint256 _amount) public nonReentrant allocationTimer { // timed 24h
+    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyIGO {
+        allocationTime = _allocationTime;
+        publicTime = _publicTime;
+    }
+
+    function setToken (address _token, uint256 _decimal) external onlyIGO {
+        token = _token;
+        decimal = _decimal;
+    }
+
+    function payForTokens (uint256 _amount) public nonReentrant allocationTimer {
         require(_amount > 0, "Can't do zero");
         uint256 deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
@@ -95,15 +112,19 @@ contract IGOClaim is Context, ReentrancyGuard {
 
     function payForTokensPublic (uint256 _amount) public nonReentrant publicTimer {
         require(paidAmounts[_msgSender()] > 0, "Must be allocated before.");
-        require(_amount < maxPublicBuy, "Must be lower than allowed public allocation.");
+        require(_amount < maxPublicBuy(_msgSender()), "Must be lower than allowed public allocation.");
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
     }
 
-    function claimTokens(uint256 _amount) public nonReentrant vestingTimer {
+    function normalize (uint256 _amount) internal view returns(uint256) {
+        return _amount / decimal * 10e18;
+    }
+
+    function claimTokens(uint256 _amount) public nonReentrant {
         require(_amount > 0, "Can't do zero");
         if (_amount <= claimableAllocation(_msgSender())) {
-            IERC20(token).safeTransfer(_msgSender(), _amount);
+            IERC20(token).safeTransfer(_msgSender(), normalize(_amount/price));
             claimedAmounts[_msgSender()] += _amount;
             totalClaimed += _amount;
             emit UserClaimed(_msgSender(), _amount);
