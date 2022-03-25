@@ -119,11 +119,11 @@ contract IGO is Ownable, ReentrancyGuard {
 
     // Internal functions //
 
-    function totalStaked() internal view returns (uint256) {
+    function totalStaked() private view returns (uint256) {
         return _totalSupply;
     }
     
-    function setState () internal {
+    function setState () private {
         IGOstate = block.timestamp < (startDate + rewardsDuration);        
     }
 

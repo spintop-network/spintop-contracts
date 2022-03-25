@@ -94,9 +94,9 @@ contract IGOClaim is Context, ReentrancyGuard {
         decimal = _decimal;
     }
     
-    // Internal functions //
+    // Private functions //
 
-    function normalize (uint256 _amount) internal view returns(uint256) {
+    function normalize (uint256 _amount) private view returns(uint256) {
         return _amount / decimal * 1e18;
     }
 

@@ -98,13 +98,13 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
 
     // Internal functions //
 
-    function migrateBalances (address _igo) internal {
+    function migrateBalances (address _igo) private {
         for (uint i; i < members.length; i++) {
             IGO(_igo).stake(members[i], balanceOf(members[i]));
         }
     }
 
-    function addToIGOs (uint256 amount) internal {
+    function addToIGOs (uint256 amount) private {
         for (uint256 i; i<IGOs.length; i++) {
             IGO(IGO(IGOs[i])).setStateVault();
             if (IGO(IGOs[i]).IGOstate()) {
@@ -113,7 +113,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function removeFromIGOs (uint256 amount) internal {
+    function removeFromIGOs (uint256 amount) private {
         for (uint256 i; i<IGOs.length; i++) {
             IGO(IGO(IGOs[i])).setStateVault();
             if (IGO(IGOs[i]).IGOstate()) {
@@ -122,7 +122,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function compound() internal {
+    function compound() private {
         uint256 _earned = ISpinStakable(vaultInfo.pool).earned(address(this));
         if (_earned > 0) {
             ISpinStakable(vaultInfo.pool).getReward();
