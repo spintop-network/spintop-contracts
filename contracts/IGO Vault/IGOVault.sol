@@ -177,7 +177,6 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 max = balance() * balanceOf(_msgSender()) / totalSupply();
         requested = requested > max ? max : requested;
         removeFromIGOs(requested);
-        compound();
         _burn(_msgSender(), _shares);
         uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (vaultAvailable < requested) {
