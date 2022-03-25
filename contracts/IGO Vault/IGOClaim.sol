@@ -26,7 +26,6 @@ contract IGOClaim is Context, ReentrancyGuard {
     uint256 public allocationTime = 20 minutes;
     uint256 public publicTime = 20 minutes;
     uint256 public claimPercentage = 0;
-    bool public state = false;
 
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public claimedAmounts;

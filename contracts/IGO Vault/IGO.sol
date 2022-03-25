@@ -54,7 +54,7 @@ contract IGO is Ownable, ReentrancyGuard {
         startDate = block.timestamp;
         totalDollars = _totalDollars;
         rewardsDuration = _duration;
-        uint256 _claimDuration = block.timestamp + rewardsDuration;
+        uint256 _claimDuration = startDate + rewardsDuration;
         claimContract = new IGOClaim(
             _msgSender(), 
             address(this),
