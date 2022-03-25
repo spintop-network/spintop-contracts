@@ -38,13 +38,15 @@ contract IGOClaim is Context, ReentrancyGuard {
         uint256 _totalDollars,
         address _paymentToken,
         uint256 _price, 
-        uint256 _allocationStartDate) {
+        uint256 _allocationStartDate,
+        uint256 _multiplier) {
         vault = _vault;
         igo = _igo;
         totalDollars = _totalDollars;
         paymentToken = _paymentToken;
         price = _price;
         allocationStartDate = _allocationStartDate;
+        multiplier = _multiplier;
     }
 
     modifier onlyIGO {

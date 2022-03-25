@@ -40,7 +40,8 @@ contract IGO is Ownable, ReentrancyGuard {
         uint256 totalDollars,
         address paymentToken,
         uint256 price,
-        uint256 duration
+        uint256 duration,
+        uint256 multiplier
         );
 
     constructor(
@@ -48,7 +49,8 @@ contract IGO is Ownable, ReentrancyGuard {
         uint256 _totalDollars,
         address _paymentToken,
         uint256 _price,
-        uint256 _duration
+        uint256 _duration,
+        uint256 _multiplier
     ) {
         gameName = _gameName;
         startDate = block.timestamp;
@@ -61,14 +63,16 @@ contract IGO is Ownable, ReentrancyGuard {
             _totalDollars,
             _paymentToken,
             _price,
-            _claimDuration);
+            _claimDuration,
+            _multiplier);
         emit ClaimContract(
             _msgSender(),
             address(this),
             _totalDollars,
             _paymentToken,
             _price,
-            _claimDuration
+            _claimDuration,
+            _multiplier
         );
     }
 

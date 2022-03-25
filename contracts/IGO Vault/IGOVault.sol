@@ -34,7 +34,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 totalDollars,
         address paymentToken,
         uint256 price,
-        uint256 duration
+        uint256 duration,
+        uint256 multiplier
     );
 
     constructor ( 
@@ -56,13 +57,15 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 _totalDollars,
         address _paymentToken,
         uint256 _price,
-        uint256 _duration) external onlyOwner {
+        uint256 _duration,
+        uint256 _multiplier) external onlyOwner {
         IGO _igo = new IGO(
             _gameName, 
             _totalDollars,
             _paymentToken,
             _price,
-            _duration);
+            _duration,
+            _multiplier);
         IGOs.push(address(_igo));
         migrateBalances(address(_igo));
         IGO(_igo).start();
@@ -72,7 +75,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             _totalDollars,
             _paymentToken,
             _price,
-            _duration
+            _duration,
+            _multiplier
         );
     }
 
