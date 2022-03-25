@@ -9,7 +9,7 @@ import "../Interfaces/IIGO.sol";
 /// @title Spinstarter IGO Claim
 /// @author Spintop.Network
 /// @notice Pay for and claim earned tokens.
-/// @dev 'Dollars' symbolize underlying payment tokens. Not necessarily USD.
+/// @dev 'Dollars' symbolize underlying payment tokens. Assumed 18 decimal.
 contract IGOClaim is Context, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -96,7 +96,7 @@ contract IGOClaim is Context, ReentrancyGuard {
     // Private functions //
 
     function normalize (uint256 _amount) private view returns(uint256) {
-        return _amount / decimal * 1e18;
+        return _amount * 10**decimal / 1e18;
     }
 
     // Public view functions //
@@ -131,6 +131,8 @@ contract IGOClaim is Context, ReentrancyGuard {
         require(_amount < maxPublicBuy(_msgSender()), "Must be lower than allowed public allocation.");
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
+        totalPaid += _amount;
+        emit UserPaid(_msgSender(), _amount);     
     }
 
     function claimTokens(uint256 _amount) external nonReentrant {
