@@ -6,10 +6,13 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/ISpinStakable.sol";
-import "../Interfaces/IIGOClaim.sol";
 import "./IGO.sol";
 import "./IGOClaim.sol";
 
+/// @title Spinstarter Vault
+/// @author Spintop.Network
+/// @notice Autocompounding Single Vault for IGO staking.
+/// @dev Owner operates Vault, IGO, and IGOClaim contracts from this contracts interface.
 contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -31,7 +34,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 totalDollars,
         address paymentToken,
         uint256 price,
-        uint256 duration);
+        uint256 duration
+    );
 
     constructor ( 
         string memory _shareName,
@@ -44,6 +48,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             vaultInfo.tokenSpin = _tokenSpin;
             IERC20(vaultInfo.tokenSpin).approve(vaultInfo.pool, MAX_INT);
     }
+
+    // Admin functions //
 
     function createIGO (
         string memory _gameName,
@@ -87,14 +93,16 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         IGO(_igo).setPeriods(_allocationTime, _publicTime);
     }
 
+    function withdrawIGOFunds (address _igo) public onlyOwner {
+        IGO(_igo).withdrawFunds();
+    } 
+
+    // Internal functions //
+
     function migrateBalances (address _igo) internal {
         for (uint i; i < members.length; i++) {
             IGO(_igo).stake(members[i], balanceOf(members[i]));
         }
-    }
-
-    function getIGO (uint256 _id) public view returns(address) {
-        return IGOs[_id];
     }
 
     function addToIGOs (uint256 amount) internal {
@@ -115,21 +123,6 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function getUserStaked (address account) external view returns(uint256) {
-        return balance() * balanceOf(account) / totalSupply();
-    }
-
-    function vaultBalance() public view returns (uint) {
-        uint256 _vaultBalance = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
-        return _vaultBalance;
-    }
-
-    function balance() public view returns (uint) {
-        uint256 _vaultBalance = vaultBalance();
-        uint256 _poolBalance = ISpinStakable(vaultInfo.pool).balanceOf(address(this));
-        return _vaultBalance + _poolBalance;
-    }
-    
     function compound() internal {
         uint256 _earned = ISpinStakable(vaultInfo.pool).earned(address(this));
         if (_earned > 0) {
@@ -138,8 +131,29 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
+    // Public view functions //
+
+    function getUserStaked (address account) public view returns(uint256) {
+        if (totalSupply() > 0) {
+            return balance() * balanceOf(account) / totalSupply();
+        } else {
+            return 0;
+        }
+    }
+
+    function vaultBalance() public view returns (uint) {
+        return IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
+    }
+
+    function balance() public view returns (uint) {
+        return vaultBalance() + ISpinStakable(vaultInfo.pool).balanceOf(address(this));
+    }
+
+    // Public mutative functions //
+
     function deposit(uint _amount) external nonReentrant {
-        require(_amount >= minStakeAmount, "Minimum of 1000 SPIN can be staked.");
+        require(_amount >= minStakeAmount);
+        require((_amount + getUserStaked(_msgSender())) < maxStakeAmount);
         addToIGOs(_amount);
         compound();
         uint256 _bal = balance();
@@ -148,7 +162,6 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             ISpinStakable(vaultInfo.pool).stake(vaultBalance());
         }
         uint256 _after = balance();
-        // Additional check for deflationary tokens
         _amount = _after - _bal;
         uint256 shares = 0;
         if (totalSupply() == 0) {
@@ -161,22 +174,23 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     }
 
     function withdraw (uint _shares) external {
-        uint256 r = balance() * _shares / totalSupply();
-        removeFromIGOs(r);
+        uint256 requested = balance() * _shares / totalSupply();
+        uint256 max = balance() * balanceOf(_msgSender()) / totalSupply();
+        requested = requested > max ? max : requested;
+        removeFromIGOs(requested);
         compound();
         _burn(msg.sender, _shares);
-        uint b = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
-        if (b < r) {
-            uint _withdraw = r - b;
+        uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
+        if (vaultAvailable < requested) {
+            uint _withdraw = requested - vaultAvailable;
             ISpinStakable(vaultInfo.pool).unstake(_withdraw);
-            uint a = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
-            uint d = a - b;
-            if (d < _withdraw) {
-                r = b + d;
+            uint vaultAvailableAfter = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
+            uint diff = vaultAvailableAfter - vaultAvailable;
+            if (diff < _withdraw) {
+                requested = vaultAvailable + diff;
             }
         }
-        IERC20(vaultInfo.tokenSpin).safeTransfer(msg.sender, r);
-        // delete by popping for longterm optimization
+        IERC20(vaultInfo.tokenSpin).safeTransfer(msg.sender, requested);
         if (balanceOf(_msgSender()) == 0) {
             for (uint i; i < members.length; i++) {
                 if (members[i] == _msgSender()) {

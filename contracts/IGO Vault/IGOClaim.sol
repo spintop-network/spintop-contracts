@@ -6,23 +6,23 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "../Interfaces/IIGO.sol";
 
-// 'Dollars' symbolize underlying payment tokens. Not necessarily USD.
+/// @title Spinstarter IGO Claim
+/// @author Spintop.Network
+/// @notice Pay for and claim earned tokens.
+/// @dev 'Dollars' symbolize underlying payment tokens. Not necessarily USD.
 contract IGOClaim is Context, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address private vault;
-
     address public paymentToken;
     address public igo;
     address public token;
-
     uint256 public decimal;
     uint256 public allocationStartDate;
     uint256 public vestingStartDate;
     uint256 public totalDollars;
     uint256 public price;
     uint256 public multiplier;
-
     uint256 public allocationTime = 20 minutes;
     uint256 public publicTime = 20 minutes;
     uint256 public claimPercentage = 0;
@@ -69,19 +69,15 @@ contract IGOClaim is Context, ReentrancyGuard {
     event UserPaid(address indexed user, uint256 amount);
     event UserClaimed(address indexed user, uint256 amount);
 
+    // Admin functions // 
+
+    function withdrawFunds () public onlyIGO {
+        require(totalPaid > 0, "Can not withdraw 0 amount.");
+        IERC20(paymentToken).safeTransfer(tx.origin, totalPaid);
+    }
+
     function setPublicMultiplier (uint256 _multiplier) external onlyIGO {
         multiplier = _multiplier;
-    }
-
-    function maxPublicBuy(address _user) public view returns (uint256 _buyable) {
-        _buyable = deservedAllocation(_user) * multiplier;
-    }
-    function deservedAllocation (address _user) public view returns (uint256 _deserved) {
-        _deserved = (IIGO(igo).earned(_user));
-    }
-
-    function claimableAllocation (address _user) public view returns (uint256 _claimable) {
-        _claimable = (paidAmounts[_user] * claimPercentage / 100) - claimedAmounts[_msgSender()];
     }
     
     function notifyVesting (uint256 percentage) external onlyIGO {
@@ -97,6 +93,27 @@ contract IGOClaim is Context, ReentrancyGuard {
         token = _token;
         decimal = _decimal;
     }
+    
+    // Internal functions //
+
+    function normalize (uint256 _amount) internal view returns(uint256) {
+        return _amount / decimal * 1e18;
+    }
+
+    // Public view functions //
+
+    function maxPublicBuy(address _user) public view returns (uint256 _buyable) {
+        _buyable = deservedAllocation(_user) * multiplier;
+    }
+    function deservedAllocation (address _user) public view returns (uint256 _deserved) {
+        _deserved = (IIGO(igo).earned(_user));
+    }
+
+    function claimableAllocation (address _user) public view returns (uint256 _claimable) {
+        _claimable = (paidAmounts[_user] * claimPercentage / 100) - claimedAmounts[_msgSender()];
+    }
+
+    // Public mutative functions //
 
     function payForTokens (uint256 _amount) public nonReentrant allocationTimer {
         require(_amount > 0, "Can't do zero");
@@ -111,14 +128,10 @@ contract IGOClaim is Context, ReentrancyGuard {
     }
 
     function payForTokensPublic (uint256 _amount) public nonReentrant publicTimer {
-        require(paidAmounts[_msgSender()] > 0, "Must be allocated before.");
+        require(deservedAllocation(_msgSender()) > 0, "Must be allocated before.");
         require(_amount < maxPublicBuy(_msgSender()), "Must be lower than allowed public allocation.");
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
-    }
-
-    function normalize (uint256 _amount) internal view returns(uint256) {
-        return _amount / decimal * 10e18;
     }
 
     function claimTokens(uint256 _amount) public nonReentrant {
@@ -128,6 +141,6 @@ contract IGOClaim is Context, ReentrancyGuard {
             claimedAmounts[_msgSender()] += _amount;
             totalClaimed += _amount;
             emit UserClaimed(_msgSender(), _amount);
-        }  
+        }
     }
 }

@@ -9,11 +9,14 @@ import "./IGOClaim.sol";
 import "../Libraries/SafeBEP20.sol";
 import "../Interfaces/ISpinVault.sol";
 
+/// @title Spinstarter IGO
+/// @author Spintop.Network
+/// @notice Standard staking contract without token transfers.
+/// @dev IGOClaim contract checks earned amounts for calculations.
 contract IGO is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
     
     string public gameName;
-    address public vault;
     IGOClaim public claimContract;
     bool public IGOstate;
     uint256 public startDate;
@@ -43,27 +46,25 @@ contract IGO is Ownable, ReentrancyGuard {
 
     constructor(
         string memory _gameName,
-        address _vault,
         uint256 _totalDollars,
         address _paymentToken,
         uint256 _price,
         uint256 _duration
     ) {
         gameName = _gameName;
-        vault = _vault;
         startDate = block.timestamp;
         totalDollars = _totalDollars;
         rewardsDuration = _duration;
         uint256 _claimDuration = block.timestamp + rewardsDuration;
         claimContract = new IGOClaim(
-            vault, 
+            owner(), 
             address(this),
             _totalDollars,
             _paymentToken,
             _price,
             _claimDuration);
         emit ClaimContract(
-            vault,
+            owner(),
             address(this),
             _totalDollars,
             _paymentToken,
@@ -83,36 +84,54 @@ contract IGO is Ownable, ReentrancyGuard {
         _;
     }
 
-    modifier onlyVault {
-        require(_msgSender() == vault, "Only vault.");
-        _;
-    }
-
     event DistributionStart(uint256 reward);
     event RewardPaid(address indexed user, uint256 reward);
 
-    function setPublicMultiplier (uint256 _multiplier) external onlyVault {
+    // Admin functions //
+
+    function withdrawFunds () public onlyOwner {
+        claimContract.withdrawFunds();
+    } 
+
+    function setPublicMultiplier (uint256 _multiplier) external onlyOwner {
         claimContract.setPublicMultiplier(_multiplier);
     }
 
-    function notifyVesting (uint256 _percentage) external onlyVault {
+    function notifyVesting (uint256 _percentage) external onlyOwner {
         claimContract.notifyVesting(_percentage);
     }
 
-    function setToken (address _token, uint256 _decimal) external onlyVault {
+    function setToken (address _token, uint256 _decimal) external onlyOwner {
         claimContract.setToken(_token, _decimal);
     }
 
-    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyVault {
+    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyOwner {
         claimContract.setPeriods(_allocationTime, _publicTime);
     }
-
-    function lastTimeRewardApplicable() public view returns (uint256) {
-        return block.timestamp < (startDate + rewardsDuration) ? block.timestamp : (startDate + rewardsDuration);
+    
+    function start () external onlyOwner {
+        rewardRate = totalDollars / rewardsDuration;
+        emit DistributionStart(totalDollars);
     }
+
+    function setStateVault () external onlyOwner {
+        IGOstate = block.timestamp < startDate + rewardsDuration;
+    }
+
+    // Internal functions //
 
     function totalStaked() internal view returns (uint256) {
         return _totalSupply;
+    }
+    
+    function setState () internal {
+        IGOstate = block.timestamp < (startDate + rewardsDuration);        
+    }
+
+    // Public view functions //
+
+    function lastTimeRewardApplicable() public view returns (uint256) {
+        return block.timestamp < (startDate + rewardsDuration) ? block.timestamp : (startDate + rewardsDuration);
     }
 
     function totalRewardAdded() external view returns (uint256) {
@@ -135,19 +154,7 @@ contract IGO is Ownable, ReentrancyGuard {
         return (_balances[account] * (rewardPerToken() - (userRewardPerTokenPaid[account])) / 1e18) + rewards[account];
     }
 
-    function start () external onlyVault {
-        rewardRate = totalDollars / rewardsDuration;
-        emit DistributionStart(totalDollars);
-    }
-
-    function setStateVault () external onlyVault returns(bool) {
-        IGOstate = block.timestamp < startDate + rewardsDuration;
-        return IGOstate;
-    }
-
-    function setState () internal {
-        IGOstate = block.timestamp < (startDate + rewardsDuration);        
-    }
+    // Public mutative functions //
 
     function stake(address account, uint256 amount) external nonReentrant updateReward(account) {
         require(amount > 0, "Cannot stake 0");
@@ -159,12 +166,5 @@ contract IGO is Ownable, ReentrancyGuard {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply - amount;
         _balances[account] = _balances[account] - amount;
-    }
-
-    function getReward() public nonReentrant updateReward(_msgSender()) {
-        uint256 reward = rewards[_msgSender()];
-        if (reward > 0) {
-            rewards[_msgSender()] = 0;
-        }
     }
 }

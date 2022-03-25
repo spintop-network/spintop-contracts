@@ -22,10 +22,10 @@ async function main() {
   await mock20.deployed();
   console.log("Game1 token: ", mock20.address);
 
-  const Mock20Decimal = await ethers.getContractFactory("ERC20DecimalMock");
-  const mock20Decimal = await Mock20Decimal.deploy("Game2", "Game2");
-  await mock20Decimal.deployed();
-  console.log("Game2 token (decimal): ", mock20Decimal.address);
+  // const Mock20Decimal = await ethers.getContractFactory("ERC20DecimalMock");
+  // const mock20Decimal = await Mock20Decimal.deploy("Game2", "Game2");
+  // await mock20Decimal.deployed();
+  // console.log("Game2 token (decimal): ", mock20Decimal.address);
 }
 main()
   .then(() => process.exit(0))
