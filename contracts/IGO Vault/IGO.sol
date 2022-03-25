@@ -88,7 +88,7 @@ contract IGO is Ownable, ReentrancyGuard {
 
     // Admin functions //
 
-    function withdrawFunds () public onlyOwner {
+    function withdrawFunds () external onlyOwner {
         claimContract.withdrawFunds();
     } 
 
@@ -161,7 +161,7 @@ contract IGO is Ownable, ReentrancyGuard {
         _balances[account] = _balances[account] + amount;
     }
 
-    function unstake(address account,uint256 amount) public nonReentrant updateReward(account) {
+    function unstake(address account,uint256 amount) external nonReentrant updateReward(account) {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply - amount;
         _balances[account] = _balances[account] - amount;

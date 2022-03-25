@@ -71,7 +71,7 @@ contract IGOClaim is Context, ReentrancyGuard {
 
     // Admin functions // 
 
-    function withdrawFunds () public onlyIGO {
+    function withdrawFunds () external onlyIGO {
         require(totalPaid > 0, "Can not withdraw 0 amount.");
         IERC20(paymentToken).safeTransfer(tx.origin, totalPaid);
     }
@@ -115,7 +115,7 @@ contract IGOClaim is Context, ReentrancyGuard {
 
     // Public mutative functions //
 
-    function payForTokens (uint256 _amount) public nonReentrant allocationTimer {
+    function payForTokens (uint256 _amount) external nonReentrant allocationTimer {
         require(_amount > 0, "Can't do zero");
         uint256 deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
@@ -127,14 +127,14 @@ contract IGOClaim is Context, ReentrancyGuard {
         }
     }
 
-    function payForTokensPublic (uint256 _amount) public nonReentrant publicTimer {
+    function payForTokensPublic (uint256 _amount) external nonReentrant publicTimer {
         require(deservedAllocation(_msgSender()) > 0, "Must be allocated before.");
         require(_amount < maxPublicBuy(_msgSender()), "Must be lower than allowed public allocation.");
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
     }
 
-    function claimTokens(uint256 _amount) public nonReentrant {
+    function claimTokens(uint256 _amount) external nonReentrant {
         require(_amount > 0, "Can't do zero");
         if (_amount <= claimableAllocation(_msgSender())) {
             IERC20(token).safeTransfer(_msgSender(), normalize(_amount/price));

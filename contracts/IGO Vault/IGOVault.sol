@@ -56,7 +56,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 _totalDollars,
         address _paymentToken,
         uint256 _price,
-        uint256 _duration) public onlyOwner {
+        uint256 _duration) external onlyOwner {
         IGO _igo = new IGO(
             _gameName, 
             _totalDollars,
@@ -92,7 +92,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         IGO(_igo).setPeriods(_allocationTime, _publicTime);
     }
 
-    function withdrawIGOFunds (address _igo) public onlyOwner {
+    function withdrawIGOFunds (address _igo) external onlyOwner {
         IGO(_igo).withdrawFunds();
     } 
 
