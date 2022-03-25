@@ -26,7 +26,6 @@ contract IGO is Ownable, ReentrancyGuard {
     uint256 public rewardsDuration;
     uint256 public totalDollars;
 
-
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
@@ -57,14 +56,14 @@ contract IGO is Ownable, ReentrancyGuard {
         rewardsDuration = _duration;
         uint256 _claimDuration = block.timestamp + rewardsDuration;
         claimContract = new IGOClaim(
-            owner(), 
+            _msgSender(), 
             address(this),
             _totalDollars,
             _paymentToken,
             _price,
             _claimDuration);
         emit ClaimContract(
-            owner(),
+            _msgSender(),
             address(this),
             _totalDollars,
             _paymentToken,

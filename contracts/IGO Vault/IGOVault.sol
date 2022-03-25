@@ -59,7 +59,6 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 _duration) public onlyOwner {
         IGO _igo = new IGO(
             _gameName, 
-            address(this), 
             _totalDollars,
             _paymentToken,
             _price,
@@ -157,7 +156,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         addToIGOs(_amount);
         compound();
         uint256 _bal = balance();
-        IERC20(vaultInfo.tokenSpin).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(vaultInfo.tokenSpin).safeTransferFrom(_msgSender(), address(this), _amount);
         if (vaultBalance() > 0) {
             ISpinStakable(vaultInfo.pool).stake(vaultBalance());
         }
@@ -169,7 +168,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         } else {
             shares = _amount * totalSupply() / _bal;
         }
-        _mint(msg.sender, shares);
+        _mint(_msgSender(), shares);
         members.push(_msgSender());
     }
 
@@ -179,7 +178,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         requested = requested > max ? max : requested;
         removeFromIGOs(requested);
         compound();
-        _burn(msg.sender, _shares);
+        _burn(_msgSender(), _shares);
         uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (vaultAvailable < requested) {
             uint _withdraw = requested - vaultAvailable;
@@ -190,7 +189,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
                 requested = vaultAvailable + diff;
             }
         }
-        IERC20(vaultInfo.tokenSpin).safeTransfer(msg.sender, requested);
+        IERC20(vaultInfo.tokenSpin).safeTransfer(_msgSender(), requested);
         if (balanceOf(_msgSender()) == 0) {
             for (uint i; i < members.length; i++) {
                 if (members[i] == _msgSender()) {
