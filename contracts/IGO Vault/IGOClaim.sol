@@ -27,6 +27,7 @@ contract IGOClaim is Context, ReentrancyGuard {
     uint256 public publicTime = 20 minutes;
     uint256 public claimPercentage = 0;
 
+    address[] public paidMembers;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public claimedAmounts;
     uint256 public totalPaid;
@@ -103,6 +104,17 @@ contract IGOClaim is Context, ReentrancyGuard {
 
     // Public view functions //
 
+    function getState () external view returns(uint256) {
+        uint256 allocPeriod = allocationStartDate + allocationTime;
+        if (block.timestamp <= allocPeriod) {
+            return 0;
+        } else if (block.timestamp > allocPeriod && block.timestamp <= allocPeriod+ publicTime) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
     function maxPublicBuy(address _user) public view returns (uint256 _buyable) {
         _buyable = deservedAllocation(_user) * multiplier;
     }
@@ -124,6 +136,7 @@ contract IGOClaim is Context, ReentrancyGuard {
             IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
             paidAmounts[_msgSender()] += _amount;
             totalPaid += _amount;
+            paidMembers.push(_msgSender());
             emit UserPaid(_msgSender(), _amount);     
         }
     }
@@ -134,6 +147,7 @@ contract IGOClaim is Context, ReentrancyGuard {
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
         totalPaid += _amount;
+        paidMembers.push(_msgSender());
         emit UserPaid(_msgSender(), _amount);     
     }
 
