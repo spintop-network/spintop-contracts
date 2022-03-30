@@ -4,6 +4,14 @@ require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("@nomiclabs/hardhat-ethers");
 
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
+
 module.exports = {
   solidity: {
     version: "0.8.0",
@@ -11,24 +19,29 @@ module.exports = {
       optimizer: {
         enabled: true,
         runs: 200,
-        details: {
-          yul: true,
-          yulDetails: {
-            stackAllocation: true,
-            optimizerSteps: "dhfoDgvulfnTUtnIf",
-          },
-        },
+        // details: {
+        //   yul: true,
+        //   yulDetails: {
+        //     stackAllocation: true,
+        //     optimizerSteps: "dhfoDgvulfnTUtnIf",
+        //   },
+        // },
       },
     },
   },
   networks: {
+    // hardhat: {
+    //   forking: {
+    //     url: process.env.BINANCE_URL,
+    //     accounts:
+    //       process.env.PRIVATE_KEY !== undefined
+    //         ? [process.env.PRIVATE_KEY]
+    //         : [],
+    //   },
+    // },
     hardhat: {
-      forking: {
-        url: process.env.BINANCE_URL,
-        accounts:
-          process.env.PRIVATE_KEY !== undefined
-            ? [process.env.PRIVATE_KEY]
-            : [],
+      accounts: {
+        count: 20,
       },
     },
     fantom: {
@@ -53,7 +66,7 @@ module.exports = {
     apiKey: process.env.BINANCE_ETHERSCAN_KEY,
   },
   gasReporter: {
-    enabled: false,
+    enabled: true,
     currency: "USD",
     token: "BNB",
     gasPrice: 7,

@@ -5,9 +5,11 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "./IGO.sol";
 import "./IGOClaim.sol";
+import "hardhat/console.sol";
 
 /// @title Spinstarter Vault
 /// @author Spintop.Network
@@ -15,6 +17,7 @@ import "./IGOClaim.sol";
 /// @dev Owner operates Vault, IGO, and IGOClaim contracts from this contracts interface.
 contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     struct VaultInfo {
         address admin;
@@ -23,7 +26,10 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     }
     VaultInfo public vaultInfo;
     address[] public IGOs;
-    address[] public members;
+    // address[] public members;
+
+    EnumerableSet.AddressSet private members_;
+
     uint256 immutable public maxStakeAmount = 1000000e18;
     uint256 immutable public minStakeAmount = 1000e18;
     uint256 constant private MAX_INT = 2**256 - 1;
@@ -100,11 +106,23 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         IGO(_igo).withdrawFunds();
     } 
 
-    // Internal functions //
+    // Private functions //
+
+    function addMember (address _member) private {
+        if (!members_.contains(_member)) {
+            members_.add(_member);
+        }
+    }
+
+    function removeMember (address _member) private {
+        if (members_.contains(_member)) {
+            members_.remove(_member);
+        }
+    }
 
     function migrateBalances (address _igo) private {
-        for (uint i; i < members.length; i++) {
-            IGO(_igo).stake(members[i], balanceOf(members[i]));
+        for (uint i; i < members_.length(); i++) {
+            IGO(_igo).stake(members_.at(i), balanceOf(members_.at(i)));
         }
     }
 
@@ -119,10 +137,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
 
     function removeFromIGOs (uint256 amount) private {
         for (uint256 i; i<IGOs.length; i++) {
-            IGO(IGO(IGOs[i])).setStateVault();
-            if (IGO(IGOs[i]).IGOstate()) {
-                IGO(IGOs[i]).unstake(_msgSender(),amount);
-            }
+            IGO(IGOs[i]).unstake(_msgSender(),amount);
         }
     }
 
@@ -173,15 +188,21 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             shares = _amount * totalSupply() / _bal;
         }
         _mint(_msgSender(), shares);
-        members.push(_msgSender());
+        addMember(_msgSender());
     }
 
-    function withdraw (uint _shares) external {
-        uint256 requested = balance() * _shares / totalSupply();
-        uint256 max = balance() * balanceOf(_msgSender()) / totalSupply();
-        requested = requested > max ? max : requested;
+    function withdraw () external {
+        console.log("Balance:", balance());
+        console.log("Balanceof:", balanceOf(_msgSender()));
+        console.log("Totalsupply:", totalSupply());
+        // uint256 requested = balance() / totalSupply() * _shares ;
+        uint256 requested =  balance() * balanceOf(_msgSender()) / totalSupply();
+        console.log("Requested: ",requested);
+        // requested = requested > max ? max : requested;
         removeFromIGOs(requested);
-        _burn(_msgSender(), _shares);
+        console.log("Pass");
+        compound();
+        _burn(_msgSender(), balanceOf(_msgSender()));
         uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (vaultAvailable < requested) {
             uint _withdraw = requested - vaultAvailable;
@@ -194,12 +215,13 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
         IERC20(vaultInfo.tokenSpin).safeTransfer(_msgSender(), requested);
         if (balanceOf(_msgSender()) == 0) {
-            for (uint i; i < members.length; i++) {
-                if (members[i] == _msgSender()) {
-                    members[i] = members[members.length - 1];
-                    members.pop();
-                }
-            }
+            // for (uint i; i < members.length; i++) {
+            //     if (members[i] == _msgSender()) {
+            //         members[i] = members[members.length - 1];
+            //         members.pop();
+            //     }
+            // }
+            removeMember(_msgSender());
         }
     }
 }

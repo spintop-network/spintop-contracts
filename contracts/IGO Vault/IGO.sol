@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "./IGOClaim.sol";
 import "../Libraries/SafeBEP20.sol";
 import "../Interfaces/ISpinVault.sol";
+import "hardhat/console.sol";
 
 /// @title Spinstarter IGO
 /// @author Spintop.Network
@@ -84,6 +85,7 @@ contract IGO is Ownable, ReentrancyGuard {
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         setState();
+        console.log("Updated rewards for user: ", account);
         _;
     }
 
@@ -167,7 +169,14 @@ contract IGO is Ownable, ReentrancyGuard {
 
     function unstake(address account,uint256 amount) external nonReentrant updateReward(account) {
         require(amount > 0, "Cannot withdraw 0");
-        _totalSupply = _totalSupply - amount;
-        _balances[account] = _balances[account] - amount;
+        console.log("Unstake amount requested: ", amount);
+        uint256 _amount = amount;
+        if (amount > _balances[account]){
+            _amount = _balances[account];
+        }
+        _balances[account] = _balances[account] - _amount;
+        console.log("Unstake amount final: ", _amount);
+        _totalSupply = _totalSupply - _amount;
+        console.log("Totalsupply: ", _totalSupply);
     }
 }
