@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "./IGO.sol";
 import "./IGOClaim.sol";
@@ -15,7 +16,7 @@ import "hardhat/console.sol";
 /// @author Spintop.Network
 /// @notice Autocompounding Single Vault for IGO staking.
 /// @dev Owner operates Vault, IGO, and IGOClaim contracts from this contracts interface.
-contract IGOVault is ERC20, Ownable, ReentrancyGuard {
+contract IGOVault is ERC20, Pausable, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -26,6 +27,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     }
     VaultInfo public vaultInfo;
     address[] public IGOs;
+    uint256 private pilgrims;
     // address[] public members;
 
     EnumerableSet.AddressSet private members_;
@@ -33,6 +35,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
     uint256 immutable public maxStakeAmount = 1000000e18;
     uint256 immutable public minStakeAmount = 1000e18;
     uint256 constant private MAX_INT = 2**256 - 1;
+    uint256 public batchSize = 500;
 
     event IGOContract(
         string gameName,
@@ -64,7 +67,7 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         address _paymentToken,
         uint256 _price,
         uint256 _duration,
-        uint256 _multiplier) external onlyOwner {
+        uint256 _multiplier) external onlyOwner whenPaused {
         IGO _igo = new IGO(
             _gameName, 
             _totalDollars,
@@ -73,8 +76,6 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             _duration,
             _multiplier);
         IGOs.push(address(_igo));
-        migrateBalances(address(_igo));
-        IGO(_igo).start();
         emit IGOContract(
             _gameName,
             address(this),
@@ -84,6 +85,20 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             _duration,
             _multiplier
         );
+
+    }
+
+    function start() external onlyOwner {
+        address _igo = IGOs[IGOs.length-1];
+        IGO(_igo).start();
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     function notifyVesting (address _igo, uint256 _percentage) external onlyOwner {
@@ -120,10 +135,14 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function migrateBalances (address _igo) private {
-        for (uint i; i < members_.length(); i++) {
+    function migrateBalances () external onlyOwner whenPaused {
+        address _igo = IGOs[IGOs.length-1];
+        uint256 queue = members_.length() - pilgrims;
+        uint256 target = queue < batchSize ? queue : batchSize;
+        for (uint i = pilgrims; i < pilgrims+target; i++) {
             IGO(_igo).stake(members_.at(i), balanceOf(members_.at(i)));
         }
+        pilgrims += target;
     }
 
     function addToIGOs (uint256 amount) private {
@@ -137,7 +156,10 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
 
     function removeFromIGOs (uint256 amount) private {
         for (uint256 i; i<IGOs.length; i++) {
-            IGO(IGOs[i]).unstake(_msgSender(),amount);
+            IGO(IGO(IGOs[i])).setStateVault();
+            if (IGO(IGOs[i]).IGOstate()) {
+                IGO(IGOs[i]).unstake(_msgSender(),amount);
+            }
         }
     }
 
@@ -167,12 +189,15 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         return vaultBalance() + ISpinStakable(vaultInfo.pool).balanceOf(address(this));
     }
 
+    function membersLength() public view returns (uint256) {
+        return members_.length();
+    }
+
     // Public mutative functions //
 
-    function deposit(uint _amount) external nonReentrant {
+    function deposit(uint _amount) external nonReentrant whenNotPaused {
         require(_amount >= minStakeAmount);
         require((_amount + getUserStaked(_msgSender())) < maxStakeAmount);
-        addToIGOs(_amount);
         compound();
         uint256 _bal = balance();
         IERC20(vaultInfo.tokenSpin).safeTransferFrom(_msgSender(), address(this), _amount);
@@ -188,10 +213,14 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
             shares = _amount * totalSupply() / _bal;
         }
         _mint(_msgSender(), shares);
-        addMember(_msgSender());
+        addToIGOs(shares);
+        if (!members_.contains(_msgSender())){
+            addMember(_msgSender());
+        }
     }
 
-    function withdraw () external {
+    function withdraw () external whenNotPaused {
+        compound();
         console.log("Balance:", balance());
         console.log("Balanceof:", balanceOf(_msgSender()));
         console.log("Totalsupply:", totalSupply());
@@ -199,9 +228,8 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         uint256 requested =  balance() * balanceOf(_msgSender()) / totalSupply();
         console.log("Requested: ",requested);
         // requested = requested > max ? max : requested;
-        removeFromIGOs(requested);
+        removeFromIGOs(balanceOf(_msgSender()));
         console.log("Pass");
-        compound();
         _burn(_msgSender(), balanceOf(_msgSender()));
         uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (vaultAvailable < requested) {
@@ -215,13 +243,15 @@ contract IGOVault is ERC20, Ownable, ReentrancyGuard {
         }
         IERC20(vaultInfo.tokenSpin).safeTransfer(_msgSender(), requested);
         if (balanceOf(_msgSender()) == 0) {
-            // for (uint i; i < members.length; i++) {
-            //     if (members[i] == _msgSender()) {
-            //         members[i] = members[members.length - 1];
-            //         members.pop();
-            //     }
-            // }
             removeMember(_msgSender());
         }
+    }
+
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal
+        whenNotPaused
+        override
+    {
+        super._beforeTokenTransfer(from, to, amount);
     }
 }

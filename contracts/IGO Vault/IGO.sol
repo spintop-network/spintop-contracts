@@ -171,12 +171,13 @@ contract IGO is Ownable, ReentrancyGuard {
         require(amount > 0, "Cannot withdraw 0");
         console.log("Unstake amount requested: ", amount);
         uint256 _amount = amount;
-        if (amount > _balances[account]){
-            _amount = _balances[account];
-        }
+        // if (amount > _balances[account]){
+        //     _amount = _balances[account];
+        // }
         _balances[account] = _balances[account] - _amount;
         console.log("Unstake amount final: ", _amount);
+        console.log("Totalsupply before", _totalSupply);
         _totalSupply = _totalSupply - _amount;
-        console.log("Totalsupply: ", _totalSupply);
+        console.log("Totalsupply after: ", _totalSupply);
     }
 }

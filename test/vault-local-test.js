@@ -32,7 +32,7 @@ describe("Spinstarter Basic Functionality Test", function () {
     console.log("SpinVault deployed: ", spinVault.address);
 
     // 20 acc loop
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < accList.length; i++) {
       let x = Math.floor(1000 + Math.random() * 500).toString();
       // await network.provider.send("evm_increaseTime", [x]);
       // await network.provider.send("evm_mine");
@@ -55,6 +55,8 @@ describe("Spinstarter Basic Functionality Test", function () {
     await farm.notifyRewardAmount(ethers.utils.parseEther("100000"));
     console.log("Rewards notified.");
 
+    await spinVault.pause();
+
     await spinVault.createIGO(
       "Spinstarter King",
       ethers.utils.parseEther("200000"),
@@ -63,8 +65,18 @@ describe("Spinstarter Basic Functionality Test", function () {
       "18000",
       "1"
     );
+    const members = await spinVault.membersLength();
+    console.log("Members length: ", members);
+    const batchCount = Math.floor(members / 500) + 1;
+    console.log("Batch count: ", batchCount);
+
+    for (let i = 0; i < batchCount; i++) {
+      await spinVault.migrateBalances();
+    }
+    await spinVault.start();
     const igo = await spinVault.IGOs(0);
     console.log("First IGO's address: ", igo);
+    await spinVault.unpause();
 
     const IGO = await ethers.getContractFactory("IGO");
     const igo_ = IGO.attach(igo);
@@ -72,7 +84,7 @@ describe("Spinstarter Basic Functionality Test", function () {
     // await network.provider.send("evm_increaseTime", [300]);
     // await network.provider.send("evm_mine");
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < accList.length; i++) {
       let x = Math.floor(Math.random() * 200);
       await network.provider.send("evm_increaseTime", [x]);
       await network.provider.send("evm_mine");
@@ -86,7 +98,7 @@ describe("Spinstarter Basic Functionality Test", function () {
       console.log("Earned: ", earned);
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < accList.length; i++) {
       let total = parseInt(
         ethers.utils.formatEther(await mock20.balanceOf(accList[i].address))
       );
@@ -94,7 +106,20 @@ describe("Spinstarter Basic Functionality Test", function () {
     }
 
     const left = ethers.utils.formatEther(await spinVault.balance());
-    console.log("Left in vault: ", left);
+    console.log("Left in vault+pool: ", left);
+
+    const leftVault = ethers.utils.formatEther(await spinVault.vaultBalance());
+    console.log("Left in vault alone: ", leftVault);
+
+    const earned = ethers.utils.formatEther(
+      await farm.earned(spinVault.address)
+    );
+    console.log("Current earned of vault: ", earned);
+
+    const leftBalance = ethers.utils.formatEther(
+      await farm.balanceOf(spinVault.address)
+    );
+    console.log("Current balance of vault in pool: ", leftBalance);
 
     // await spinVault.createIGO(
     //   "Spinstarter King",
