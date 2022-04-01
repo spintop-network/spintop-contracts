@@ -11,6 +11,7 @@ async function main() {
     ethers.utils.parseEther("20000"),
     fakeBUSD,
     "1",
+    "1",
     "1200",
     "2"
   );
