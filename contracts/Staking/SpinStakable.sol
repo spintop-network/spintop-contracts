@@ -22,7 +22,7 @@ contract SpinStakable is Ownable, ReentrancyGuard {
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 2000 seconds;
+    uint256 public rewardsDuration = 30 days;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
     uint256 private unlockDuration = 0;

@@ -33,7 +33,14 @@ module.exports = {
     // },
     hardhat: {
       accounts: {
-        count: 5000,
+        count: 20,
+      },
+      forking: {
+        url: process.env.BINANCE_URL,
+        accounts:
+          process.env.PRIVATE_KEY !== undefined
+            ? [process.env.PRIVATE_KEY]
+            : [],
       },
     },
     fantom: {
@@ -42,6 +49,7 @@ module.exports = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     binance: {
+      gasLimit: "80000000",
       url: process.env.BINANCE_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
@@ -58,7 +66,7 @@ module.exports = {
     apiKey: process.env.BINANCE_ETHERSCAN_KEY,
   },
   gasReporter: {
-    enabled: true,
+    enabled: false,
     currency: "USD",
     token: "BNB",
     gasPrice: 7,

@@ -13,9 +13,9 @@ async function main() {
   await spinVault.deployed();
   console.log("SpinVault deployed: ", spinVault.address);
 
-  await spinVault.transferOwnership(
-    "0x15fAB5F6FAf5FF943790e3382D85917Ab1F19a8d"
-  );
+  // await spinVault.transferOwnership(
+  //   "0x15fAB5F6FAf5FF943790e3382D85917Ab1F19a8d"
+  // );
 
   // const Mock20 = await ethers.getContractFactory("ERC20Mock");
   // const mock20 = await Mock20.deploy("Game1", "Game1");

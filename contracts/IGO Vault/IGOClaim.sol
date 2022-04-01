@@ -4,13 +4,15 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/IIGO.sol";
 
 /// @title Spinstarter IGO Claim
 /// @author Spintop.Network
 /// @notice Pay for and claim earned tokens.
 /// @dev 'Dollars' symbolize underlying payment tokens. Assumed 18 decimal.
-contract IGOClaim is Context, ReentrancyGuard {
+contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address private vault;
@@ -22,14 +24,16 @@ contract IGOClaim is Context, ReentrancyGuard {
     uint256 public vestingStartDate;
     uint256 public totalDollars;
     uint256 public price;
+    uint256 public priceDecimal;
     uint256 public multiplier;
-    uint256 public allocationTime = 20 minutes;
-    uint256 public publicTime = 20 minutes;
+    uint256 public allocationTime = 4 hours;
+    uint256 public publicTime = 4 hours;
     uint256 public claimPercentage = 0;
 
     address[] public paidMembers;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public claimedAmounts;
+    mapping(address => uint256) public sentTokens;
     uint256 public totalPaid;
     uint256 public totalClaimed;
 
@@ -38,21 +42,28 @@ contract IGOClaim is Context, ReentrancyGuard {
         address _igo, 
         uint256 _totalDollars,
         address _paymentToken,
-        uint256 _price, 
-        uint256 _allocationStartDate,
+        uint256 _price,
+        uint256 _priceDecimal,
         uint256 _multiplier) {
         vault = _vault;
         igo = _igo;
         totalDollars = _totalDollars;
         paymentToken = _paymentToken;
         price = _price;
-        allocationStartDate = _allocationStartDate;
+        priceDecimal = _priceDecimal;
         multiplier = _multiplier;
     }
 
-    modifier onlyIGO {
-        require(_msgSender() == igo, "Only IGO.");
-        _;
+    function initialize(uint256 _allocationStartDate) external onlyOwner whenPaused {
+        allocationStartDate = _allocationStartDate;
+    } 
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     modifier allocationTimer {
@@ -73,25 +84,35 @@ contract IGOClaim is Context, ReentrancyGuard {
 
     // Admin functions // 
 
-    function withdrawFunds () external onlyIGO {
+    function withdrawTokens () external onlyOwner {
+        require(block.timestamp > (allocationStartDate + allocationTime + publicTime));
+        uint256 leftover = IERC20(token).balanceOf(address(this));
+        IERC20(token).safeTransfer(tx.origin, leftover);
+    }
+
+    function withdrawDollars () external onlyOwner {
         require(totalPaid > 0, "Can not withdraw 0 amount.");
         IERC20(paymentToken).safeTransfer(tx.origin, totalPaid);
     }
 
-    function setPublicMultiplier (uint256 _multiplier) external onlyIGO {
+    function tokensLeft () external view returns(uint256 tokens) {
+        tokens = IERC20(token).balanceOf(address(this));
+    }
+
+    function setPublicMultiplier (uint256 _multiplier) external onlyOwner {
         multiplier = _multiplier;
     }
     
-    function notifyVesting (uint256 percentage) external onlyIGO {
+    function notifyVesting (uint256 percentage) external onlyOwner {
         claimPercentage = percentage;
     }
 
-    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyIGO {
+    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyOwner {
         allocationTime = _allocationTime;
         publicTime = _publicTime;
     }
 
-    function setToken (address _token, uint256 _decimal) external onlyIGO {
+    function setToken (address _token, uint256 _decimal) external onlyOwner {
         token = _token;
         decimal = _decimal;
     }
@@ -99,7 +120,8 @@ contract IGOClaim is Context, ReentrancyGuard {
     // Private functions //
 
     function normalize (uint256 _amount) private view returns(uint256) {
-        return _amount * 10**decimal / 1e18;
+        _amount = (_amount / price) * 10**priceDecimal;
+        return _amount / 1e18 * 10**decimal ;
     }
 
     // Public view functions //
@@ -128,22 +150,11 @@ contract IGOClaim is Context, ReentrancyGuard {
 
     // Public mutative functions //
 
-    function payForTokens (uint256 _amount) external nonReentrant allocationTimer {
-        require(_amount > 0, "Can't do zero");
+    function payForTokens (uint256 _amount) external nonReentrant allocationTimer whenNotPaused {
+        require(_amount > 0);
         uint256 deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
-        if(_amount <= (deserved-paid)) {
-            IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
-            paidAmounts[_msgSender()] += _amount;
-            totalPaid += _amount;
-            paidMembers.push(_msgSender());
-            emit UserPaid(_msgSender(), _amount);     
-        }
-    }
-
-    function payForTokensPublic (uint256 _amount) external nonReentrant publicTimer {
-        require(deservedAllocation(_msgSender()) > 0, "Must be allocated before.");
-        require(_amount < maxPublicBuy(_msgSender()), "Must be lower than allowed public allocation.");
+        require(_amount <= (deserved-paid));
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
         totalPaid += _amount;
@@ -151,13 +162,23 @@ contract IGOClaim is Context, ReentrancyGuard {
         emit UserPaid(_msgSender(), _amount);     
     }
 
-    function claimTokens(uint256 _amount) external nonReentrant {
-        require(_amount > 0, "Can't do zero");
-        if (_amount <= claimableAllocation(_msgSender())) {
-            IERC20(token).safeTransfer(_msgSender(), normalize(_amount/price));
-            claimedAmounts[_msgSender()] += _amount;
-            totalClaimed += _amount;
-            emit UserClaimed(_msgSender(), _amount);
-        }
+    function payForTokensPublic (uint256 _amount) external nonReentrant publicTimer whenNotPaused {
+        require(deservedAllocation(_msgSender()) > 0);
+        require(_amount <= maxPublicBuy(_msgSender()));
+        require((_amount + totalPaid) <= totalDollars);
+        IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
+        paidAmounts[_msgSender()] += _amount;
+        totalPaid += _amount;
+        paidMembers.push(_msgSender());
+        emit UserPaid(_msgSender(), _amount);     
+    }
+
+    function claimTokens() external nonReentrant whenNotPaused {
+        uint256 _amount = claimableAllocation(_msgSender());
+        IERC20(token).safeTransfer(_msgSender(), normalize(_amount));
+        sentTokens[_msgSender()] += normalize(_amount);
+        claimedAmounts[_msgSender()] += _amount;
+        totalClaimed += _amount;
+        emit UserClaimed(_msgSender(), _amount);
     }
 }

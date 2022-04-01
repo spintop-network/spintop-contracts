@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "./IGOClaim.sol";
 import "../Libraries/SafeBEP20.sol";
 import "../Interfaces/ISpinVault.sol";
-import "hardhat/console.sol";
 
 /// @title Spinstarter IGO
 /// @author Spintop.Network
@@ -30,7 +28,7 @@ contract IGO is Ownable, ReentrancyGuard {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
-    uint256 private _totalSupply;
+    uint256 public _totalSupply;
     mapping(address => uint256) private _balances;
     mapping(address => uint256) private _stakingTime;
     uint256 private reward_amount;
@@ -41,7 +39,7 @@ contract IGO is Ownable, ReentrancyGuard {
         uint256 totalDollars,
         address paymentToken,
         uint256 price,
-        uint256 duration,
+        uint256 priceDecimal,
         uint256 multiplier
         );
 
@@ -50,29 +48,30 @@ contract IGO is Ownable, ReentrancyGuard {
         uint256 _totalDollars,
         address _paymentToken,
         uint256 _price,
+        uint256 _priceDecimal,
         uint256 _duration,
         uint256 _multiplier
     ) {
         gameName = _gameName;
-        startDate = block.timestamp;
         totalDollars = _totalDollars;
         rewardsDuration = _duration;
-        uint256 _claimDuration = startDate + rewardsDuration;
+        rewardRate = totalDollars / rewardsDuration;
         claimContract = new IGOClaim(
             _msgSender(), 
             address(this),
             _totalDollars,
             _paymentToken,
             _price,
-            _claimDuration,
+            _priceDecimal,
             _multiplier);
+        claimContract.pause();
         emit ClaimContract(
             _msgSender(),
             address(this),
             _totalDollars,
             _paymentToken,
             _price,
-            _claimDuration,
+            _priceDecimal,
             _multiplier
         );
     }
@@ -85,7 +84,6 @@ contract IGO is Ownable, ReentrancyGuard {
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         setState();
-        console.log("Updated rewards for user: ", account);
         _;
     }
 
@@ -95,7 +93,8 @@ contract IGO is Ownable, ReentrancyGuard {
     // Admin functions //
 
     function withdrawFunds () external onlyOwner {
-        claimContract.withdrawFunds();
+        claimContract.withdrawDollars();
+        claimContract.withdrawTokens();
     } 
 
     function setPublicMultiplier (uint256 _multiplier) external onlyOwner {
@@ -114,13 +113,15 @@ contract IGO is Ownable, ReentrancyGuard {
         claimContract.setPeriods(_allocationTime, _publicTime);
     }
     
-    function start () external onlyOwner {
-        rewardRate = totalDollars / rewardsDuration;
+    function start () external onlyOwner updateReward(address(0)) {
+        startDate = block.timestamp;
+        claimContract.initialize(startDate);
+        claimContract.unpause();
         emit DistributionStart(totalDollars);
     }
 
     function setStateVault () external onlyOwner {
-        IGOstate = block.timestamp < startDate + rewardsDuration;
+        IGOstate = block.timestamp < (startDate + rewardsDuration);
     }
 
     // Internal functions //
@@ -161,23 +162,15 @@ contract IGO is Ownable, ReentrancyGuard {
 
     // Public mutative functions //
 
-    function stake(address account, uint256 amount) external nonReentrant updateReward(account) {
+    function stake(address account, uint256 amount) external updateReward(account) onlyOwner {
         require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply + amount;
         _balances[account] = _balances[account] + amount;
     }
 
-    function unstake(address account,uint256 amount) external nonReentrant updateReward(account) {
+    function unstake(address account,uint256 amount) external updateReward(account) onlyOwner {
         require(amount > 0, "Cannot withdraw 0");
-        console.log("Unstake amount requested: ", amount);
-        uint256 _amount = amount;
-        // if (amount > _balances[account]){
-        //     _amount = _balances[account];
-        // }
-        _balances[account] = _balances[account] - _amount;
-        console.log("Unstake amount final: ", _amount);
-        console.log("Totalsupply before", _totalSupply);
-        _totalSupply = _totalSupply - _amount;
-        console.log("Totalsupply after: ", _totalSupply);
+        _balances[account] = _balances[account] - amount;
+        _totalSupply = _totalSupply - amount;
     }
 }
