@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "./IGOClaim.sol";
-import "../Libraries/SafeBEP20.sol";
 import "../Interfaces/ISpinVault.sol";
 
 /// @title Spinstarter IGO
@@ -13,8 +11,7 @@ import "../Interfaces/ISpinVault.sol";
 /// @notice Standard staking contract without token transfers.
 /// @dev IGOClaim contract checks earned amounts for calculations.
 contract IGO is Ownable, ReentrancyGuard {
-    using SafeBEP20 for IBEP20;
-    
+
     string public gameName;
     IGOClaim public claimContract;
     bool public IGOstate;

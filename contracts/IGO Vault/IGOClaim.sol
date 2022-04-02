@@ -95,10 +95,6 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         IERC20(paymentToken).safeTransfer(tx.origin, totalPaid);
     }
 
-    function tokensLeft () external view returns(uint256 tokens) {
-        tokens = IERC20(token).balanceOf(address(this));
-    }
-
     function setPublicMultiplier (uint256 _multiplier) external onlyOwner {
         multiplier = _multiplier;
     }
@@ -135,6 +131,10 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         } else {
             return 2;
         }
+    }
+
+    function tokensLeft () external view returns(uint256 tokens) {
+        tokens = IERC20(token).balanceOf(address(this));
     }
 
     function maxPublicBuy(address _user) public view returns (uint256 _buyable) {
