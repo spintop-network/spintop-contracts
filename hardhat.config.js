@@ -49,11 +49,13 @@ module.exports = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     binance: {
-      gasLimit: "80000000",
+      gasLimit: 80000000,
+      gasPrice: 7000000000,
       url: process.env.BINANCE_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+
     polygon: {
       url: process.env.POLYGON_URL || "",
       accounts:

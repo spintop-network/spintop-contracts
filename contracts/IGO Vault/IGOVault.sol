@@ -22,13 +22,14 @@ contract IGOVault is ERC20, Pausable, Ownable, ReentrancyGuard {
         address tokenSpin;
     }
     VaultInfo public vaultInfo;
+    
     address[] public IGOs;
     uint256 immutable public maxStakeAmount = 1000000e18;
     uint256 immutable public minStakeAmount = 1000e18;
 
     uint256 private pilgrims;
     EnumerableSet.AddressSet private members_;
-    uint256 private batchSize = 50;
+    uint256 private batchSize = 500;
     uint256 constant private MAX_INT = 2**256 - 1;
 
     constructor ( 
@@ -94,6 +95,10 @@ contract IGOVault is ERC20, Pausable, Ownable, ReentrancyGuard {
 
     function setToken (address _igo, address _token, uint256 _decimal) external onlyOwner {
         IGO(_igo).setToken(_token, _decimal);
+    }
+
+    function setPeriods (address _igo, uint256 _allocationTime, uint256 _publicTime) external onlyOwner {
+        IGO(_igo).setPeriods(_allocationTime, _publicTime);
     }
 
     function withdrawIGOFunds (address _igo) external onlyOwner {
