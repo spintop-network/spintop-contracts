@@ -21,21 +21,19 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
     address public token;
     uint256 public decimal;
     uint256 public allocationStartDate;
-    uint256 public vestingStartDate;
     uint256 public totalDollars;
     uint256 public price;
     uint256 public priceDecimal;
     uint256 public multiplier;
-    uint256 public allocationTime = 4 hours;
-    uint256 public publicTime = 4 hours;
+    uint256 public allocationTime = 6 hours;
+    uint256 public publicTime = 24 hours;
     uint256 public claimPercentage = 0;
-
-    address[] public paidMembers;
-    mapping(address => uint256) public paidAmounts;
-    mapping(address => uint256) public claimedAmounts;
-    mapping(address => uint256) public sentTokens;
     uint256 public totalPaid;
     uint256 public totalClaimed;
+    mapping(address => uint256) public paidAmounts;
+    mapping(address => uint256) public paidPublic;
+    mapping(address => uint256) public claimedAmounts;
+    mapping(address => uint256) public claimedTokens;
 
     constructor (
         address _vault, 
@@ -78,13 +76,18 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         _;
     }
 
+    modifier withdrawTimer {
+        require(block.timestamp > (allocationStartDate + allocationTime + publicTime), "IGO has not ended yet.");
+        _;
+    }
+
     event ClaimUnlocked(address indexed igo);
     event UserPaid(address indexed user, uint256 amount);
     event UserClaimed(address indexed user, uint256 amount);
 
     // Admin functions // 
 
-    function withdrawTokens () external onlyOwner {
+    function withdrawTokens () external onlyOwner withdrawTimer {
         require(block.timestamp > (allocationStartDate + allocationTime + publicTime));
         uint256 leftover = IERC20(token).balanceOf(address(this));
         IERC20(token).safeTransfer(tx.origin, leftover);
@@ -93,10 +96,6 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
     function withdrawDollars () external onlyOwner {
         require(totalPaid > 0, "Can not withdraw 0 amount.");
         IERC20(paymentToken).safeTransfer(tx.origin, totalPaid);
-    }
-
-    function setPublicMultiplier (uint256 _multiplier) external onlyOwner {
-        multiplier = _multiplier;
     }
     
     function notifyVesting (uint256 percentage) external onlyOwner {
@@ -145,7 +144,11 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
     }
 
     function claimableAllocation (address _user) public view returns (uint256 _claimable) {
-        _claimable = (paidAmounts[_user] * claimPercentage / 100) - claimedAmounts[_msgSender()];
+        _claimable = (paidAmounts[_user] * claimPercentage / 10000) - claimedAmounts[_msgSender()];
+    }
+
+    function claimableTokens (address _user) public view returns (uint256 _claimable) {
+        _claimable = normalize(claimableAllocation(_user));
     }
 
     // Public mutative functions //
@@ -158,7 +161,6 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
         totalPaid += _amount;
-        paidMembers.push(_msgSender());
         emit UserPaid(_msgSender(), _amount);     
     }
 
@@ -166,18 +168,21 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         require(deservedAllocation(_msgSender()) > 0);
         require(_amount <= maxPublicBuy(_msgSender()));
         require((_amount + totalPaid) <= totalDollars);
+        require((paidPublic[_msgSender()] + _amount) <= (deservedAllocation(_msgSender()) * multiplier));
         IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), _amount);
         paidAmounts[_msgSender()] += _amount;
+        paidPublic[_msgSender()] += _amount;
         totalPaid += _amount;
-        paidMembers.push(_msgSender());
         emit UserPaid(_msgSender(), _amount);     
     }
 
     function claimTokens() external nonReentrant whenNotPaused {
-        uint256 _amount = claimableAllocation(_msgSender());
-        IERC20(token).safeTransfer(_msgSender(), normalize(_amount));
-        sentTokens[_msgSender()] += normalize(_amount);
-        claimedAmounts[_msgSender()] += _amount;
+        uint256 _amount = claimableTokens(_msgSender());
+        uint256 amount_ = claimableAllocation(_msgSender());
+        require(_amount > 0);
+        IERC20(token).safeTransfer(_msgSender(), _amount);
+        claimedAmounts[_msgSender()] += amount_;
+        claimedTokens[_msgSender()] += _amount;
         totalClaimed += _amount;
         emit UserClaimed(_msgSender(), _amount);
     }

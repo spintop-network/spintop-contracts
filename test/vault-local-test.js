@@ -57,11 +57,11 @@ describe("Spinstarter Basic Functionality Test", function () {
     await spinVault.pause();
     await spinVault.createIGO(
       "Spinstarter King",
-      ethers.utils.parseEther("100000"),
+      ethers.utils.parseEther("150000"),
       mock20.address,
-      "1", // price
-      "1", // priceDecimal
-      "1800", // duration
+      "2", // price
+      "2", // priceDecimal
+      "1200", // duration
       "1" // publicBuyMultiplier
     );
     const members = await spinVault.membersLength();
@@ -75,6 +75,8 @@ describe("Spinstarter Basic Functionality Test", function () {
     const igo = await spinVault.IGOs(0);
     console.log("First IGO's address: ", igo);
     await spinVault.unpause();
+
+    await spinVault.setPeriods(igo, "4800", "96000");
 
     for (let i = 0; i < accList.length; i++) {
       let x = Math.floor(1000 + Math.random() * 500).toString();
@@ -186,12 +188,12 @@ describe("Spinstarter Basic Functionality Test", function () {
     console.log("gameToken deployed: ", gameToken.address);
     await gameToken.transfer(
       claimContract.address,
-      ethers.utils.parseEther("1000000")
+      ethers.utils.parseEther("10000000")
     );
     await spinVault.setToken(igo_.address, gameToken.address, 18);
 
     // first vesting
-    await spinVault.notifyVesting(igo_.address, 20);
+    await spinVault.notifyVesting(igo_.address, 2000);
     console.log("Notified vesting #1.");
     let totalClaimed = 0;
     for (let i = 0; i < accList.length; i++) {
@@ -208,26 +210,23 @@ describe("Spinstarter Basic Functionality Test", function () {
     console.log("\nTotal claimed: ", totalClaimed, "\n\n");
 
     // second vesting
-    await spinVault.notifyVesting(igo_.address, 100);
+    await spinVault.notifyVesting(igo_.address, 10000);
     console.log("Notified vesting #2.");
-    let totalClaimed2 = 0;
     for (let i = 0; i < accList.length; i++) {
       await claimContract.connect(accList[i]).claimTokens();
-      const userClaimed = await claimContract.sentTokens(accList[i].address);
-      console.log(
-        "User claimed gameTokens: ",
-        parseFloat(ethers.utils.formatEther(userClaimed))
-      );
-      totalClaimed2 += parseFloat(ethers.utils.formatEther(userClaimed));
     }
+    const totalClaimed2 = ethers.utils.formatEther(
+      await claimContract.totalClaimed()
+    );
     console.log("\nTotal claimed: ", totalClaimed2);
 
     await network.provider.send("evm_increaseTime", [20000]);
     await network.provider.send("evm_mine");
-    const tokensLeft = await claimContract.tokensLeft();
-    console.log("Tokens left: ", tokensLeft);
     const dollarsLeft = await claimContract.totalPaid();
     console.log("Dollars left: ", dollarsLeft);
-    await spinVault.withdrawIGOFunds(igo_.address);
+    // const tx1 = await spinVault.withdrawIGOFunds(igo_.address, 0);
+    // console.log(tx1);
+    // const tx2 = await spinVault.withdrawIGOFunds(igo_.address, 1);
+    // console.log(tx2);
   });
 });

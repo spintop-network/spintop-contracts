@@ -33,15 +33,15 @@ module.exports = {
     // },
     hardhat: {
       accounts: {
-        count: 20,
+        count: 15,
       },
-      forking: {
-        url: process.env.BINANCE_URL,
-        accounts:
-          process.env.PRIVATE_KEY !== undefined
-            ? [process.env.PRIVATE_KEY]
-            : [],
-      },
+      // forking: {
+      //   url: process.env.BINANCE_URL,
+      //   accounts:
+      //     process.env.PRIVATE_KEY !== undefined
+      //       ? [process.env.PRIVATE_KEY]
+      //       : [],
+      // },
     },
     fantom: {
       url: process.env.FANTOM_URL || "",
@@ -49,9 +49,7 @@ module.exports = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     binance: {
-      gasLimit: 80000000,
-      gasPrice: 7000000000,
-      url: process.env.BINANCE_URL || "",
+      url: process.env.BINANCE_URL_PUBLIC || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
@@ -59,9 +57,7 @@ module.exports = {
     polygon: {
       url: process.env.POLYGON_URL || "",
       accounts:
-        process.env.SPINTOP_DEPLOYER !== undefined
-          ? [process.env.SPINTOP_DEPLOYER]
-          : [],
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
   etherscan: {

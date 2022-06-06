@@ -89,14 +89,9 @@ contract IGO is Ownable, ReentrancyGuard {
 
     // Admin functions //
 
-    function withdrawFunds () external onlyOwner {
-        claimContract.withdrawDollars();
-        claimContract.withdrawTokens();
+    function withdrawFunds (uint256 token) external onlyOwner {
+        token == 0 ? claimContract.withdrawDollars() : claimContract.withdrawTokens();
     } 
-
-    function setPublicMultiplier (uint256 _multiplier) external onlyOwner {
-        claimContract.setPublicMultiplier(_multiplier);
-    }
 
     function notifyVesting (uint256 _percentage) external onlyOwner {
         claimContract.notifyVesting(_percentage);
@@ -112,7 +107,7 @@ contract IGO is Ownable, ReentrancyGuard {
     
     function start () external onlyOwner updateReward(address(0)) {
         startDate = block.timestamp;
-        claimContract.initialize(startDate);
+        claimContract.initialize(startDate + rewardsDuration);
         claimContract.unpause();
         emit DistributionStart(totalDollars);
     }

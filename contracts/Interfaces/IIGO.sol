@@ -8,7 +8,7 @@ interface IIGO {
     function lastTimeRewardApplicable() external view returns (uint256);
     function rewardPerToken() external view returns (uint256); 
     function earned(address account) external view returns (uint256); 
-    function start (uint256 reward) external; 
+    function start () external; 
     function updateWithVault(address account) external; 
     function checkState () external view returns(bool);
     function claimContract() external returns(address);
