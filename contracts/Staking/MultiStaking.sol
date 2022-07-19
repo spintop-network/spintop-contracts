@@ -9,9 +9,10 @@ import "hardhat/console.sol";
 
 /// @title Spintop Staking Rewards
 /// @author Spintop.Network
-/// @notice Synthetix inspired single token staking contract.
+/// @notice Staking contract with multiple token rewards.
 /// @dev Owner doesn't have control over 'stakingToken', this includes if both staking and reward tokens are the same.
-contract SpinStakable is Ownable, ReentrancyGuard {
+/// @dev Bonus token doesn't have it's own balance. It piggybacks onto rewards with ratio.
+contract MultiStaking is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
@@ -19,9 +20,11 @@ contract SpinStakable is Ownable, ReentrancyGuard {
 
     IBEP20 public rewardsToken;
     IBEP20 public stakingToken;
+    IBEP20 public bonusToken;
 
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
+    uint256 public bonusRate = 0;
     uint256 public rewardsDuration = 30 days;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
@@ -34,11 +37,17 @@ contract SpinStakable is Ownable, ReentrancyGuard {
     mapping(address => uint256) private _balances;
     mapping(address => uint256) private _stakingTime;
     uint256 private reward_amount;
+    uint256 private bonus_amount;
 
     /* ========== CONSTRUCTOR ========== */
 
-    constructor(address _rewardsToken, address _stakingToken) {
+    constructor(
+        address _stakingToken,
+        address _rewardsToken,
+        address _bonusToken
+    ) {
         rewardsToken = IBEP20(_rewardsToken);
+        bonusToken = IBEP20(_bonusToken);
         stakingToken = IBEP20(_stakingToken);
     }
 
@@ -78,6 +87,13 @@ contract SpinStakable is Ownable, ReentrancyGuard {
                 .add(rewards[account]);
     }
 
+    function earnedBonus(address account) public view returns (uint256) {
+        uint256 _ratio = getTokenRatio();
+        console.log("Ratio:", _ratio);
+        uint256 _earned = earned(account);
+        return (_ratio * _earned) / 1e12;
+    }
+
     function getRewardForDuration() external view returns (uint256) {
         return rewardRate.mul(rewardsDuration);
     }
@@ -86,11 +102,21 @@ contract SpinStakable is Ownable, ReentrancyGuard {
         return reward_amount;
     }
 
+    function totalBonusAdded() external view returns (uint256) {
+        return bonus_amount;
+    }
+
     function unstakable(address account) external view returns (bool) {
         if (_stakingTime[account] + unlockDuration <= block.timestamp) {
             return true;
         }
         return false;
+    }
+
+    // returns 1e4 ratio
+    function getTokenRatio() public view returns (uint256 ratio) {
+        console.log("Bonus amount:", bonus_amount);
+        ratio = bonus_amount.mul(1e12).div(reward_amount);
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
@@ -123,10 +149,14 @@ contract SpinStakable is Ownable, ReentrancyGuard {
 
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
+        uint256 ratio = getTokenRatio();
+        uint256 bonus = (reward * ratio) / 1e12;
         if (reward > 0) {
             rewards[msg.sender] = 0;
             rewardsToken.safeTransfer(msg.sender, reward);
+            bonusToken.safeTransfer(msg.sender, bonus);
             emit RewardPaid(msg.sender, reward);
+            emit BonusPaid(msg.sender, bonus);
         }
     }
 
@@ -138,30 +168,36 @@ contract SpinStakable is Ownable, ReentrancyGuard {
     /* ========== RESTRICTED FUNCTIONS ========== */
 
     // Always needs to update the balance of the contract when calling this method
-    function notifyRewardAmount(uint256 reward)
+    function notifyRewardAmount(uint256 reward, uint256 bonus)
         external
         onlyOwner
         updateReward(address(0))
     {
+        // bonus & reward share schedule
         if (block.timestamp >= periodFinish) {
             rewardRate = reward.div(rewardsDuration);
+            bonusRate = bonus.div(rewardsDuration);
         } else {
             uint256 remaining = periodFinish.sub(block.timestamp);
             uint256 leftover = remaining.mul(rewardRate);
+            uint256 bonusLeftover = remaining.mul(bonusRate);
             rewardRate = reward.add(leftover).div(rewardsDuration);
+            bonusRate = bonus.add(bonusLeftover).div(rewardsDuration);
         }
 
-        // Ensure the provided reward amount is not more than the balance in the contract.
-        // This keeps the reward rate in the right range, preventing overflows due to
-        // very high values of rewardRate in the earned and rewardsPerToken functions;
-        // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
         uint256 balance = rewardsToken.balanceOf(address(this));
         require(
             rewardRate <= balance.div(rewardsDuration),
             "Provided reward too high"
         );
+        uint256 bonusBalance = bonusToken.balanceOf(address(this));
+        require(
+            bonusRate <= bonusBalance.div(rewardsDuration),
+            "Provided bonus too high"
+        );
 
         reward_amount += reward;
+        bonus_amount += bonus;
         lastUpdateTime = block.timestamp;
         periodFinish = block.timestamp.add(rewardsDuration);
         emit RewardAdded(reward);
@@ -217,6 +253,7 @@ contract SpinStakable is Ownable, ReentrancyGuard {
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+    event BonusPaid(address indexed user, uint256 bonus);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
     event UnlockDurationUpdated(uint256 newDuration);

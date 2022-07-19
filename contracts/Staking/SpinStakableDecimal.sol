@@ -11,7 +11,7 @@ import "hardhat/console.sol";
 /// @author Spintop.Network
 /// @notice Synthetix inspired single token staking contract.
 /// @dev Owner doesn't have control over 'stakingToken', this includes if both staking and reward tokens are the same.
-contract SpinStakable is Ownable, ReentrancyGuard {
+contract SpinStakableDecimal is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
@@ -65,7 +65,7 @@ contract SpinStakable is Ownable, ReentrancyGuard {
                 lastTimeRewardApplicable()
                     .sub(lastUpdateTime)
                     .mul(rewardRate)
-                    .mul(1e18)
+                    .mul(1e36)
                     .div(_totalSupply)
             );
     }
@@ -74,7 +74,7 @@ contract SpinStakable is Ownable, ReentrancyGuard {
         return
             _balances[account]
                 .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
-                .div(1e18)
+                .div(1e36)
                 .add(rewards[account]);
     }
 

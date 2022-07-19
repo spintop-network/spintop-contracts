@@ -1,14 +1,14 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const creo = "0xb6b06495F7A92eb272F32C051D4a2afA8f4d6cD0";
+  const trivians = "0x1A845f5C863946c335fe46EE7A63e90D8BAa8c22";
   const TargetContract = await ethers.getContractFactory("IGOClaim");
-  const targetContract = TargetContract.attach(creo);
-  // const provider = new ethers.providers.JsonRpcProvider(
-  //   "https://fragrant-silent-snowflake.bsc.quiknode.pro/1c75461abd6819322507a060e5f05fa910e03446/"
-  // );
+  const targetContract = TargetContract.attach(trivians);
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://fragrant-silent-snowflake.bsc.quiknode.pro/1c75461abd6819322507a060e5f05fa910e03446/"
+  );
   const endBlock = await provider.getBlockNumber();
-  const startBlock = 17254070;
+  const startBlock = 19300000;
   let allEvents = [];
 
   for (let i = startBlock; i < endBlock; i += 5000) {
@@ -24,6 +24,7 @@ async function main() {
   }
   let buyers = allEvents.map((event) => event.args[0]);
   buyers = buyers.filter((item, index) => buyers.indexOf(item) === index);
+  console.log(buyers.length, " buyers.");
 
   let allTuples = [];
   let totalTokens = 0;
@@ -34,20 +35,27 @@ async function main() {
         0
       )
     );
+    // console.log(buyers[i], " purchased: ", tokenAmt);
     let tuple = [buyers[i], tokenAmt];
     allTuples[i] = tuple;
     totalTokens += tokenAmt;
+    console.log("Total tokens: ", totalTokens);
   }
 
   const fs = require("fs");
   const data = JSON.stringify(allTuples);
-  fs.writeFileSync("./creoAllocations.json", data, "utf8", (err) => {
-    if (err) {
-      console.log(`Error writing file: ${err}`);
-    } else {
-      console.log(`File is written successfully!`);
+  fs.writeFileSync(
+    "./scripts/trivians/allocations.json",
+    data,
+    "utf8",
+    (err) => {
+      if (err) {
+        console.log(`Error writing file: ${err}`);
+      } else {
+        console.log(`File is written successfully!`);
+      }
     }
-  });
+  );
 }
 
 main()

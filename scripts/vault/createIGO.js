@@ -4,25 +4,25 @@ async function main() {
     "0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77"
   );
   const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
-  const igoId = 0; // Set correct id!
+  const igoId = 2; // Set correct id!
 
-  // const cmdPause = await spinVault.pause();
-  // await cmdPause.wait();
-  // console.log("Paused.");
+  const cmdPause = await spinVault.pause();
+  await cmdPause.wait();
+  console.log("Paused.");
 
-  // const cmdCreate = await spinVault.createIGO(
-  //   "Bountie Hunter", // IGO Name
-  //   ethers.utils.parseEther("130000"), // Total Dollars
-  //   BUSD, // Payment token (dollars)
-  //   "2", // Price (integer)
-  //   "2", // Price (decimal count)
-  //   "93600", // Duration of IGO (contribution round)
-  //   "2" // Public buy multiplier
-  // );
-  // await cmdCreate.wait();
-  // console.log("Created IGO.");
-  // const igoAddress = await spinVault.IGOs(igoId);
-  // console.log("IGO address: ", igoAddress);
+  const cmdCreate = await spinVault.createIGO(
+    "Trivians", // IGO Name
+    ethers.utils.parseEther("150000"), // Total Dollars
+    BUSD, // Payment token (dollars)
+    "35", // Price (integer)
+    "3", // Price (decimal count)
+    "345600", // Duration of IGO (contribution round)
+    "10" // Public buy multiplier
+  );
+  await cmdCreate.wait();
+  console.log("Created IGO.");
+  const igoAddress = await spinVault.IGOs(igoId);
+  console.log("IGO address: ", igoAddress);
 
   const cmdBatch = await spinVault.setBatchSize("200");
   await cmdBatch.wait();

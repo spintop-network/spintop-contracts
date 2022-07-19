@@ -22,27 +22,30 @@ module.exports = {
     },
   },
   networks: {
+    hardhat: {
+      // accounts: {
+      //   count: 15,
+      // },
+      forking: {
+        url: process.env.BINANCE_URL,
+        accounts:
+          process.env.SPINTOP_DEPLOYER !== undefined
+            ? [process.env.SPINTOP_DEPLOYER]
+            : [],
+      },
+    },
     // hardhat: {
+    //   accounts: {
+    //     count: 15,
+    //   },
     //   forking: {
-    //     url: process.env.BINANCE_URL,
+    //     url: process.env.OKC_URL,
     //     accounts:
     //       process.env.PRIVATE_KEY !== undefined
     //         ? [process.env.PRIVATE_KEY]
     //         : [],
     //   },
     // },
-    hardhat: {
-      accounts: {
-        count: 15,
-      },
-      // forking: {
-      //   url: process.env.BINANCE_URL,
-      //   accounts:
-      //     process.env.PRIVATE_KEY !== undefined
-      //       ? [process.env.PRIVATE_KEY]
-      //       : [],
-      // },
-    },
     fantom: {
       url: process.env.FANTOM_URL || "",
       accounts:
@@ -53,11 +56,17 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-
     polygon: {
       url: process.env.POLYGON_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    okc: {
+      url: process.env.OKC_URL || "",
+      accounts:
+        process.env.SPINTOP_DEPLOYER !== undefined
+          ? [process.env.SPINTOP_DEPLOYER]
+          : [],
     },
   },
   etherscan: {

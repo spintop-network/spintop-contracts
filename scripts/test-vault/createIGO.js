@@ -19,6 +19,7 @@ async function main() {
     "600", // Duration of IGO (contribution round)
     "2" // Public buy multiplier
   );
+
   await cmdCreate.wait();
   console.log("Created IGO.");
   const igoAddress = await spinVault.IGOs(igoId);
@@ -29,11 +30,13 @@ async function main() {
 
   const cmdStart = await spinVault.start();
   await cmdStart.wait();
+
   for (let i = 0; i < batchCount; i++) {
     const cmdMigrate = await spinVault.migrateBalances();
     await cmdMigrate.wait();
     console.log("Migrated batch.");
   }
+
   const cmdUnpause = await spinVault.unpause();
   await cmdUnpause.wait();
   console.log("Unpaused.");

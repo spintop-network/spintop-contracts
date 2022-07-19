@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 contract AnyswapCreate2Deployer {
   event Deployed(address addr, uint256 salt);
   address implementation;

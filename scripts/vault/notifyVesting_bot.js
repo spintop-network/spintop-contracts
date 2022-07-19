@@ -5,8 +5,8 @@ async function main() {
   );
 
   const igoId = 0; // Unique IGO id
-  const percentage = 5000; // tenthousandths
-  const target = 1653013800;
+  const percentage = 10000; // tenthousandths
+  const target = 1657938540;
   let notified = false;
 
   setInterval(async () => {

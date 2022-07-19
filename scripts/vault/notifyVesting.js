@@ -5,7 +5,7 @@ async function main() {
   );
 
   const igoId = 0; // Unique IGO id
-  const percentage = 6250; // tenthousandths
+  const percentage = 8750; // tenthousandths
 
   const igoAddress = await spinVault.IGOs(igoId);
   const cmdNotifyVesting = await spinVault.notifyVesting(

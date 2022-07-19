@@ -5,17 +5,15 @@ async function main() {
   );
 
   const igoId = 2; // Unique IGO id
-  const allocationPeriod = 29160; // in seconds
-  const publicPeriod = 14400; // in seconds
+  const percentage = 10000; // tenthousandths
 
   const igoAddress = await spinVault.IGOs(igoId);
-  const cmdSetPeriods = await spinVault.setPeriods(
+  const cmdNotifyVesting = await spinVault.notifyVesting(
     igoAddress,
-    allocationPeriod,
-    publicPeriod
+    percentage
   );
-  await cmdSetPeriods.wait();
-  console.log("Set periods.");
+  await cmdNotifyVesting.wait();
+  console.log("Notified vesting.");
 }
 main()
   .then(() => process.exit(0))
