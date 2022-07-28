@@ -53,17 +53,17 @@ describe("MultiStaking Tests", function () {
           9
         )
       );
-      console.log("Earned reward: ", earnedReward);
-      console.log("Earned bonus: ", earnedBonus);
+      // console.log("Earned reward: ", earnedReward);
+      // console.log("Earned bonus: ", earnedBonus);
       await multiStaking.getReward();
       let newbalanceBonus = parseFloat(
         ethers.utils.formatUnits(await bonus.balanceOf(owner.address), 9)
       );
-      console.log("Parsed bonus balance:", newbalanceBonus);
+      // console.log("Parsed bonus balance:", newbalanceBonus);
       let newbalanceReward = parseFloat(
         ethers.utils.formatEther(await reward.balanceOf(owner.address))
       );
-      console.log("Parsed reward balance: ", newbalanceReward);
+      // console.log("Parsed reward balance: ", newbalanceReward);
       expect(newbalanceBonus).to.closeTo(balanceBonus + earnedBonus, 0.1);
       expect(newbalanceReward).to.closeTo(balanceReward + earnedReward, 0.1);
       balanceBonus = newbalanceBonus;

@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Libraries/SafeBEP20.sol";
-import "hardhat/console.sol";
 
 /// @title Spintop Staking Rewards
 /// @author Spintop.Network
@@ -88,10 +87,12 @@ contract MultiStaking is Ownable, ReentrancyGuard {
     }
 
     function earnedBonus(address account) public view returns (uint256) {
-        uint256 _ratio = getTokenRatio();
-        console.log("Ratio:", _ratio);
-        uint256 _earned = earned(account);
-        return (_ratio * _earned) / 1e12;
+        if (bonus_amount > 0) {
+            uint256 _ratio = getTokenRatio();
+            uint256 _earned = earned(account);
+            return (_ratio * _earned) / 1e12;
+        }
+        return 0;
     }
 
     function getRewardForDuration() external view returns (uint256) {
@@ -115,7 +116,6 @@ contract MultiStaking is Ownable, ReentrancyGuard {
 
     // returns 1e4 ratio
     function getTokenRatio() public view returns (uint256 ratio) {
-        console.log("Bonus amount:", bonus_amount);
         ratio = bonus_amount.mul(1e12).div(reward_amount);
     }
 

@@ -27,7 +27,7 @@ module.exports = {
       //   count: 15,
       // },
       forking: {
-        url: process.env.BINANCE_URL,
+        url: process.env.BINANCE_URL_PUBLIC,
         accounts:
           process.env.SPINTOP_DEPLOYER !== undefined
             ? [process.env.SPINTOP_DEPLOYER]
