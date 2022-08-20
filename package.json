@@ -30,6 +30,7 @@
     "dotenv": "^10.0.0",
     "graphql": "^16.3.0",
     "hardhat-gas-reporter": "^1.0.8",
+    "hardhat-tracer": "^1.1.0-rc.7",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.32",
     "node-fetch": "^3.2.0"

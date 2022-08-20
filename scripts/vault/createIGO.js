@@ -1,8 +1,6 @@
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach(
-    "0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77"
-  );
+  const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
   const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
   const igoId = 2; // Set correct id!
 
@@ -11,13 +9,13 @@ async function main() {
   console.log("Paused.");
 
   const cmdCreate = await spinVault.createIGO(
-    "Trivians", // IGO Name
-    ethers.utils.parseEther("150000"), // Total Dollars
+    "Aria", // IGO Name
+    ethers.utils.parseEther("75000"), // Total Dollars
     BUSD, // Payment token (dollars)
     "35", // Price (integer)
     "3", // Price (decimal count)
-    "345600", // Duration of IGO (contribution round)
-    "10" // Public buy multiplier
+    "432000", // Duration of IGO (contribution round)
+    "5" // Public buy multiplier
   );
   await cmdCreate.wait();
   console.log("Created IGO.");

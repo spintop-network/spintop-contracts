@@ -3,6 +3,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("@nomiclabs/hardhat-ethers");
+require("hardhat-tracer");
 
 module.exports = {
   solidity: {
@@ -23,15 +24,9 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      // accounts: {
-      //   count: 15,
-      // },
       forking: {
         url: process.env.BINANCE_URL_PUBLIC,
-        accounts:
-          process.env.SPINTOP_DEPLOYER !== undefined
-            ? [process.env.SPINTOP_DEPLOYER]
-            : [],
+        accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       },
     },
     // hardhat: {
@@ -48,25 +43,19 @@ module.exports = {
     // },
     fantom: {
       url: process.env.FANTOM_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     binance: {
       url: process.env.BINANCE_URL_PUBLIC || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     polygon: {
       url: process.env.POLYGON_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     okc: {
       url: process.env.OKC_URL || "",
-      accounts:
-        process.env.SPINTOP_DEPLOYER !== undefined
-          ? [process.env.SPINTOP_DEPLOYER]
-          : [],
+      accounts: process.env.SPINTOP_DEPLOYER !== undefined ? [process.env.SPINTOP_DEPLOYER] : [],
     },
   },
   etherscan: {
