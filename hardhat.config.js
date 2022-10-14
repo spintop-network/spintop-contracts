@@ -29,24 +29,12 @@ module.exports = {
         accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       },
     },
-    // hardhat: {
-    //   accounts: {
-    //     count: 15,
-    //   },
-    //   forking: {
-    //     url: process.env.OKC_URL,
-    //     accounts:
-    //       process.env.PRIVATE_KEY !== undefined
-    //         ? [process.env.PRIVATE_KEY]
-    //         : [],
-    //   },
-    // },
     fantom: {
       url: process.env.FANTOM_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     binance: {
-      url: process.env.BINANCE_URL_PUBLIC || "",
+      url: process.env.BINANCE_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     polygon: {

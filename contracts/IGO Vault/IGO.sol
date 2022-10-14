@@ -11,7 +11,6 @@ import "../Interfaces/ISpinVault.sol";
 /// @notice Standard staking contract without token transfers.
 /// @dev IGOClaim contract checks earned amounts for calculations.
 contract IGO is Ownable, ReentrancyGuard {
-
     string public gameName;
     IGOClaim public claimContract;
     bool public IGOstate;
@@ -38,7 +37,7 @@ contract IGO is Ownable, ReentrancyGuard {
         uint256 price,
         uint256 priceDecimal,
         uint256 multiplier
-        );
+    );
 
     constructor(
         string memory _gameName,
@@ -54,13 +53,14 @@ contract IGO is Ownable, ReentrancyGuard {
         rewardsDuration = _duration;
         rewardRate = totalDollars / rewardsDuration;
         claimContract = new IGOClaim(
-            _msgSender(), 
+            _msgSender(),
             address(this),
             _totalDollars,
             _paymentToken,
             _price,
             _priceDecimal,
-            _multiplier);
+            _multiplier
+        );
         claimContract.pause();
         emit ClaimContract(
             _msgSender(),
@@ -87,32 +87,37 @@ contract IGO is Ownable, ReentrancyGuard {
     event DistributionStart(uint256 reward);
     event RewardPaid(address indexed user, uint256 reward);
 
-    // Admin functions //
+    // Admin functions //a
 
-    function withdrawFunds (uint256 token) external onlyOwner {
-        token == 0 ? claimContract.withdrawDollars() : claimContract.withdrawTokens();
-    } 
+    function withdrawFunds(uint256 token) external onlyOwner {
+        token == 0
+            ? claimContract.withdrawDollars()
+            : claimContract.withdrawTokens();
+    }
 
-    function notifyVesting (uint256 _percentage) external onlyOwner {
+    function notifyVesting(uint256 _percentage) external onlyOwner {
         claimContract.notifyVesting(_percentage);
     }
 
-    function setToken (address _token, uint256 _decimal) external onlyOwner {
+    function setToken(address _token, uint256 _decimal) external onlyOwner {
         claimContract.setToken(_token, _decimal);
     }
 
-    function setPeriods (uint256 _allocationTime, uint256 _publicTime) external onlyOwner {
+    function setPeriods(uint256 _allocationTime, uint256 _publicTime)
+        external
+        onlyOwner
+    {
         claimContract.setPeriods(_allocationTime, _publicTime);
     }
-    
-    function start () external onlyOwner updateReward(address(0)) {
+
+    function start() external onlyOwner updateReward(address(0)) {
         startDate = block.timestamp;
         claimContract.initialize(startDate + rewardsDuration);
         claimContract.unpause();
         emit DistributionStart(totalDollars);
     }
 
-    function setStateVault () external onlyOwner {
+    function setStateVault() external onlyOwner {
         IGOstate = block.timestamp < (startDate + rewardsDuration);
     }
 
@@ -121,15 +126,18 @@ contract IGO is Ownable, ReentrancyGuard {
     function totalStaked() private view returns (uint256) {
         return _totalSupply;
     }
-    
-    function setState () private {
-        IGOstate = block.timestamp < (startDate + rewardsDuration);        
+
+    function setState() private {
+        IGOstate = block.timestamp < (startDate + rewardsDuration);
     }
 
     // Public view functions //
 
     function lastTimeRewardApplicable() public view returns (uint256) {
-        return block.timestamp < (startDate + rewardsDuration) ? block.timestamp : (startDate + rewardsDuration);
+        return
+            block.timestamp < (startDate + rewardsDuration)
+                ? block.timestamp
+                : (startDate + rewardsDuration);
     }
 
     function totalRewardAdded() external view returns (uint256) {
@@ -144,23 +152,37 @@ contract IGO is Ownable, ReentrancyGuard {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         }
-        return rewardPerTokenStored + 
-                ((lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / _totalSupply);
+        return
+            rewardPerTokenStored +
+            (((lastTimeRewardApplicable() - lastUpdateTime) *
+                rewardRate *
+                1e18) / _totalSupply);
     }
 
     function earned(address account) public view returns (uint256) {
-        return (_balances[account] * (rewardPerToken() - (userRewardPerTokenPaid[account])) / 1e18) + rewards[account];
+        return
+            ((_balances[account] *
+                (rewardPerToken() - (userRewardPerTokenPaid[account]))) /
+                1e18) + rewards[account];
     }
 
     // Public mutative functions //
 
-    function stake(address account, uint256 amount) external updateReward(account) onlyOwner {
+    function stake(address account, uint256 amount)
+        external
+        updateReward(account)
+        onlyOwner
+    {
         require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply + amount;
         _balances[account] = _balances[account] + amount;
     }
 
-    function unstake(address account,uint256 amount) external updateReward(account) onlyOwner {
+    function unstake(address account, uint256 amount)
+        external
+        updateReward(account)
+        onlyOwner
+    {
         require(amount > 0, "Cannot withdraw 0");
         _balances[account] = _balances[account] - amount;
         _totalSupply = _totalSupply - amount;

@@ -1,10 +1,8 @@
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach(
-    "0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77"
-  );
+  const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
 
-  const igoId = 2; // Unique IGO id
+  const igoId = 5; // Unique IGO id
   const igoAddress = await spinVault.IGOs(igoId);
 
   const cmdWithdrawFunds = await spinVault.withdrawIGOFunds(igoAddress, 0); // Pull all dollars

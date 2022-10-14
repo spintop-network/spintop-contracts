@@ -1,24 +1,18 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const creo = "0xb6b06495F7A92eb272F32C051D4a2afA8f4d6cD0";
+  const creo = "0x13B87a0081953BebEDaAadECD9ca8bCe2d029039";
   const TargetContract = await ethers.getContractFactory("IGOClaim");
   const targetContract = TargetContract.attach(creo);
-  // const provider = new ethers.providers.JsonRpcProvider(
-  //   "https://fragrant-silent-snowflake.bsc.quiknode.pro/1c75461abd6819322507a060e5f05fa910e03446/"
-  // );
+  const provider = new ethers.providers.JsonRpcProvider("https://skilled-patient-butterfly.bsc.quiknode.pro/89efe93217115973b4681365c2e7a1e2abc0c29b/");
   const endBlock = await provider.getBlockNumber();
-  const startBlock = 17254070;
+  const startBlock = 21292615;
   let allEvents = [];
 
   for (let i = startBlock; i < endBlock; i += 5000) {
     const _startBlock = i;
     const _endBlock = Math.min(endBlock, i + 4999);
-    const events = await targetContract.queryFilter(
-      0x648d3cb1,
-      _startBlock,
-      _endBlock
-    );
+    const events = await targetContract.queryFilter(0x648d3cb1, _startBlock, _endBlock);
     allEvents = [...allEvents, ...events];
     console.log("Fetching 'Pay For Token' events. #", i);
   }
@@ -28,12 +22,7 @@ async function main() {
   let allTuples = [];
   let totalTokens = 0;
   for (let i = 0; i < buyers.length; i++) {
-    let tokenAmt = parseFloat(
-      ethers.utils.formatUnits(
-        await targetContract.claimableTokens(buyers[i]),
-        0
-      )
-    );
+    let tokenAmt = parseFloat(ethers.utils.formatUnits(await targetContract.claimableTokens(buyers[i]), 0));
     let tuple = [buyers[i], tokenAmt];
     allTuples[i] = tuple;
     totalTokens += tokenAmt;
