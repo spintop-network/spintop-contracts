@@ -3,7 +3,7 @@ async function main() {
   const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
 
   const igoId = 5; // Unique IGO id
-  const percentage = 1500; // tenthousandths
+  const percentage = 2917; // tenthousandths
 
   const igoAddress = await spinVault.IGOs(igoId);
   const cmdNotifyVesting = await spinVault.notifyVesting(igoAddress, percentage);
