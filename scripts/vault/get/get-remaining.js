@@ -1,4 +1,4 @@
-const given = require("./frmt.json");
+const given = require("../../trivians/frmt.json");
 const deserved = require("./adjusted_trivians.json");
 const { ethers } = require("ethers");
 const { MerkleTree } = require("merkletreejs");
@@ -35,15 +35,8 @@ async function main() {
   for (let i = 0; i < deserved.length; i++) {
     let index = realClaimers.indexOf(ethers.utils.hexlify(deserved[i][0]));
     let amount = index == -1 ? 0 : claimed[index][1];
-    // toGive[i] = {
-    //   addr: ethers.utils.hexlify(deserved[i][0]),
-    //   deserved: deserved[i][1] * 1000,
-    //   claimed: amount,
-    //   remaining: deserved[i][1] * 1000 - amount,
-    // };
     toGive[i] = [ethers.utils.hexlify(deserved[i][0]), deserved[i][1] * 1000 - amount];
   }
-  console.log(toGive);
 
   const fs = require("fs");
   const data = JSON.stringify(toGive);
