@@ -25,7 +25,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.BINANCE_URL_PUBLIC,
+        url: process.env.BINANCE_URL,
         accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       },
     },
@@ -48,6 +48,10 @@ module.exports = {
     okc: {
       url: process.env.OKC_URL || "",
       accounts: process.env.SPINTOP_DEPLOYER !== undefined ? [process.env.SPINTOP_DEPLOYER] : [],
+    },
+    devm: {
+      url: process.env.DEVM_URL || "",
+      accounts: process.env.MAC_KEY !== undefined ? [process.env.MAC_KEY] : [],
     },
   },
   etherscan: {

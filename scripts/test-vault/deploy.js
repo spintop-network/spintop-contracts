@@ -1,15 +1,18 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const poolAddress = "0x06F2bA50843e2D26D8FD3184eAADad404B0F1A67";
-  const spinAddress = "0x6AA217312960A21aDbde1478DC8cBCf828110A67";
+  const SpinToken = await ethers.getContractFactory("ERC20Mock");
+  const spinToken = await SpinToken.deploy("Spin Token", "SPIN");
+  await spinToken.deployed();
+  console.log("Spin Token deployed:", spinToken.address);
+
+  const SpinStakable = await ethers.getContractFactory("SpinStakable");
+  const spinStakable = await SpinStakable.deploy(spinToken.address, spinToken.address);
+  await spinStakable.deployed();
+  console.log("Staking Pool deployed: ", spinStakable.address);
+
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
-  const spinVault = await SpinVaultContract.deploy(
-    "SpinStarter Vault Shares",
-    "SSvS",
-    poolAddress,
-    spinAddress
-  );
+  const spinVault = await SpinVaultContract.deploy("SpinStarter Vault Shares", "SSvS", spinStakable.address, spinToken.address);
   await spinVault.deployed();
   console.log("SpinVault deployed: ", spinVault.address);
 }
