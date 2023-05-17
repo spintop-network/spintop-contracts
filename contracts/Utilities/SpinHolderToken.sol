@@ -35,7 +35,7 @@ contract SpinHolderToken is ERC20 {
         uint256 farm_balance = getFarmBalance(account);
         uint256 pool_balance = ISpinStakable(pool).balanceOf(account);
         uint256 spin_balance = IERC20(spin).balanceOf(account);
-        uint256 vault_balance = ISpinVault(pool).getUserStaked(account);
+        uint256 vault_balance = ISpinVault(vault).getUserStaked(account);
         return farm_balance + pool_balance + spin_balance + vault_balance;
     }
 

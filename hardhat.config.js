@@ -25,7 +25,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.BINANCE_URL,
+        url: process.env.BINANCE_URL_PUBLIC || "",
         accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       },
     },
@@ -38,7 +38,7 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     binance: {
-      url: process.env.BINANCE_URL || "",
+      url: process.env.BINANCE_URL_PUBLIC || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     polygon: {
@@ -55,7 +55,7 @@ module.exports = {
     },
   },
   etherscan: {
-    apiKey: process.env.BINANCE_ETHERSCAN_KEY,
+    apiKey: process.env.MAINNET_ETHERSCAN_KEY,
   },
   gasReporter: {
     enabled: false,

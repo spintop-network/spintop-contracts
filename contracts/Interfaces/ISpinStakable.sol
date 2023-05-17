@@ -12,6 +12,8 @@ interface ISpinStakable {
 
     function rewardPerToken() external view returns (uint256);
 
+    function rewardRate() external view returns (uint256);
+
     function earned(address account) external view returns (uint256);
 
     function getRewardForDuration() external view returns (uint256);
