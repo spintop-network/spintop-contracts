@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Interfaces/IPancakePair.sol";
-import "./Interfaces/IBEP20.sol";
-import "./Interfaces/ISpinStakable.sol";
+import "../Interfaces/IPancakePair.sol";
+import "../Interfaces/IBEP20.sol";
+import "../Interfaces/ISpinStakable.sol";
 import "hardhat/console.sol";
 
 uint256 constant SCALE = 10**8;
@@ -36,6 +36,8 @@ contract DataServer {
         address protocol_lp,
         address pool
     ) private view returns (uint256 tvl) {
+        console.log("Getting pool tvl...");
+        console.log("Scale:", SCALE);
         uint256 native_token_price = getTokenPrice(native_token, native_lp) /
             SCALE;
         uint256 token_price = getTokenPrice(protocol_token, protocol_lp) /
@@ -49,14 +51,14 @@ contract DataServer {
         address native_token,
         address native_lp,
         address protocol_token,
-        address lp,
+        address protocol_lp,
         address pool
     ) private view returns (uint256 apy) {
         uint256 tvl = getPoolTVL(
             native_token,
             native_lp,
             protocol_token,
-            lp,
+            protocol_lp,
             pool
         );
         uint256 reward_rate = ISpinStakable(pool).rewardRate();
@@ -153,5 +155,29 @@ contract DataServer {
             farm
         );
         data = Farm(ISpinStakable(farm).totalStaked(), tvl, apy, apy / 356);
+    }
+
+    function getPoolData(
+        address native_token,
+        address native_lp,
+        address protocol_token,
+        address protocol_lp,
+        address pool
+    ) public view returns (Farm memory data) {
+        uint256 tvl = getPoolTVL(
+            native_token,
+            native_lp,
+            protocol_token,
+            protocol_lp,
+            pool
+        );
+        uint256 apy = getPoolAPY(
+            native_token,
+            native_lp,
+            protocol_token,
+            protocol_lp,
+            pool
+        );
+        data = Farm(ISpinStakable(pool).totalStaked(), tvl, apy, apy / 356);
     }
 }
