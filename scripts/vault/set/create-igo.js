@@ -1,21 +1,21 @@
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
-  const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
-  const igoId = 4; // Set correct id!
-
+  const spinVault = SpinVault.attach("0xF4A2e75619985CA21860970279E2D608493032d5");
+  const BUSD = "0x6c96d72b04EA665bA7147C997457D07beC973593";
+  const igoId = 47; // Set correct id!
+  
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();
   console.log("Paused.");
 
   const cmdCreate = await spinVault.createIGO(
-    "Aria", // IGO Name
-    ethers.utils.parseEther("75000"), // Total Dollars
+    "erenjoo", // IGO Name
+    ethers.utils.parseEther("10000"), // Total Dollars
     BUSD, // Payment token (dollars)
-    "35", // Price (integer)
+    "10", // Price (integer)
     "3", // Price (decimal count)
-    "432000", // Duration of IGO (contribution round)
-    "5" // Public buy multiplier
+    "100", // Duration of IGO (contribution round)
+    "2" // Public buy multiplier
   );
   await cmdCreate.wait();
   console.log("Created IGO.");
@@ -29,13 +29,14 @@ async function main() {
   const members = await spinVault.membersLength();
   const batchCount = Math.floor(members / 200) + 1;
 
-  // const cmdStart = await spinVault.start();
-  // await cmdStart.wait();
-  for (let i = 0; i < batchCount - 1; i++) {
+
+  for (let i = 0; i < batchCount ; i++) {
     const cmdMigrate = await spinVault.migrateBalances();
     await cmdMigrate.wait();
     console.log("Migrated batch.");
   }
+  const cmdStart = await spinVault.start();
+  await cmdStart.wait();
   const cmdUnpause = await spinVault.unpause();
   await cmdUnpause.wait();
   console.log("Unpaused.");

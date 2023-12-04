@@ -7,18 +7,33 @@ require("hardhat-tracer");
 
 module.exports = {
   solidity: {
-    version: "0.8.0",
+    compilers: [
+      {
+        version: "0.8.0",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.15",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.1",
+      }
+    ],
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
-        // details: {
-        //   yul: true,
-        //   yulDetails: {
-        //     stackAllocation: true,
-        //     optimizerSteps: "dhfoDgvulfnTUtnIf",
-        //   },
-        // },
       },
     },
   },
@@ -29,43 +44,21 @@ module.exports = {
         accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       },
     },
-    mainnet: {
-      url: process.env.MAINNET_URL || "",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    fantom: {
-      url: process.env.FANTOM_URL || "",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
+
     binance: {
-      url: process.env.BINANCE_URL_PUBLIC || "",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url: "https://bsc-dataseed.binance.org/",
+      accounts: ["0xfa13873866cddc26f3796d490ddf2cb5bd25392cef820f18ef19b87addd5815c"],
+      gasPrice: 3000000000,
     },
     polygon: {
       url: process.env.POLYGON_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    okc: {
-      url: process.env.OKC_URL || "",
-      accounts: process.env.SPINTOP_DEPLOYER !== undefined ? [process.env.SPINTOP_DEPLOYER] : [],
-    },
-    devm: {
-      url: process.env.DEVM_URL || "",
-      accounts: process.env.MAC_KEY !== undefined ? [process.env.MAC_KEY] : [],
-    },
   },
   etherscan: {
-    apiKey: process.env.MAINNET_ETHERSCAN_KEY,
+    apiKey: "QH3QDHPBQ65XU2D98M3I6DNXK35BV6AWDJ"
   },
-  gasReporter: {
-    enabled: false,
-    currency: "USD",
-    token: "BNB",
-    gasPrice: 7,
-    gasPriceApi: "https://api.bscscan.com/api?module=proxy&action=eth_gasPrice",
-    coinmarketcap: process.env.COINMARKETCAP,
-  },
-  mocha: {
-    timeout: 100000000,
-  },
+
+
+
 };

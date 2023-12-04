@@ -1,9 +1,9 @@
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
+  const spinVault = SpinVault.attach("0xF4A2e75619985CA21860970279E2D608493032d5");
 
-  const igoId = 5; // Unique IGO id
-  const percentage = 2917; // tenthousandths
+  const igoId = 46; // Unique IGO id
+  const percentage = 1250; // tenthousandths
 
   const igoAddress = await spinVault.IGOs(igoId);
   const cmdNotifyVesting = await spinVault.notifyVesting(igoAddress, percentage);

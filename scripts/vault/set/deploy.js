@@ -5,8 +5,8 @@ async function main() {
   const spinAddress = "0x6AA217312960A21aDbde1478DC8cBCf828110A67";
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
   const spinVault = await SpinVaultContract.deploy(
-    "SpinStarter Vault Shares",
-    "SSvS",
+    "TestVault",
+    "test",
     poolAddress,
     spinAddress
   );

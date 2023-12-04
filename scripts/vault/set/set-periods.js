@@ -1,10 +1,10 @@
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
+  const spinVault = SpinVault.attach("0xF4A2e75619985CA21860970279E2D608493032d5");
 
-  const igoId = 5; // Unique IGO id
-  const allocationPeriod = 28800; // in seconds
-  const publicPeriod = 14400; // in seconds
+  const igoId = 47; // Unique IGO id
+  const allocationPeriod = 600; // in seconds
+  const publicPeriod =100; // in seconds
 
   const igoAddress = await spinVault.IGOs(igoId);
   const cmdSetPeriods = await spinVault.setPeriods(igoAddress, allocationPeriod, publicPeriod);
