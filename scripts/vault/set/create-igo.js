@@ -2,19 +2,19 @@ async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
   const spinVault = SpinVault.attach("0xF4A2e75619985CA21860970279E2D608493032d5");
   const BUSD = "0x6c96d72b04EA665bA7147C997457D07beC973593";
-  const igoId = 47; // Set correct id!
+  const igoId = 61; // Set correct id!
   
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();
   console.log("Paused.");
 
   const cmdCreate = await spinVault.createIGO(
-    "erenjoo", // IGO Name
+    "erenjotest", // IGO Name
     ethers.utils.parseEther("10000"), // Total Dollars
     BUSD, // Payment token (dollars)
     "10", // Price (integer)
     "3", // Price (decimal count)
-    "100", // Duration of IGO (contribution round)
+    "300", // Duration of IGO (contribution round)
     "2" // Public buy multiplier
   );
   await cmdCreate.wait();

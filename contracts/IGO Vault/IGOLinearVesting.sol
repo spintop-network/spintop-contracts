@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Unlicensed
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
+
+
 
 /**
  * @title Merkelized Linear Vesting
@@ -23,6 +24,8 @@ contract IGOLinearVesting is Ownable {
     uint256 public _percentageUnlocked;
     uint256 public _totalDollars;
     uint256 public _firstClaimTime;
+    uint256 public _refundPeriodStart;
+    uint256 public _refundPeriodEnd;
     mapping(address => uint256) public claimedTokens;
     mapping(address => bool) public refundRequest;
     constructor(
@@ -32,8 +35,11 @@ contract IGOLinearVesting is Ownable {
         uint256 totalDollars,
         uint256 firstClaimTime,
         uint256 duration,
-        uint256 percentageUnlocked
-    ){
+        uint256 percentageUnlocked,
+        uint256 refundPeriodStart,
+        uint256 refundPeriodEnd,
+        address InitialOwner
+    )Ownable(){
         _root = root;
         _tokenAddress = tokenAddress;
         _totalAmount = tokenAmount;
@@ -41,6 +47,8 @@ contract IGOLinearVesting is Ownable {
         _percentageUnlocked = percentageUnlocked;
         _totalDollars = totalDollars;
         _firstClaimTime = firstClaimTime;
+        _refundPeriodStart = refundPeriodStart;
+        _refundPeriodEnd = refundPeriodEnd;
     }
     function start() public onlyOwner {
         _startDate = block.timestamp;
@@ -62,7 +70,7 @@ contract IGOLinearVesting is Ownable {
         );
         claimedTokens[msg.sender] += tokensToClaim;
         _totalClaimed += tokensToClaim;
-        IERC20(_tokenAddress).transfer(msg.sender, tokensToClaim * 1e3);
+        IERC20(_tokenAddress).transfer(msg.sender, tokensToClaim);
     }
     // scale up by 1e4
     function percentageDeserved() public view returns (uint256 percentage) {
@@ -70,13 +78,12 @@ contract IGOLinearVesting is Ownable {
             ? _startDate + _duration
             : block.timestamp;
         uint256 timePast = (_now - _startDate) * 1e12;
-        uint256 scaledPercentage = (timePast / _duration / 1e10) * 100;
+        uint256 scaledPercentage = (timePast / _duration / 1e10) * (100 - _percentageUnlocked);
         if (_startDate == 0){
             percentage = _percentageUnlocked * 1e2;
         } else {
         percentage = _percentageUnlocked * 1e2 + scaledPercentage;
         }
-        console.log("Percentage: ", percentage);
     }
     // scale down by 1e4
     function deserved(uint256 _amount) public view returns (uint256 _deserved) {
@@ -99,6 +106,7 @@ contract IGOLinearVesting is Ownable {
             _verify(_leaf(payload), proof),
             "Invalid Merkle Tree proof supplied."
         );
+        require(_refundPeriodStart< block.timestamp && block.timestamp < _refundPeriodEnd , "Refund Period has ended");
         refundRequest[msg.sender] = true;
     }
     function emergencyWithdraw() public onlyOwner {

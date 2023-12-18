@@ -18,7 +18,7 @@ module.exports = {
         },
       },
       {
-        version: "0.8.15",
+        version: "0.8.21",
         settings: {
           optimizer: {
             enabled: true,
@@ -47,7 +47,7 @@ module.exports = {
 
     binance: {
       url: "https://bsc-dataseed.binance.org/",
-      accounts: ["0xfa13873866cddc26f3796d490ddf2cb5bd25392cef820f18ef19b87addd5815c"],
+      accounts: ["0x1c4a95c334ce38f957e2e19608e22f2317ade0641e08204d145e50090eca8c3e"],
       gasPrice: 3000000000,
     },
     polygon: {
