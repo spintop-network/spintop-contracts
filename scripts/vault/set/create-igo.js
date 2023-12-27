@@ -3,14 +3,14 @@ async function main() {
   const spinVault = SpinVault.attach("0xF4A2e75619985CA21860970279E2D608493032d5");
   const BUSD = "0x6c96d72b04EA665bA7147C997457D07beC973593";
   const igoId = 61; // Set correct id!
-  
+
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();
   console.log("Paused.");
 
   const cmdCreate = await spinVault.createIGO(
     "erenjotest", // IGO Name
-    ethers.utils.parseEther("10000"), // Total Dollars
+    ethers.parseEther("10000"), // Total Dollars
     BUSD, // Payment token (dollars)
     "10", // Price (integer)
     "3", // Price (decimal count)

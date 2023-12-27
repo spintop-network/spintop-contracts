@@ -1,56 +1,53 @@
-const { ethers } = require("hardhat");
+const hardhat = require("hardhat");
 
 async function main() {
-  const ookengaClaim = "0x13B87a0081953BebEDaAadECD9ca8bCe2d029039";
+  const ookengaClaim = "0x84494b566f09eB149A381FB3Aab32B28370734D5";
   const IGOClaim = await ethers.getContractFactory("IGOClaim");
   const igoClaim = IGOClaim.attach(ookengaClaim);
-  const endBlock = await ethers.provider.getBlockNumber();
-  const startBlock = 21292600;
+  const provider = await new ethers.JsonRpcProvider(hardhat.network.config.url);
+  const endBlock = await provider.getBlockNumber();
+  const startBlock = 34552935;
   let allEvents = [];
 
   for (let i = startBlock; i < endBlock; i += 5000) {
     const _startBlock = i;
-    const _endBlock = Math.min(endBlock, i + 4999);
+    const _endBlock = Math.min(endBlock, i + 5000);
     const events = await igoClaim.queryFilter("UserPaid", _startBlock, _endBlock);
+    console.log(events.length);
     allEvents = [...allEvents, ...events];
   }
 
   let allTuples = [];
-  let totalAmount = 0;
+  let totalAmount = BigInt(0);
   let buyers = allEvents.map((event) => event.args[0]);
-  let amounts = allEvents.map((event) => parseFloat(ethers.utils.formatEther(event.args[1])));
+  let amounts = allEvents.map((event) => BigInt((event.args[1]).toString()));
 
-  // const set = new Set();
-  // const unq_buyers = buyers.filter((buyer, i) => {
-  //   if (set.has(buyer)) {
-  //     return false;
-  //   } else {
-  //     set.add(buyer);
-  //     return true;
-  //   }
-  // });
+  console.log(amounts[0], typeof amounts[0])
+  // const UNKNOWN_MULTIPLIER = 0.7083; Is this token price?
+  const UNKNOWN_MULTIPLIER = BigInt(100);
 
   let counter = 0;
   for (let i = 0; i < buyers.length; i++) {
     let existsAt = -1;
     for (let j = 0; j < counter; j++) {
-      if (allTuples[j][0] == buyers[i]) {
+      if (allTuples[j][0] === buyers[i]) {
         existsAt = j;
-        allTuples[j][1] += amounts[i] * 0.7083;
+        allTuples[j][1] += amounts[i] * UNKNOWN_MULTIPLIER;
         break;
       }
     }
-    if (existsAt == -1) {
-      allTuples[counter] = [buyers[i], amounts[i] * 0.7083];
+    if (existsAt === -1) {
+      allTuples[counter] = [buyers[i], amounts[i] * UNKNOWN_MULTIPLIER];
       counter++;
     }
-    totalAmount += amounts[i] * 0.7083;
+    totalAmount += amounts[i] * UNKNOWN_MULTIPLIER;
   }
 
   console.log("Total users -> ", buyers.length);
   console.log("Total amount -> ", totalAmount);
   console.log("Total unique entries -> ", allTuples.length);
 
+  allTuples = allTuples.map((tuple) => ([tuple[0], tuple[1].toString()]));
   const fs = require("fs");
   const data = JSON.stringify(allTuples);
   fs.writeFileSync("./ookenga-unq-amounts.json", data, "utf8", (err) => {

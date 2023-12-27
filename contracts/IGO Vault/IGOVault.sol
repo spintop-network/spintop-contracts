@@ -30,7 +30,7 @@ contract IGOVault is ERC20, Pausable, Ownable, ReentrancyGuard {
     uint256 private batchSize = 500;
     uint256 constant private MAX_INT = 2**256 - 1;
 
-    constructor ( 
+    constructor (
         string memory _shareName,
         string memory _shareSymbol,
         address _pool,
@@ -53,7 +53,7 @@ contract IGOVault is ERC20, Pausable, Ownable, ReentrancyGuard {
         uint256 _duration,
         uint256 _multiplier) external onlyOwner whenPaused {
         IGO _igo = new IGO(
-            _gameName, 
+            _gameName,
             _totalDollars,
             _paymentToken,
             _price,
@@ -105,7 +105,7 @@ contract IGOVault is ERC20, Pausable, Ownable, ReentrancyGuard {
 
     function withdrawIGOFunds (address _igo, uint256 token) external onlyOwner {
         IGO(_igo).withdrawFunds(token);
-    } 
+    }
 
     // Private functions //
 

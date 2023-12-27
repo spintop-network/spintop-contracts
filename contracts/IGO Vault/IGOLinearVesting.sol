@@ -32,7 +32,6 @@ contract IGOLinearVesting is Ownable {
         bytes32 root,
         address tokenAddress,
         uint256 tokenAmount,
-        uint256 totalDollars,
         uint256 firstClaimTime,
         uint256 duration,
         uint256 percentageUnlocked,
@@ -40,16 +39,20 @@ contract IGOLinearVesting is Ownable {
         uint256 refundPeriodEnd,
         address InitialOwner
     )Ownable(){
+        require(refundPeriodEnd > refundPeriodStart, "Refund Period must end after it starts.");
+        require(percentageUnlocked <= 100, "Percentage Unlocked must be less than 100.");
         _root = root;
         _tokenAddress = tokenAddress;
         _totalAmount = tokenAmount;
+        _firstClaimTime = firstClaimTime;
         _duration = duration;
         _percentageUnlocked = percentageUnlocked;
-        _totalDollars = totalDollars;
-        _firstClaimTime = firstClaimTime;
         _refundPeriodStart = refundPeriodStart;
         _refundPeriodEnd = refundPeriodEnd;
     }
+
+    event RefundRequested(address indexed user, uint256 amount);
+
     function start() public onlyOwner {
         _startDate = block.timestamp;
     }
@@ -72,6 +75,11 @@ contract IGOLinearVesting is Ownable {
         _totalClaimed += tokensToClaim;
         IERC20(_tokenAddress).transfer(msg.sender, tokensToClaim);
     }
+
+    function isRefundRequested(address _user) public view returns (bool){
+        return refundRequest[_user];
+    }
+
     // scale up by 1e4
     function percentageDeserved() public view returns (uint256 percentage) {
         uint256 _now = block.timestamp > _startDate + _duration
@@ -101,6 +109,8 @@ contract IGOLinearVesting is Ownable {
         return MerkleProof.verify(proof, _root, leaf);
     }
     function askForRefund(uint256 _amount, bytes32[] calldata proof) public {
+        require(claimedTokens[msg.sender] == 0, "You have already claimed tokens.");
+        require(isRefundRequested(msg.sender) == false, "Refund is already requested.");
         string memory payload = string(abi.encodePacked(msg.sender, _amount));
         require(
             _verify(_leaf(payload), proof),
@@ -108,9 +118,32 @@ contract IGOLinearVesting is Ownable {
         );
         require(_refundPeriodStart< block.timestamp && block.timestamp < _refundPeriodEnd , "Refund Period has ended");
         refundRequest[msg.sender] = true;
+        emit RefundRequested(msg.sender, _amount);
     }
     function emergencyWithdraw() public onlyOwner {
         uint256 _balance = IERC20(_tokenAddress).balanceOf(address(this));
         IERC20(_tokenAddress).transfer(owner(), _balance);
+    }
+
+    function setParameters(
+        bytes32 root,
+        address tokenAddress,
+        uint256 tokenAmount,
+        uint256 firstClaimTime,
+        uint256 duration,
+        uint256 percentageUnlocked,
+        uint256 refundPeriodStart,
+        uint256 refundPeriodEnd
+    ) public onlyOwner {
+        require(refundPeriodEnd > refundPeriodStart, "Refund Period must end after it starts.");
+        require(percentageUnlocked <= 100, "Percentage Unlocked must be less than 100.");
+        _root = root;
+        _tokenAddress = tokenAddress;
+        _totalAmount = tokenAmount;
+        _duration = duration;
+        _percentageUnlocked = percentageUnlocked;
+        _firstClaimTime = firstClaimTime;
+        _refundPeriodStart = refundPeriodStart;
+        _refundPeriodEnd = refundPeriodEnd;
     }
 }
