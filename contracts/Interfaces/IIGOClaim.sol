@@ -8,7 +8,7 @@ interface IIGOClaim {
     event UserClaimed(address indexed user, uint256 amount);
 
     // Public and External Functions
-    function initialize(uint256 _allocationStartDate) external;
+    function setAllocationStartDate(uint256 _allocationStartDate) external;
     function pause() external;
     function unpause() external;
     function withdrawTokens() external;

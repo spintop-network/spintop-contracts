@@ -4,9 +4,7 @@ pragma solidity ^0.8.23;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
  * @title Merkelized Linear Vesting
@@ -14,7 +12,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * typical vesting scheme.
  */
 
-contract IGOLinearVesting is Ownable {
+contract IGOLinearVesting is OwnableUpgradeable {
     bytes32 private _root;
     address public _tokenAddress;
     uint256 public _totalAmount;
@@ -28,7 +26,8 @@ contract IGOLinearVesting is Ownable {
     uint256 public _refundPeriodEnd;
     mapping(address => uint256) public claimedTokens;
     mapping(address => bool) public refundRequest;
-    constructor(
+
+    function initialize(
         bytes32 root,
         address tokenAddress,
         uint256 tokenAmount,
@@ -38,7 +37,8 @@ contract IGOLinearVesting is Ownable {
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
         address InitialOwner
-    )Ownable(InitialOwner){
+    ) initializer public {
+        __Ownable_init(InitialOwner);
         require(refundPeriodEnd > refundPeriodStart, "Refund Period must end after it starts.");
         require(percentageUnlocked <= 100, "Percentage Unlocked must be less than 100.");
         _root = root;

@@ -30,6 +30,7 @@ interface IIGO {
     function earned(address account) external view returns (uint256);
     function stake(address account, uint256 amount) external;
     function unstake(address account, uint256 amount) external;
+    function setClaimContract(address _claimContract) external;
 
     // Getter Functions for Public Variables
     function gameName() external view returns (string memory);

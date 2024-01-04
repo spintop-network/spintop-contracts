@@ -26,9 +26,9 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     uint256 public price;
     uint256 public priceDecimal;
     uint256 public multiplier;
-    uint256 public allocationTime = 6 hours;
-    uint256 public publicTime = 24 hours;
-    uint256 public claimPercentage = 0;
+    uint256 public allocationTime;
+    uint256 public publicTime;
+    uint256 public claimPercentage;
     uint256 public totalPaid;
     uint256 public totalClaimed;
     bool public isLinear;
@@ -37,7 +37,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     mapping(address => uint256) public claimedAmounts;
     mapping(address => uint256) public claimedTokens;
 
-    constructor(
+    function initialize(
         address _vault,
         address _igo,
         uint256 _totalDollars,
@@ -45,8 +45,13 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         uint256 _price,
         uint256 _priceDecimal,
         uint256 _multiplier,
-        bool _isLinear
-    ) {
+        bool _isLinear,
+        address initialOwner
+    ) initializer public {
+        __Ownable_init(initialOwner);
+        allocationTime = 6 hours;
+        publicTime = 24 hours;
+        claimPercentage = 0;
         vault = _vault;
         igo = _igo;
         totalDollars = _totalDollars;
@@ -58,14 +63,13 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _pause();
     }
 
-    function initialize(uint256 _allocationStartDate)
-        external
-        onlyOwner
-        whenPaused
-    {
+    function setAllocationStartDate(uint256 _allocationStartDate) external onlyOwner whenPaused {
         allocationStartDate = _allocationStartDate;
     }
 
+    function pause() external onlyOwner {
+        _pause();
+    }
 
     function unpause() external onlyOwner {
         _unpause();

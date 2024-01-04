@@ -28,6 +28,15 @@ module.exports = {
         }
       },
       {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
+      {
         version: "0.8.21",
         settings: {
           optimizer: {
@@ -71,7 +80,8 @@ module.exports = {
     },
     bsctestnet: {
       url: process.env.BSC_TESTNET_URL || "https://data-seed-prebsc-1-s1.binance.org:8545/",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 6000000000
     },
     polygon: {
       url: process.env.POLYGON_URL || "",

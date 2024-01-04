@@ -6,18 +6,12 @@ async function main() {
   const spinAddress = process.env.TESTNET_SPIN_ADDRESS || "0x6AA217312960A21aDbde1478DC8cBCf828110A67";
   const owner = "0xF04a7d27F93f48B69e5C846097D21F52806BC135";
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
-  const spinVault = await upgrades.deployProxy(
-    SpinVaultContract,
-    [
-      "TestVault",
-      "test",
-      poolAddress,
-      spinAddress,
-      owner
-    ],
+  const spinVault = await upgrades.upgradeProxy(
+    "0x7585c090c772a7bd5dacae3495be615bca868002", // Proxy address
+    SpinVaultContract
   );
-  await spinVault.waitForDeployment();
-  console.log("SpinVault deployed: ", await spinVault.getAddress());
+  // await spinVault.waitForDeployment();
+  console.log("SpinVault deployed: ", spinVault.target);
 }
 main()
   .then(() => process.exit(0))

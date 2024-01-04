@@ -31,7 +31,17 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     mapping(address => uint256) private _stakingTime;
     uint256 private reward_amount;
 
-    constructor() {}
+    function initialize(
+        string memory _gameName,
+        uint256 _totalDollars,
+        uint256 _rewardsDuration,
+        address initialOwner
+    ) initializer public {
+        __Ownable_init(initialOwner);
+        gameName = _gameName;
+        totalDollars = _totalDollars;
+        rewardsDuration = _rewardsDuration;
+    }
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -53,9 +63,27 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         claimContract = IIGOClaim(_claimContract);
     }
 
+    function withdrawFunds(uint256 token) external onlyOwner {
+        token == 0
+            ? claimContract.withdrawDollars()
+            : claimContract.withdrawTokens();
+    }
+
+    function notifyVesting(uint256 _percentage) external onlyOwner {
+        claimContract.notifyVesting(_percentage);
+    }
+
+    function setToken(address _token, uint256 _decimal) external onlyOwner {
+        claimContract.setToken(_token, _decimal);
+    }
+
+    function setPeriods(uint256 _allocationTime, uint256 _publicTime) external onlyOwner {
+        claimContract.setPeriods(_allocationTime, _publicTime);
+    }
+
     function start() external onlyOwner updateReward(address(0)) {
         startDate = block.timestamp;
-        claimContract.initialize(startDate + rewardsDuration);
+        claimContract.setAllocationStartDate(startDate + rewardsDuration);
         claimContract.unpause();
         emit DistributionStart(totalDollars);
     }
