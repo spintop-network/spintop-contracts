@@ -1,21 +1,5 @@
 const hardhat = require("hardhat");
 
-const verify = async (contractAddress, args) => {
-  console.log("Verifying contract...");
-  try {
-    await hardhat.run("verify:verify", {
-      address: contractAddress,
-      constructorArguments: args,
-    });
-  } catch (e) {
-    if (e.message.toLowerCase().includes("already verified")) {
-      console.log("Already verified!");
-    } else {
-      console.log(e);
-    }
-  }
-};
-
 async function main() {
 
     const now = new Date();
@@ -50,8 +34,8 @@ async function main() {
       refundPeriodEnd,
       ownerAddress
     );
-    await igoLinearVesting.deployed();
-    console.log("IGOLinearVesting deployed to:", igoLinearVesting.address);
+    await igoLinearVesting.waitForDeployment();
+    console.log("IGOLinearVesting deployed to:", igoLinearVesting.target);
     console.log("Parameters", {
       merkleRoot,
       tokenAddress,
@@ -63,19 +47,6 @@ async function main() {
       refundPeriodEnd,
       ownerAddress
     });
-
-    await new Promise(r => setTimeout(r, 30000));
-    await verify(igoLinearVesting.address, [
-        merkleRoot,
-        tokenAddress,
-        totalAmount,
-        firstClaimTime,
-        vestingDuration,
-        percentageUnlocked,
-        refundPeriodStart,
-        refundPeriodEnd,
-        ownerAddress
-    ]);
 }
 
 main().then(() => process.exit(0)).catch((error) => {

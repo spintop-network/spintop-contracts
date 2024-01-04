@@ -39,7 +39,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract SpintopNFT is ERC721, Ownable {
     string public baseUri;
 
-    constructor() ERC721("Spintop NFT", "SPINTOP") {
+    constructor() Ownable(msg.sender) ERC721("Spintop NFT", "SPINTOP") {
         baseUri = "https://spintop-files.fra1.digitaloceanspaces.com/nft/metadata/";
     }
 

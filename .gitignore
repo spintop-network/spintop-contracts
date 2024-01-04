@@ -8,3 +8,7 @@ temp
 #Hardhat files
 cache
 artifacts
+
+pnpm-lock.yaml
+.idea
+

@@ -6,8 +6,8 @@ async function main() {
 
   const SHT = await ethers.getContractFactory("SpinHolderToken");
   const sht = await SHT.deploy(spin, pool, farm, vault);
-  await sht.deployed();
-  console.log("SHT deployed: ", sht.address);
+  await sht.waitForDeployment();
+  console.log("SHT deployed: ", sht.target);
 }
 main()
   .then(() => process.exit(0))

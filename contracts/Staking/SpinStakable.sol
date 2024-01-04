@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Libraries/SafeBEP20.sol";
 import "hardhat/console.sol";
@@ -37,7 +36,7 @@ contract SpinStakable is Ownable, ReentrancyGuard {
 
     /* ========== CONSTRUCTOR ========== */
 
-    constructor(address _rewardsToken, address _stakingToken) {
+    constructor(address _rewardsToken, address _stakingToken) Ownable(msg.sender) {
         rewardsToken = IBEP20(_rewardsToken);
         stakingToken = IBEP20(_stakingToken);
     }

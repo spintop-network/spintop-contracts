@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "../Interfaces/IBEP20.sol";
 
@@ -90,7 +90,7 @@ library SafeBEP20 {
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, 'SafeBEP20: low-level call failed');
+        bytes memory returndata = address(token).functionCall(data);
         if (returndata.length > 0) {
             // Return data is optional
             // solhint-disable-next-line max-line-length

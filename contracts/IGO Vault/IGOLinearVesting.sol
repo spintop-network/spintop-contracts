@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicensed
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -38,7 +38,7 @@ contract IGOLinearVesting is Ownable {
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
         address InitialOwner
-    )Ownable(){
+    )Ownable(InitialOwner){
         require(refundPeriodEnd > refundPeriodStart, "Refund Period must end after it starts.");
         require(percentageUnlocked <= 100, "Percentage Unlocked must be less than 100.");
         _root = root;
@@ -56,6 +56,7 @@ contract IGOLinearVesting is Ownable {
     function start() public onlyOwner {
         _startDate = block.timestamp;
     }
+
     function claim(uint256 amount, bytes32[] calldata proof) external {
         require(_firstClaimTime < block.timestamp, "Not time yet.");
         require(refundRequest[msg.sender] == false, "Refund requested.");
@@ -93,14 +94,17 @@ contract IGOLinearVesting is Ownable {
         percentage = _percentageUnlocked * 1e2 + scaledPercentage;
         }
     }
+
     // scale down by 1e4
     function deserved(uint256 _amount) public view returns (uint256 _deserved) {
         uint256 _percentage = percentageDeserved();
         _deserved = (_percentage * _amount) / 1e4;
     }
+
     function _leaf(string memory payload) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(payload));
     }
+
     function _verify(bytes32 leaf, bytes32[] memory proof)
         internal
         view
@@ -108,6 +112,7 @@ contract IGOLinearVesting is Ownable {
     {
         return MerkleProof.verify(proof, _root, leaf);
     }
+
     function askForRefund(uint256 _amount, bytes32[] calldata proof) public {
         require(claimedTokens[msg.sender] == 0, "You have already claimed tokens.");
         require(isRefundRequested(msg.sender) == false, "Refund is already requested.");
@@ -120,6 +125,7 @@ contract IGOLinearVesting is Ownable {
         refundRequest[msg.sender] = true;
         emit RefundRequested(msg.sender, _amount);
     }
+
     function emergencyWithdraw() public onlyOwner {
         uint256 _balance = IERC20(_tokenAddress).balanceOf(address(this));
         IERC20(_tokenAddress).transfer(owner(), _balance);
