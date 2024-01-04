@@ -1,4 +1,5 @@
-const { ethers } = require("hardhat");
+const hardhat = require("hardhat");
+const { ethers } = hardhat;
 
 async function main() {
   const poolAddress = "0x06F2bA50843e2D26D8FD3184eAADad404B0F1A67";
@@ -10,8 +11,8 @@ async function main() {
     poolAddress,
     spinAddress
   );
-  await spinVault.deployed();
-  console.log("SpinVault deployed: ", spinVault.address);
+  await spinVault.waitForDeployment();
+  console.log("SpinVault deployed: ", spinVault.target);
 }
 main()
   .then(() => process.exit(0))

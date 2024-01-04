@@ -7,8 +7,8 @@ async function main() {
   const bnb_busd_lp = "0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16";
   const DataServer = await ethers.getContractFactory("DataServer");
   const dataServer = await DataServer.deploy();
-  await dataServer.deployed();
-  console.log("DataServer deployed to:", dataServer.address);
+  await dataServer.waitForDeployment();
+  console.log("DataServer deployed to:", dataServer.target);
 
   let farm_result = await dataServer.getFarmData(
     wbnb,

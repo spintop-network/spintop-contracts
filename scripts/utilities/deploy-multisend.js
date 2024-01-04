@@ -1,9 +1,9 @@
 async function main() {
   const MultiSend = await ethers.getContractFactory("MultiSendCustom");
   const multiSend = await MultiSend.deploy();
-  await multiSend.deployed();
+  await multiSend.waitForDeployment();
 
-  console.log("MultiSend deployed: ", multiSend.address);
+  console.log("MultiSend deployed: ", multiSend.target);
 }
 main()
   .then(() => process.exit(0))

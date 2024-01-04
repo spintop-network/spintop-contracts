@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.23;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Interfaces/IIGO.sol";
 
 /// @title Spinstarter IGO Claim
 /// @author Spintop.Network
 /// @notice Pay for and claim earned tokens.
 /// @dev 'Dollars' symbolize underlying payment tokens. Assumed 18 decimal.
-contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
+contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
     address private vault;
@@ -30,6 +31,7 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
     uint256 public claimPercentage = 0;
     uint256 public totalPaid;
     uint256 public totalClaimed;
+    bool public isLinear;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public paidPublic;
     mapping(address => uint256) public claimedAmounts;
@@ -42,7 +44,8 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         address _paymentToken,
         uint256 _price,
         uint256 _priceDecimal,
-        uint256 _multiplier
+        uint256 _multiplier,
+        bool _isLinear
     ) {
         vault = _vault;
         igo = _igo;
@@ -51,6 +54,8 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         price = _price;
         priceDecimal = _priceDecimal;
         multiplier = _multiplier;
+        isLinear = _isLinear;
+        _pause();
     }
 
     function initialize(uint256 _allocationStartDate)
@@ -61,9 +66,6 @@ contract IGOClaim is Context, Pausable, Ownable, ReentrancyGuard {
         allocationStartDate = _allocationStartDate;
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
 
     function unpause() external onlyOwner {
         _unpause();
