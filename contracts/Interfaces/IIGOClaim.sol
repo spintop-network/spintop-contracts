@@ -11,6 +11,7 @@ interface IIGOClaim {
     function setAllocationStartDate(uint256 _allocationStartDate) external;
     function pause() external;
     function unpause() external;
+    function emergencyWithdraw() external;
     function withdrawTokens() external;
     function withdrawDollars() external;
     function notifyVesting(uint256 percentage) external;

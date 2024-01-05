@@ -32,6 +32,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     uint256 public totalPaid;
     uint256 public totalClaimed;
     bool public isLinear;
+    uint256 public _startDate;
+    uint256 public _duration;
+    uint256 public _refundPeriodStart;
+    uint256 public _refundPeriodEnd;
+    mapping(address => bool) public refunded;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public paidPublic;
     mapping(address => uint256) public claimedAmounts;
@@ -111,22 +116,51 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     event ClaimUnlocked(address indexed igo);
     event UserPaid(address indexed user, uint256 amount);
+    event UserPaidPublic(address indexed user, uint256 amount);
     event UserClaimed(address indexed user, uint256 amount);
+    event Refunded(address indexed user, uint256 amount);
 
     // Admin functions //
 
     function withdrawTokens() external onlyOwner withdrawTimer {
-        require(
-            block.timestamp >
-                (allocationStartDate + allocationTime + publicTime)
-        );
         uint256 leftover = IERC20(token).balanceOf(address(this));
         IERC20(token).safeTransfer(tx.origin, leftover);
     }
 
     function withdrawDollars() external onlyOwner {
-        require(totalPaid > 0, "Can not withdraw 0 amount.");
-        IERC20(paymentToken).safeTransfer(tx.origin, totalPaid);
+        uint256 _balance = IERC20(paymentToken).balanceOf(address(this));
+        IERC20(paymentToken).safeTransfer(tx.origin, _balance);
+    }
+
+    function emergencyWithdraw() public onlyOwner {
+        uint256 _balance = IERC20(token).balanceOf(address(this));
+        if (_balance > 0) {
+            IERC20(token).transfer(tx.origin, _balance);
+        }
+        _balance = IERC20(paymentToken).balanceOf(address(this));
+        if (_balance > 0) {
+            IERC20(paymentToken).transfer(tx.origin, _balance);
+        }
+        _balance = address(this).balance;
+        if (_balance > 0) {
+            (bool success,) = payable(tx.origin).call{value: _balance}("");
+            require(success, "Transfer failed.");
+        }
+    }
+
+    function setLinearParams(
+        uint256 startDate,
+        uint256 duration,
+        uint256 refundPeriodStart,
+        uint256 refundPeriodEnd,
+        uint256 percentageUnlocked
+    ) external onlyOwner {
+        require(isLinear, "Linear vesting is disabled.");
+        _startDate = startDate;
+        _duration = duration;
+        _refundPeriodStart = refundPeriodStart;
+        _refundPeriodEnd = refundPeriodEnd;
+        claimPercentage = percentageUnlocked;
     }
 
     function notifyVesting(uint256 percentage) external onlyOwner {
@@ -196,7 +230,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     {
         _claimable =
             ((paidAmounts[_user] * claimPercentage) / 10000) -
-            claimedAmounts[_msgSender()];
+            claimedAmounts[_user];
     }
 
     function claimableTokens(address _user)
@@ -205,6 +239,30 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         returns (uint256 _claimable)
     {
         _claimable = normalize(claimableAllocation(_user));
+    }
+
+    // scale up by 1e4
+    function percentageDeserved() public view returns (uint256 percentage) {
+        uint256 _now = block.timestamp > _startDate + _duration
+            ? _startDate + _duration
+            : block.timestamp;
+        uint256 timePast = (_now - _startDate) * 1e12;
+        uint256 scaledPercentage = (timePast / _duration / 1e10) * (100 - claimPercentage);
+        if (_startDate == 0){
+            percentage = claimPercentage * 1e2;
+        } else {
+            percentage = claimPercentage * 1e2 + scaledPercentage;
+        }
+    }
+
+    // scale down by 1e4
+    function deserved(uint256 _amount) public view returns (uint256 _deserved) {
+        uint256 _percentage = percentageDeserved();
+        _deserved = (_percentage * _amount) / 1e4;
+    }
+
+    function isRefunded(address _user) public view returns (bool){
+        return refunded[_user];
     }
 
     // Public mutative functions //
@@ -250,10 +308,32 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         paidAmounts[_msgSender()] += _amount;
         paidPublic[_msgSender()] += _amount;
         totalPaid += _amount;
-        emit UserPaid(_msgSender(), _amount);
+        emit UserPaidPublic(_msgSender(), _amount);
+    }
+
+    function askForRefund() external nonReentrant whenNotPaused {
+        require(claimedTokens[_msgSender()] == 0 && claimedAmounts[_msgSender()] == 0, "Tokens are claimed.");
+        require(isRefunded(_msgSender()) == false, "Already refunded.");
+        require(_refundPeriodStart < block.timestamp && block.timestamp < _refundPeriodEnd , "Refunds are ended.");
+
+        uint256 _amount = paidAmounts[_msgSender()];
+        require(_amount > 0, "Nothing to refund.");
+
+        refunded[_msgSender()] = true;
+        IERC20(paymentToken).safeTransfer(_msgSender(), _amount);
+        emit Refunded(msg.sender, _amount);
     }
 
     function claimTokens() external nonReentrant whenNotPaused {
+        require(isRefunded(_msgSender()) == false, "Refund requested.");
+        if (isLinear) {
+            _claimTokensLinear();
+        } else {
+            _claimTokens();
+        }
+    }
+
+    function _claimTokens() private {
         uint256 _amount = claimableTokens(_msgSender());
         uint256 amount_ = claimableAllocation(_msgSender());
         require(_amount > 0);
@@ -262,5 +342,20 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         claimedTokens[_msgSender()] += _amount;
         totalClaimed += _amount;
         emit UserClaimed(_msgSender(), _amount);
+    }
+
+    function _claimTokensLinear() private {
+        require(_startDate > 0 && _duration > 0, "Linear vesting is not started.");
+        uint256 _deserved = deserved(normalize(paidAmounts[_msgSender()]));
+        uint256 tokensToClaim = _deserved - claimedTokens[_msgSender()];
+        require(tokensToClaim > 0, "You can't claim more tokens.");
+        require(
+            totalClaimed + tokensToClaim <= normalize(totalDollars),
+            "No tokens left."
+        );
+        claimedTokens[_msgSender()] += tokensToClaim;
+        totalClaimed += tokensToClaim;
+        IERC20(token).safeTransfer(_msgSender(), tokensToClaim);
+        emit UserClaimed(_msgSender(), tokensToClaim);
     }
 }

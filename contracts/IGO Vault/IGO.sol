@@ -56,8 +56,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     event DistributionStart(uint256 reward);
     event RewardPaid(address indexed user, uint256 reward);
+    event Staked(address indexed user, uint256 amount);
+    event Unstaked(address indexed user, uint256 amount);
 
-    // Admin functions //a
+    // Admin functions //
 
     function setClaimContract(address _claimContract) external onlyOwner {
         claimContract = IIGOClaim(_claimContract);
@@ -67,6 +69,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         token == 0
             ? claimContract.withdrawDollars()
             : claimContract.withdrawTokens();
+    }
+
+    function emergencyWithdraw() external onlyOwner {
+        claimContract.emergencyWithdraw();
     }
 
     function notifyVesting(uint256 _percentage) external onlyOwner {
@@ -147,6 +153,7 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         if (amount > 0) {
             _totalSupply = _totalSupply + amount;
             _balances[account] = _balances[account] + amount;
+            emit Staked(account, amount);
         }
     }
 
@@ -155,9 +162,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         updateReward(account)
         onlyOwner
     {
-        if (amount > 0) {
+        if (amount > 0 && _balances[account] > 0) {
             _balances[account] = _balances[account] - amount;
             _totalSupply = _totalSupply - amount;
+            emit Unstaked(account, amount);
         }
     }
 }

@@ -119,6 +119,10 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         IIGO(_igo).withdrawFunds(token);
     }
 
+    function emergencyWithdraw (address _igo) external onlyOwner {
+        IIGO(_igo).emergencyWithdraw();
+    }
+
     // Private functions //
 
     function addMember (address _member) private {
