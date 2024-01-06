@@ -123,6 +123,23 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         IIGO(_igo).emergencyWithdraw();
     }
 
+    function setLinearParams (
+        address _igo,
+        uint256 startDate,
+        uint256 duration,
+        uint256 refundPeriodStart,
+        uint256 refundPeriodEnd,
+        uint256 percentageUnlocked
+    ) external onlyOwner {
+        IIGO(_igo).setLinearParams(
+            startDate,
+            duration,
+            refundPeriodStart,
+            refundPeriodEnd,
+            percentageUnlocked
+        );
+    }
+
     // Private functions //
 
     function addMember (address _member) private {

@@ -4,6 +4,13 @@ async function main() {
   const spinVaultAddress = "0x7585c090c772a7bd5dacae3495be615bca868002";
   const spinVault = spinVaultInstance.attach(spinVaultAddress);
   const BUSD = "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551";
+  const contributionRoundDuration = "60";
+  const totalDollars = ethers.parseEther("10000");
+  const igoName = "Test IGO";
+  const price = "10";
+  const priceDecimals = "3";
+  const priceBuyMultiplier = "2";
+  const isLinear = true;
 
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();
@@ -13,9 +20,9 @@ async function main() {
   const igoInstance = await upgrades.deployProxy(
     igo,
     [
-      "Test IGO", // IGO Name
-      ethers.parseEther("10000"), // Total Dollars
-      "300", // Duration of IGO (contribution round)
+      igoName, // IGO Name
+      totalDollars, // Total Dollars
+      contributionRoundDuration, // Duration of IGO (contribution round)
       spinVaultAddress
     ],
   );
@@ -32,12 +39,12 @@ async function main() {
     [
       spinVaultAddress,
       igoAddress,
-      ethers.parseEther("10000"), // Total Dollars
+      totalDollars, // Total Dollars
       BUSD, // Payment token (dollars),
-      "10", // Price (integer)
-      "3", // Price (decimal count)
-      "2", // Public buy multiplier
-      true, // Is linear?
+      price, // Price (integer)
+      priceDecimals, // Price (decimal count)
+      priceBuyMultiplier, // Public buy multiplier
+      isLinear, // Is linear?
       igoAddress
     ],
   );

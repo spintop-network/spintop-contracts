@@ -345,7 +345,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function _claimTokensLinear() private {
-        require(_startDate > 0 && _duration > 0, "Linear vesting is not started.");
+        require(block.timestamp > _startDate && _duration > 0, "Linear vesting is not started.");
         uint256 _deserved = deserved(normalize(paidAmounts[_msgSender()]));
         uint256 tokensToClaim = _deserved - claimedTokens[_msgSender()];
         require(tokensToClaim > 0, "You can't claim more tokens.");

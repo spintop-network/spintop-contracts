@@ -41,6 +41,7 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         gameName = _gameName;
         totalDollars = _totalDollars;
         rewardsDuration = _rewardsDuration;
+        rewardRate = totalDollars / rewardsDuration;
     }
 
     modifier updateReward(address account) {
@@ -63,6 +64,22 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     function setClaimContract(address _claimContract) external onlyOwner {
         claimContract = IIGOClaim(_claimContract);
+    }
+
+    function setLinearParams(
+        uint256 startDate,
+        uint256 duration,
+        uint256 refundPeriodStart,
+        uint256 refundPeriodEnd,
+        uint256 percentageUnlocked
+    ) external onlyOwner {
+        claimContract.setLinearParams(
+            startDate,
+            duration,
+            refundPeriodStart,
+            refundPeriodEnd,
+            percentageUnlocked
+        );
     }
 
     function withdrawFunds(uint256 token) external onlyOwner {
