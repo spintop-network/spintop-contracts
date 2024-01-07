@@ -112,7 +112,7 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function setStateVault() external onlyOwner {
-        IGOstate = block.timestamp < (startDate + rewardsDuration);
+        setState();
     }
 
     // Internal functions //

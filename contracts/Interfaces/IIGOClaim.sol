@@ -26,6 +26,13 @@ interface IIGOClaim {
     function payForTokens(uint256 _amount) external;
     function payForTokensPublic(uint256 _amount) external;
     function claimTokens() external;
+    function setLinearParams(
+        uint256 startDate,
+        uint256 duration,
+        uint256 refundPeriodStart,
+        uint256 refundPeriodEnd,
+        uint256 percentageUnlocked
+    ) external;
 
     // Getter Functions for Public Variables
     function paymentToken() external view returns (address);
