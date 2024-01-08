@@ -261,6 +261,10 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _deserved = (_percentage * _amount) / 1e4;
     }
 
+    function deservedByUser(address _user) public view returns (uint256 _deserved) {
+        _deserved = deserved(normalize(paidAmounts[_user]));
+    }
+
     function isRefunded(address _user) public view returns (bool){
         return refunded[_user];
     }
@@ -277,6 +281,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         uint256 deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
         require(_amount <= (deserved - paid));
+        require((_amount + totalPaid) <= totalDollars);
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
             address(this),
