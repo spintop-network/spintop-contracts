@@ -82,6 +82,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         );
     }
 
+    function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external onlyOwner {
+        claimContract.setRefundPeriod(refundPeriodStart, refundPeriodEnd);
+    }
+
     function withdrawFunds(uint256 token) external onlyOwner {
         token == 0
             ? claimContract.withdrawDollars()

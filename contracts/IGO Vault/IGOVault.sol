@@ -140,6 +140,10 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         );
     }
 
+    function setRefundPeriod (address _igo, uint256 refundPeriodStart, uint256 refundPeriodEnd) external onlyOwner {
+        IIGO(_igo).setRefundPeriod(refundPeriodStart, refundPeriodEnd);
+    }
+
     // Private functions //
 
     function addMember (address _member) private {

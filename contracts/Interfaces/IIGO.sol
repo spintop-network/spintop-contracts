@@ -39,6 +39,7 @@ interface IIGO {
         uint256 refundPeriodEnd,
         uint256 percentageUnlocked
     ) external;
+    function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external;
 
     // Getter Functions for Public Variables
     function gameName() external view returns (string memory);

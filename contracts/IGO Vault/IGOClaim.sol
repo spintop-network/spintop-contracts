@@ -31,11 +31,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     uint256 public claimPercentage;
     uint256 public totalPaid;
     uint256 public totalClaimed;
-    bool public isLinear;
     uint256 public _startDate;
     uint256 public _duration;
     uint256 public _refundPeriodStart;
     uint256 public _refundPeriodEnd;
+    bool public isLinear;
     mapping(address => bool) public refunded;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public paidPublic;
@@ -161,6 +161,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _refundPeriodStart = refundPeriodStart;
         _refundPeriodEnd = refundPeriodEnd;
         claimPercentage = percentageUnlocked;
+    }
+
+    function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external onlyOwner {
+        _refundPeriodStart = refundPeriodStart;
+        _refundPeriodEnd = refundPeriodEnd;
     }
 
     function notifyVesting(uint256 percentage) external onlyOwner {

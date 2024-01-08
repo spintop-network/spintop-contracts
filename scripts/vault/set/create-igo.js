@@ -3,14 +3,18 @@ async function main() {
   const spinVaultInstance = await ethers.getContractFactory("IGOVault");
   const spinVaultAddress = "0x7585c090c772a7bd5dacae3495be615bca868002";
   const spinVault = spinVaultInstance.attach(spinVaultAddress);
-  const BUSD = "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551";
-  const contributionRoundDuration = "60";
+  const paymentToken = "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551";
+  const gameToken = "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551";
+  const gameTokenDecimal = 18;
+  const contributionRoundDuration = "120";
+  const allocationPeriod = 120; // in seconds
+  const publicPeriod =120; // in seconds
   const totalDollars = ethers.parseEther("10000");
   const igoName = "Test IGO";
   const price = "10";
   const priceDecimals = "3";
   const priceBuyMultiplier = "2";
-  const isLinear = true;
+  const isLinear = false;
 
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();
@@ -40,7 +44,7 @@ async function main() {
       spinVaultAddress,
       igoAddress,
       totalDollars, // Total Dollars
-      BUSD, // Payment token (dollars),
+      paymentToken, // Payment token (dollars),
       price, // Price (integer)
       priceDecimals, // Price (decimal count)
       priceBuyMultiplier, // Public buy multiplier
@@ -74,6 +78,14 @@ async function main() {
   const cmdUnpause = await spinVault.unpause();
   await cmdUnpause.wait();
   console.log("Unpaused.");
+
+  const cmdSetPeriods = await spinVault.setPeriods(igoAddress, allocationPeriod, publicPeriod);
+  await cmdSetPeriods.wait();
+  console.log("Set periods.");
+
+  const cmdSetToken = await spinVault.setToken(igoAddress, gameToken, gameTokenDecimal);
+  await cmdSetToken.wait();
+  console.log("Set token.");
 }
 main()
   .then(() => process.exit(0))
