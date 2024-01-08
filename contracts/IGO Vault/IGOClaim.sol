@@ -298,12 +298,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         publicTimer
         whenNotPaused
     {
-        require(deservedAllocation(_msgSender()) > 0);
-        require(_amount <= maxPublicBuy(_msgSender()));
+        require(_amount > 0);
         require((_amount + totalPaid) <= totalDollars);
         require(
             (paidPublic[_msgSender()] + _amount) <=
-                (deservedAllocation(_msgSender()) * multiplier)
+                (maxPublicBuy(_msgSender()))
         );
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
