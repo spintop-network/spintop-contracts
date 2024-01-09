@@ -30,6 +30,9 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     uint256 public batchSize;
     uint256 constant private MAX_INT = 2**256 - 1;
 
+    error TransferNotAllowed();
+    error ExceedsMaxStakeAmount();
+
     function initialize(
         string memory _shareName,
         string memory _shareSymbol,
@@ -77,8 +80,11 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
                 IIGO(_igo).stake(members_.at(i), balanceOfMember);
             }
         }
-        pilgrims += target;
-        queue < batchSize ? pilgrims = 0 : pilgrims;
+        if (queue < batchSize) {
+            pilgrims = 0;
+        } else {
+            pilgrims += target;
+        }
     }
 
     function start() external onlyOwner whenPaused {
@@ -191,7 +197,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         address to,
         uint256 amount
     ) internal virtual override {
-        require(from == address(0) || to == address(0), "Cannot transfer");
+        if (!(from == address(0) || to == address(0))) revert TransferNotAllowed();
         super._update(from, to, amount);
     }
 
@@ -225,7 +231,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
 
     function _deposit(uint _amount) private {
         uint256 totalAmount = _amount + getUserStaked(_msgSender());
-        require(totalAmount < maxStakeAmount);
+        if (totalAmount >= maxStakeAmount) revert ExceedsMaxStakeAmount();
         compound();
         uint256 _bal = balance();
         IERC20(vaultInfo.tokenSpin).transferFrom(_msgSender(), address(this), _amount);

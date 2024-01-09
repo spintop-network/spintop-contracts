@@ -42,6 +42,24 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     mapping(address => uint256) public claimedAmounts;
     mapping(address => uint256) public claimedTokens;
 
+    error AllocationNotStarted();
+    error AllocationEnded();
+    error PublicSaleNotStarted();
+    error PublicSaleEnded();
+    error IGONotEnded();
+    error LinearVestingDisabled();
+    error LinearVestingNotStarted();
+    error AmountIsZero();
+    error AmountIsTooHigh();
+    error AmountIsMoreThanMaxPublicBuy();
+    error AlreadyClaimed();
+    error AlreadyRefunded();
+    error RefundPeriodNotStarted();
+    error RefundPeriodEnded();
+    error AllTokensClaimed();
+    error NotEnoughTokens();
+    error TransferFailed();
+
     function initialize(
         address _vault,
         address _igo,
@@ -81,36 +99,29 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     modifier allocationTimer() {
-        require(
-            block.timestamp > allocationStartDate,
-            "Allocation has not started yet."
-        );
-        require(
-            block.timestamp <= (allocationStartDate + allocationTime),
-            "Allocation has ended."
-        );
+        if (block.timestamp <= allocationStartDate) {
+            revert AllocationNotStarted();
+        }
+        if (block.timestamp > (allocationStartDate + allocationTime)) {
+            revert AllocationEnded();
+        }
         _;
     }
 
     modifier publicTimer() {
-        require(
-            block.timestamp > (allocationStartDate + allocationTime),
-            "Public sale has not started yet."
-        );
-        require(
-            block.timestamp <=
-                (allocationStartDate + allocationTime + publicTime),
-            "Public sale has ended."
-        );
+        if (block.timestamp <= (allocationStartDate + allocationTime)) {
+            revert PublicSaleNotStarted();
+        }
+        if (block.timestamp > (allocationStartDate + allocationTime + publicTime)) {
+            revert PublicSaleEnded();
+        }
         _;
     }
 
     modifier withdrawTimer() {
-        require(
-            block.timestamp >
-                (allocationStartDate + allocationTime + publicTime),
-            "IGO has not ended yet."
-        );
+        if (block.timestamp <= (allocationStartDate + allocationTime + publicTime)) {
+            revert IGONotEnded();
+        }
         _;
     }
 
@@ -144,7 +155,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _balance = address(this).balance;
         if (_balance > 0) {
             (bool success,) = payable(tx.origin).call{value: _balance}("");
-            require(success, "Transfer failed.");
+            if (!success) revert TransferFailed();
         }
     }
 
@@ -155,7 +166,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         uint256 refundPeriodEnd,
         uint256 percentageUnlocked
     ) external onlyOwner {
-        require(isLinear, "Linear vesting is disabled.");
+        if (!isLinear) revert LinearVestingDisabled();
         _startDate = startDate;
         _duration = duration;
         _refundPeriodStart = refundPeriodStart;
@@ -282,11 +293,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         allocationTimer
         whenNotPaused
     {
-        require(_amount > 0);
+        if (_amount == 0) revert AmountIsZero();
         uint256 deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
-        require(_amount <= (deserved - paid));
-        require((_amount + totalPaid) <= totalDollars);
+        if (_amount > (deserved - paid)) revert AmountIsTooHigh();
+        if ((_amount + totalPaid) > totalDollars) revert AmountIsTooHigh();
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
             address(this),
@@ -303,12 +314,10 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         publicTimer
         whenNotPaused
     {
-        require(_amount > 0);
-        require((_amount + totalPaid) <= totalDollars);
-        require(
-            (paidPublic[_msgSender()] + _amount) <=
-                (maxPublicBuy(_msgSender()))
-        );
+        if (_amount == 0) revert AmountIsZero();
+        if ((_amount + totalPaid) > totalDollars) revert AmountIsTooHigh();
+        if (paidPublic[_msgSender()] + _amount > maxPublicBuy(_msgSender()))
+            revert AmountIsMoreThanMaxPublicBuy();
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
             address(this),
@@ -321,12 +330,13 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function askForRefund() external nonReentrant whenNotPaused {
-        require(claimedTokens[_msgSender()] == 0 && claimedAmounts[_msgSender()] == 0, "Tokens are claimed.");
-        require(isRefunded(_msgSender()) == false, "Already refunded.");
-        require(_refundPeriodStart < block.timestamp && block.timestamp < _refundPeriodEnd , "Refunds are ended.");
+        if (claimedTokens[_msgSender()] > 0 || claimedAmounts[_msgSender()] > 0) revert AlreadyClaimed();
+        if (isRefunded(_msgSender())) revert AlreadyRefunded();
+        if (_refundPeriodStart > block.timestamp) revert RefundPeriodNotStarted();
+        if (_refundPeriodEnd < block.timestamp) revert RefundPeriodEnded();
 
         uint256 _amount = paidAmounts[_msgSender()];
-        require(_amount > 0, "Nothing to refund.");
+        if (_amount == 0) revert AmountIsZero();
 
         refunded[_msgSender()] = true;
         IERC20(paymentToken).safeTransfer(_msgSender(), _amount);
@@ -334,7 +344,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function claimTokens() external nonReentrant whenNotPaused {
-        require(isRefunded(_msgSender()) == false, "Refund requested.");
+        if (isRefunded(_msgSender())) revert AlreadyRefunded();
         if (isLinear) {
             _claimTokensLinear();
         } else {
@@ -345,7 +355,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     function _claimTokens() private {
         uint256 _amount = claimableTokens(_msgSender());
         uint256 amount_ = claimableAllocation(_msgSender());
-        require(_amount > 0);
+        if (_amount == 0) revert AmountIsZero();
         IERC20(token).safeTransfer(_msgSender(), _amount);
         claimedAmounts[_msgSender()] += amount_;
         claimedTokens[_msgSender()] += _amount;
@@ -354,14 +364,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function _claimTokensLinear() private {
-        require(block.timestamp > _startDate && _duration > 0, "Linear vesting is not started.");
+        if (_duration == 0 || _startDate == 0 || block.timestamp < _startDate) revert LinearVestingNotStarted();
         uint256 _deserved = deserved(normalize(paidAmounts[_msgSender()]));
         uint256 tokensToClaim = _deserved - claimedTokens[_msgSender()];
-        require(tokensToClaim > 0, "You can't claim more tokens.");
-        require(
-            totalClaimed + tokensToClaim <= normalize(totalDollars),
-            "No tokens left."
-        );
+        if (tokensToClaim == 0) revert AllTokensClaimed();
+        if (totalClaimed + tokensToClaim > normalize(totalDollars)) revert NotEnoughTokens();
         claimedTokens[_msgSender()] += tokensToClaim;
         totalClaimed += tokensToClaim;
         IERC20(token).safeTransfer(_msgSender(), tokensToClaim);

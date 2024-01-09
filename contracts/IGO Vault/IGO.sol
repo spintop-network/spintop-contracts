@@ -22,14 +22,13 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     uint256 public rewardPerTokenStored;
     uint256 public rewardsDuration;
     uint256 public totalDollars;
+    uint256 public _totalSupply;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
-
-    uint256 public _totalSupply;
-    mapping(address => uint256) private _balances;
-    mapping(address => uint256) private _stakingTime;
-    uint256 private reward_amount;
+    mapping(address => uint256) public _balances;
+//    mapping(address => uint256) private _stakingTime;
+//    uint256 private reward_amount;
 
     function initialize(
         string memory _gameName,
@@ -138,9 +137,9 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 : (startDate + rewardsDuration);
     }
 
-    function totalRewardAdded() external view returns (uint256) {
-        return reward_amount;
-    }
+//    function totalRewardAdded() external view returns (uint256) {
+//        return reward_amount;
+//    }
 
     function balanceOf(address account) external view returns (uint256) {
         return _balances[account];
