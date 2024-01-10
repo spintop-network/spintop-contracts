@@ -9,7 +9,7 @@ async function main() {
   const contributionRoundDuration = "120";
   const allocationPeriod = 120; // in seconds
   const publicPeriod =120; // in seconds
-  const totalDollars = ethers.parseEther("10000");
+  const totalDollars = ethers.parseUnits("10000", 18);
   const igoName = "Test IGO";
   const price = "10";
   const priceDecimals = "3";
@@ -68,13 +68,15 @@ async function main() {
   const members = await spinVault.membersLength();
   const batchCount = Math.floor(Number(members) / 200) + 1;
 
+  const cmdStart = await spinVault.start();
+  await cmdStart.wait();
+
   for (let i = 0; i < batchCount ; i++) {
     const cmdMigrate = await spinVault.migrateBalances();
     await cmdMigrate.wait();
     console.log("Migrated batch.");
   }
-  const cmdStart = await spinVault.start();
-  await cmdStart.wait();
+
   const cmdUnpause = await spinVault.unpause();
   await cmdUnpause.wait();
   console.log("Unpaused.");

@@ -181,7 +181,6 @@ contract ContractBTest is Test {
         deal(address(mockToken), address(this), balance);
         mockToken.approve(address(igoVault), balance);
 
-
         igoVault.deposit(igoVault.minStakeAmount());
 
         skip(rewardsDuration + 1);
