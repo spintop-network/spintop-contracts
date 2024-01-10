@@ -66,14 +66,14 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function setLinearParams(
-        uint256 startDate,
+        uint256 _startDate,
         uint256 duration,
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
         uint256 percentageUnlocked
     ) external onlyOwner {
         claimContract.setLinearParams(
-            startDate,
+            _startDate,
             duration,
             refundPeriodStart,
             refundPeriodEnd,

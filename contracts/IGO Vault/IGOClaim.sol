@@ -294,9 +294,9 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         whenNotPaused
     {
         if (_amount == 0) revert AmountIsZero();
-        uint256 deserved = deservedAllocation(_msgSender());
+        uint256 _deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
-        if (_amount > (deserved - paid)) revert AmountIsTooHigh();
+        if (_amount > (_deserved - paid)) revert AmountIsTooHigh();
         if ((_amount + totalPaid) > totalDollars) revert AmountIsTooHigh();
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
@@ -332,8 +332,8 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     function askForRefund() external nonReentrant whenNotPaused {
         if (claimedTokens[_msgSender()] > 0 || claimedAmounts[_msgSender()] > 0) revert AlreadyClaimed();
         if (isRefunded(_msgSender())) revert AlreadyRefunded();
-        if (_refundPeriodStart > block.timestamp) revert RefundPeriodNotStarted();
-        if (_refundPeriodEnd < block.timestamp) revert RefundPeriodEnded();
+        if (_refundPeriodStart >= block.timestamp || _refundPeriodStart == 0) revert RefundPeriodNotStarted();
+        if (_refundPeriodEnd <= block.timestamp) revert RefundPeriodEnded();
 
         uint256 _amount = paidAmounts[_msgSender()];
         if (_amount == 0) revert AmountIsZero();
