@@ -171,6 +171,7 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         onlyOwner
     {
         if (amount > 0) {
+            // TODO: Can i use unchecked here?
             _totalSupply = _totalSupply + amount;
             _balances[account] = _balances[account] + amount;
             emit Staked(account, amount);

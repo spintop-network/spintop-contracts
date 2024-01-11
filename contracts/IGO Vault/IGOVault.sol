@@ -72,15 +72,18 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
 
     function migrateBalances () external onlyOwner whenPaused {
         address _igo = IGOs[IGOs.length-1];
-        uint256 queue = members_.length() - pilgrims;
-        uint256 target = queue < batchSize ? queue : batchSize;
-        for (uint i = pilgrims; i < pilgrims+target; i++) {
-            uint256 balanceOfMember = getUserStaked(members_.at(i));
+        uint256 _pilgrims = pilgrims;
+        uint256 queue = members_.length() - _pilgrims;
+        bool isQueueSmaller = queue < batchSize;
+        uint256 target = isQueueSmaller ? queue : batchSize;
+        for (uint i = _pilgrims; i < _pilgrims+target; i++) {
+            address member = members_.at(i);
+            uint256 balanceOfMember = getUserStaked(member);
             if (balanceOfMember >= minStakeAmount) {
-                IIGO(_igo).stake(members_.at(i), balanceOfMember);
+                IIGO(_igo).stake(member, balanceOfMember);
             }
         }
-        if (queue < batchSize) {
+        if (isQueueSmaller) {
             pilgrims = 0;
         } else {
             pilgrims += target;

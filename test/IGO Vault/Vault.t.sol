@@ -62,7 +62,7 @@ contract ContractBTest is Test {
     error TransferFailed();
 
     function setUp() public {
-        // constants
+        skip(1704935836);
 
         // Deploy ERC20 mock token
         mockToken = new MockERC20();
@@ -85,6 +85,30 @@ contract ContractBTest is Test {
             address(mockToken),
             owner
         );
+
+        // Deposit amounts for testing migrate balances function
+
+        address[] memory users = new address[](4);
+        users[0] = makeAddr("enes");
+        users[1] = makeAddr("enes2");
+        users[2] = makeAddr("enes3");
+        users[3] = makeAddr("enes4");
+
+        address nonIGOUser = makeAddr("enes5");
+        deal(address(mockToken), nonIGOUser, igoVault.minStakeAmount() - 1);
+        vm.startPrank(nonIGOUser);
+        mockToken.approve(address(igoVault), mockToken.balanceOf(nonIGOUser));
+        igoVault.deposit(mockToken.balanceOf(nonIGOUser));
+        vm.stopPrank();
+
+        for (uint i = 0; i < users.length; i++) {
+            deal(address(mockToken), users[i], igoVault.minStakeAmount() * 2);
+            vm.startPrank(users[i]);
+            mockToken.approve(address(igoVault), mockToken.balanceOf(users[i]));
+            igoVault.deposit(mockToken.balanceOf(users[i]));
+            vm.stopPrank();
+        }
+
 
         // Pause the vault
         igoVault.pause();
@@ -126,8 +150,8 @@ contract ContractBTest is Test {
 
         // No need to call migrateBalances more than once, because it is a test environment and there are no 200+ users
         igoVault.setBatchSize(200);
-        igoVault.migrateBalances();
         igoVault.start();
+        igoVault.migrateBalances();
         igoVault.unpause();
 
         igoVault.setPeriods(address(igo), allocationPeriod, publicPeriod);
@@ -177,7 +201,7 @@ contract ContractBTest is Test {
     }
 
     function test_payWithAllocation() public {
-        uint balance = igoVault.minStakeAmount() * 2;
+        uint balance = igoVault.minStakeAmount() * 3;
         deal(address(mockToken), address(this), balance);
         mockToken.approve(address(igoVault), balance);
 
@@ -185,8 +209,9 @@ contract ContractBTest is Test {
 
         skip(rewardsDuration + 1);
 
+        uint deserved = igoClaim.deservedAllocation(address(this));
         mockToken.approve(address(igoClaim), balance);
-        igoClaim.payForTokens(igoVault.minStakeAmount());
+        igoClaim.payForTokens(deserved);
     }
 
     function test_tryPayMoreThanDeserved() public {
@@ -328,6 +353,18 @@ contract ContractBTest is Test {
 
         vm.expectRevert(RefundPeriodEnded.selector);
         igoClaim.askForRefund();
+    }
+
+    function test_maxDeservedAllocation() public {
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(makeAddr("enes"));
+        uint deserved2 = igoClaim.deservedAllocation(makeAddr("enes2"));
+        console2.log(deserved, deserved2);
+
+        assert(deserved <= totalDollars);
+        assert(deserved2 <= totalDollars);
+        assert(deserved == deserved2);
+        assert(deserved + deserved2 <= totalDollars);
     }
 
 
