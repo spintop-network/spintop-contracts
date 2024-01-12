@@ -9,7 +9,6 @@ temp
 cache
 artifacts
 
-pnpm-lock.yaml
 .idea
 out
 cache_forge
