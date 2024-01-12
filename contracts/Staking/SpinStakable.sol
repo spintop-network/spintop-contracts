@@ -98,12 +98,13 @@ contract SpinStakable is Ownable, ReentrancyGuard {
         nonReentrant
         updateReward(msg.sender)
     {
-        require(amount > 0, "Cannot stake 0");
-        _totalSupply = _totalSupply.add(amount);
-        _balances[msg.sender] = _balances[msg.sender].add(amount);
-        stakingToken.safeTransferFrom(msg.sender, address(this), amount);
-        _stakingTime[msg.sender] = block.timestamp;
-        emit Staked(msg.sender, amount);
+        if (amount > 0) {
+            _totalSupply = _totalSupply.add(amount);
+            _balances[msg.sender] = _balances[msg.sender].add(amount);
+            stakingToken.safeTransferFrom(msg.sender, address(this), amount);
+            _stakingTime[msg.sender] = block.timestamp;
+            emit Staked(msg.sender, amount);
+        }
     }
 
     function unstake(uint256 amount)
@@ -112,11 +113,12 @@ contract SpinStakable is Ownable, ReentrancyGuard {
         updateReward(msg.sender)
         isUnlocked(msg.sender)
     {
-        require(amount > 0, "Cannot withdraw 0");
-        _totalSupply = _totalSupply.sub(amount);
-        _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        stakingToken.safeTransfer(msg.sender, amount);
-        emit Withdrawn(msg.sender, amount);
+        if (amount > 0) {
+            _totalSupply = _totalSupply.sub(amount);
+            _balances[msg.sender] = _balances[msg.sender].sub(amount);
+            stakingToken.safeTransfer(msg.sender, amount);
+            emit Withdrawn(msg.sender, amount);
+        }
     }
 
     function getReward() public nonReentrant updateReward(msg.sender) {

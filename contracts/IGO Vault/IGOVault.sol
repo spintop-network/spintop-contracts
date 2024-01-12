@@ -28,6 +28,8 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     uint256 private pilgrims;
     EnumerableSet.AddressSet private members_;
     uint256 public batchSize;
+    EnumerableSet.AddressSet private active_igos_;
+
     uint256 constant private MAX_INT = 2**256 - 1;
 
     event Deposit(address indexed account, uint256 amount);
@@ -100,6 +102,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     function start() external onlyOwner whenPaused {
         address _igo = IGOs[IGOs.length-1];
         IIGO(_igo).start();
+        active_igos_.add(_igo);
     }
 
     function pause() external onlyOwner whenNotPaused {
@@ -162,34 +165,41 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
 
     // Private functions //
 
-    function addMember (address _member) private {
-        if (!members_.contains(_member)) {
-            members_.add(_member);
-        }
-    }
-
-    function removeMember (address _member) private {
-        if (members_.contains(_member)) {
-            members_.remove(_member);
-        }
-    }
-
     function addToIGOs (uint256 amount) private {
-        for (uint256 i; i<IGOs.length; i++) {
-            IIGO _igo = IIGO(IGOs[i]);
+        address[] memory igosToRemove = new address[](active_igos_.length());
+
+        for (uint256 i; i< active_igos_.length(); i++) {
+            IIGO _igo = IIGO(active_igos_.at(i));
             _igo.setStateVault();
             if (_igo.IGOstate()) {
                 _igo.stake(_msgSender(),amount);
+            } else {
+                igosToRemove[i] = active_igos_.at(i);
+            }
+        }
+
+        for (uint256 i; i< igosToRemove.length; i++) {
+            if (igosToRemove[i] != address(0)) {
+                active_igos_.remove(igosToRemove[i]);
             }
         }
     }
 
     function removeFromIGOs (uint256 amount) private {
-        for (uint256 i; i<IGOs.length; i++) {
-            IIGO _igo = IIGO(IGOs[i]);
+        address[] memory igosToRemove = new address[](active_igos_.length());
+        for (uint256 i; i< active_igos_.length(); i++) {
+            IIGO _igo = IIGO(active_igos_.at(i));
             _igo.setStateVault();
             if (_igo.IGOstate()) {
                 _igo.unstake(_msgSender(),amount);
+            } else {
+                igosToRemove[i] = active_igos_.at(i);
+            }
+        }
+
+        for (uint256 i; i< igosToRemove.length; i++) {
+            if (igosToRemove[i] != address(0)) {
+                active_igos_.remove(igosToRemove[i]);
             }
         }
     }
@@ -257,7 +267,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         if (shares > 0 && totalAmount >= minStakeAmount) {
             addToIGOs(shares);
         }
-        addMember(_msgSender());
+        members_.add(_msgSender());
         emit Deposit(_msgSender(), _amount);
     }
 
@@ -285,7 +295,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         bool success = IERC20(vaultInfo.tokenSpin).transfer(_msgSender(), _amount);
         if (!success) revert SpinTransferFailed();
         if (balanceOf(_msgSender()) == 0) {
-            removeMember(_msgSender());
+            members_.remove(_msgSender());
         }
         emit Withdraw(_msgSender(), _amount);
     }
@@ -310,7 +320,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         bool success = IERC20(vaultInfo.tokenSpin).transfer(_msgSender(), requested);
         if (!success) revert SpinTransferFailed();
         if (balanceOf(_msgSender()) == 0) {
-            removeMember(_msgSender());
+            members_.remove(_msgSender());
         }
         emit Exit(_msgSender(), requested);
     }

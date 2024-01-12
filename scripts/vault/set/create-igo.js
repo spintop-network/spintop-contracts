@@ -1,20 +1,20 @@
 const { upgrades } = require("hardhat");
 async function main() {
   const spinVaultInstance = await ethers.getContractFactory("IGOVault");
-  const spinVaultAddress = "0x7585c090c772a7bd5dacae3495be615bca868002";
+  const spinVaultAddress = "0x22c446155db0ca9c6ec0552df07636ad9bfcb541";
   const spinVault = spinVaultInstance.attach(spinVaultAddress);
-  const paymentToken = "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551";
-  const gameToken = "0x8d008B313C1d6C7fE2982F62d32Da7507cF43551";
+  const paymentToken = "0x6c96d72b04EA665bA7147C997457D07beC973593";
+  const gameToken = "0x6c96d72b04EA665bA7147C997457D07beC973593";
   const gameTokenDecimal = 18;
-  const contributionRoundDuration = "120";
-  const allocationPeriod = 120; // in seconds
-  const publicPeriod =120; // in seconds
-  const totalDollars = ethers.parseUnits("10000", 18);
+  const contributionRoundDuration = "300";
+  const allocationPeriod = 300; // in seconds
+  const publicPeriod =300; // in seconds
+  const totalDollars = ethers.parseUnits("1000", 18);
   const igoName = "Test IGO";
   const price = "10";
   const priceDecimals = "3";
   const priceBuyMultiplier = "2";
-  const isLinear = false;
+  const isLinear = true;
 
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();

@@ -4,7 +4,7 @@ const { ethers, upgrades } = hardhat;
 async function main() {
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
   const spinVault = await upgrades.upgradeProxy(
-    "0x7585c090c772a7bd5dacae3495be615bca868002", // Proxy address
+    "0x22c446155db0ca9c6ec0552df07636ad9bfcb541", // Proxy address
     SpinVaultContract
   );
   // await spinVault.waitForDeployment();
