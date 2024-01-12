@@ -60,6 +60,7 @@ contract ContractBTest is Test {
     error AllTokensClaimed();
     error NotEnoughTokens();
     error TransferFailed();
+    error ExceedsUserBalance();
 
     function setUp() public {
         skip(1704935836);
@@ -71,6 +72,7 @@ contract ContractBTest is Test {
 
         // Deploy the SpinStakable contract
         spinStakable = new SpinStakable(address(mockToken), address(mockToken));
+        deal(address(mockToken), address(spinStakable), 50000e18);
 
         // Deploy the IGOVault contract
         admin = new ProxyAdmin(owner);
@@ -359,7 +361,6 @@ contract ContractBTest is Test {
         skip(rewardsDuration + 1);
         uint deserved = igoClaim.deservedAllocation(makeAddr("enes"));
         uint deserved2 = igoClaim.deservedAllocation(makeAddr("enes2"));
-        console2.log(deserved, deserved2);
 
         assert(deserved <= totalDollars);
         assert(deserved2 <= totalDollars);
@@ -367,5 +368,156 @@ contract ContractBTest is Test {
         assert(deserved + deserved2 <= totalDollars);
     }
 
+    function test_partialWithdraw() public {
+        skip(10 days);
+        address user = makeAddr("partialWithdraw");
+        address user2 = makeAddr("partialWithdraw2");
+        uint256 balance = 100e18;
+        deal(address(mockToken), user, balance);
+        deal(address(mockToken), user2, balance);
 
+        uint256 depositAmount = balance;
+        uint256 withdrawAmount = 20e18;
+
+        vm.startPrank(user);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        vm.stopPrank();
+
+        vm.startPrank(user2);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        igoVault.withdraw(withdrawAmount);
+        assertEq(mockToken.balanceOf(user2), withdrawAmount);
+        vm.stopPrank();
+
+        vm.startPrank(user);
+        assertEq(mockToken.balanceOf(user), depositAmount - balance);
+        igoVault.withdraw(withdrawAmount);
+        skip(1 days);
+        assertEq(igoVault.getUserStaked(user), depositAmount - withdrawAmount);
+        igoVault.withdraw(withdrawAmount);
+        skip(1 days);
+        assertEq(igoVault.getUserStaked(user), depositAmount - withdrawAmount * 2);
+        igoVault.withdraw(withdrawAmount);
+        skip(1 days);
+        assertEq(igoVault.getUserStaked(user), depositAmount - withdrawAmount * 3);
+        assertEq(mockToken.balanceOf(user), withdrawAmount * 3);
+        vm.stopPrank();
+    }
+
+    function test_fullWithdraw() public {
+        skip(10 days);
+        address user = makeAddr("partialWithdraw");
+        address user2 = makeAddr("partialWithdraw2");
+        uint256 balance = 100e18;
+        deal(address(mockToken), user, balance);
+        deal(address(mockToken), user2, balance);
+
+        uint256 depositAmount = balance;
+        uint256 withdrawAmount = balance;
+
+        vm.startPrank(user);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        vm.stopPrank();
+
+        vm.startPrank(user2);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        igoVault.withdraw(withdrawAmount);
+        assertEq(mockToken.balanceOf(user2), withdrawAmount);
+        assertEq(igoVault.getUserStaked(user2), 0);
+        vm.stopPrank();
+
+        vm.startPrank(user);
+        assertEq(mockToken.balanceOf(user), depositAmount - balance);
+        igoVault.withdraw(withdrawAmount);
+        skip(1 days);
+        assertEq(mockToken.balanceOf(user), withdrawAmount);
+        assertEq(igoVault.getUserStaked(user), 0);
+        vm.stopPrank();
+    }
+
+    function test_tryWithdrawExceedingDeposit() public {
+        skip(10 days);
+        address user = makeAddr("exceedWithdraw");
+        uint256 balance = 100e18;
+        deal(address(mockToken), user, balance);
+
+        uint256 depositAmount = balance;
+        uint256 withdrawAmount = balance + 1;
+
+        vm.startPrank(user);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        vm.expectRevert(ExceedsUserBalance.selector);
+        igoVault.withdraw(withdrawAmount);
+        vm.stopPrank();
+    }
+
+    function test_tryWithdrawAfterFullWithdraw() public {
+        skip(10 days);
+        address user = makeAddr("fullWithdrawWithExceed");
+        uint256 balance = 100e18;
+        deal(address(mockToken), user, balance);
+
+        uint256 depositAmount = balance;
+        uint256 withdrawAmount = balance;
+
+        vm.startPrank(user);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        vm.stopPrank();
+
+        vm.startPrank(user);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.withdraw(withdrawAmount);
+        skip(1 days);
+        vm.expectRevert(ExceedsUserBalance.selector);
+        igoVault.withdraw(withdrawAmount);
+        vm.stopPrank();
+    }
+
+    function test_tryZeroWithdraw() public {
+        skip(10 days);
+        address user = makeAddr("zeroWithdraw");
+
+        vm.startPrank(user);
+        vm.expectRevert(AmountIsZero.selector);
+        igoVault.withdraw(0);
+    }
+
+    function test_fullExit() public {
+        skip(10 days);
+        address user = makeAddr("exceedWithdraw");
+        uint256 balance = 100e18;
+        deal(address(mockToken), user, balance);
+
+        uint256 depositAmount = balance;
+
+        vm.startPrank(user);
+        mockToken.approve(address(igoVault), balance);
+        igoVault.deposit(depositAmount);
+        skip(1 days);
+        igoVault.exit();
+        assertEq(mockToken.balanceOf(user), depositAmount);
+        vm.stopPrank();
+    }
+
+    function test_tryExitWithoutDeposit() public {
+        skip(10 days);
+        address user = makeAddr("exceedWithdraw");
+
+        vm.startPrank(user);
+        vm.expectRevert(AmountIsZero.selector);
+        igoVault.exit();
+        vm.stopPrank();
+    }
 }

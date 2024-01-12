@@ -30,8 +30,15 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     uint256 public batchSize;
     uint256 constant private MAX_INT = 2**256 - 1;
 
+    event Deposit(address indexed account, uint256 amount);
+    event Withdraw(address indexed account, uint256 amount);
+    event Exit(address indexed account, uint256 amount);
+
+    error AmountIsZero();
     error TransferNotAllowed();
     error ExceedsMaxStakeAmount();
+    error ExceedsUserBalance();
+    error SpinTransferFailed();
 
     function initialize(
         string memory _shareName,
@@ -229,10 +236,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     // Public mutative functions //
 
     function deposit(uint _amount) external nonReentrant whenNotPaused {
-        _deposit(_amount);
-    }
-
-    function _deposit(uint _amount) private {
+        if (_amount == 0) revert AmountIsZero();
         uint256 totalAmount = _amount + getUserStaked(_msgSender());
         if (totalAmount >= maxStakeAmount) revert ExceedsMaxStakeAmount();
         compound();
@@ -254,23 +258,45 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
             addToIGOs(shares);
         }
         addMember(_msgSender());
+        emit Deposit(_msgSender(), _amount);
     }
 
-    function withdraw(uint restakeAmount) external nonReentrant whenNotPaused {
-        _withdraw();
-        if (restakeAmount > 0) {
-            _deposit(restakeAmount);
+    function withdraw(uint _amount) external nonReentrant whenNotPaused {
+        if (_amount == 0) revert AmountIsZero();
+        compound();
+        uint256 balanceOfSender = balanceOf(_msgSender()); // vault token shares count of user
+        if (balanceOfSender == 0) revert ExceedsUserBalance();
+        uint256 requested =  balance() * balanceOfSender / totalSupply(); // total spin balance of user
+        if (_amount > requested) revert ExceedsUserBalance();
+        uint256 requiredShares = _amount * balanceOfSender / requested; // shares required to withdraw
+        if (requiredShares > balanceOfSender) revert ExceedsUserBalance();
+        removeFromIGOs(requiredShares);
+        _burn(_msgSender(), requiredShares);
+        uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
+        if (vaultAvailable < _amount) {
+            uint unstakeAmount = _amount - vaultAvailable;
+            ISpinStakable(vaultInfo.pool).unstake(unstakeAmount);
+            uint vaultAvailableAfter = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
+            uint diff = vaultAvailableAfter - vaultAvailable;
+            if (diff < unstakeAmount) {
+                _amount = vaultAvailable + diff;
+            }
         }
+        bool success = IERC20(vaultInfo.tokenSpin).transfer(_msgSender(), _amount);
+        if (!success) revert SpinTransferFailed();
+        if (balanceOf(_msgSender()) == 0) {
+            removeMember(_msgSender());
+        }
+        emit Withdraw(_msgSender(), _amount);
     }
 
-    function _withdraw () private {
+    function exit() external nonReentrant whenNotPaused {
         compound();
         uint256 balanceOfSender = balanceOf(_msgSender());
         uint256 requested =  balance() * balanceOfSender / totalSupply();
-        if (balanceOfSender > 0) {
-            removeFromIGOs(balanceOfSender);
-            _burn(_msgSender(), balanceOfSender);
-        }
+        if (requested == 0) revert AmountIsZero();
+        removeFromIGOs(balanceOfSender);
+        _burn(_msgSender(), balanceOfSender);
         uint vaultAvailable = IERC20(vaultInfo.tokenSpin).balanceOf(address(this));
         if (vaultAvailable < requested) {
             uint unstakeAmount = requested - vaultAvailable;
@@ -281,9 +307,11 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
                 requested = vaultAvailable + diff;
             }
         }
-        IERC20(vaultInfo.tokenSpin).transfer(_msgSender(), requested);
+        bool success = IERC20(vaultInfo.tokenSpin).transfer(_msgSender(), requested);
+        if (!success) revert SpinTransferFailed();
         if (balanceOf(_msgSender()) == 0) {
             removeMember(_msgSender());
         }
+        emit Exit(_msgSender(), requested);
     }
 }
