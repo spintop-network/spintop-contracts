@@ -50,8 +50,6 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     error LinearVestingDisabled();
     error LinearVestingNotStarted();
     error AmountIsZero();
-    error AmountIsTooHigh();
-    error AmountIsMoreThanMaxPublicBuy();
     error AlreadyClaimed();
     error AlreadyRefunded();
     error RefundPeriodNotStarted();
@@ -259,14 +257,14 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     // scale up by 1e4
     function percentageDeserved() public view returns (uint256 percentage) {
-        uint256 _now = block.timestamp > _startDate + _duration
-            ? _startDate + _duration
-            : block.timestamp;
-        uint256 timePast = (_now - _startDate) * 1e12;
-        uint256 scaledPercentage = (timePast / _duration / 1e10) * (100 - claimPercentage);
         if (_startDate == 0){
             percentage = claimPercentage * 1e2;
         } else {
+            uint256 _now = block.timestamp > _startDate + _duration
+                ? _startDate + _duration
+                : block.timestamp;
+            uint256 timePast = (_now - _startDate) * 1e12;
+            uint256 scaledPercentage = (timePast / _duration / 1e10) * (100 - claimPercentage);
             percentage = claimPercentage * 1e2 + scaledPercentage;
         }
     }
@@ -293,11 +291,15 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         allocationTimer
         whenNotPaused
     {
-        if (_amount == 0) revert AmountIsZero();
         uint256 _deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
-        if (_amount > (_deserved - paid)) revert AmountIsTooHigh();
-        if ((_amount + totalPaid) > totalDollars) revert AmountIsTooHigh();
+        if (_amount > (_deserved - paid)) {
+            _amount = _deserved - paid;
+        }
+        if ((_amount + totalPaid) > totalDollars) {
+            _amount = totalDollars - totalPaid;
+        }
+        if (_amount == 0) revert AmountIsZero();
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
             address(this),
@@ -314,10 +316,14 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         publicTimer
         whenNotPaused
     {
-        if (_amount == 0) revert AmountIsZero();
-        if ((_amount + totalPaid) > totalDollars) revert AmountIsTooHigh();
+        if ((_amount + totalPaid) > totalDollars) {
+            _amount = totalDollars - totalPaid;
+        }
         if (paidPublic[_msgSender()] + _amount > maxPublicBuy(_msgSender()))
-            revert AmountIsMoreThanMaxPublicBuy();
+        {
+            _amount = maxPublicBuy(_msgSender()) - paidPublic[_msgSender()];
+        }
+        if (_amount == 0) revert AmountIsZero();
         IERC20(paymentToken).safeTransferFrom(
             _msgSender(),
             address(this),
@@ -364,7 +370,6 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function _claimTokensLinear() private {
-        if (_duration == 0 || _startDate == 0 || block.timestamp < _startDate) revert LinearVestingNotStarted();
         uint256 _deserved = deserved(normalize(paidAmounts[_msgSender()]));
         uint256 tokensToClaim = _deserved - claimedTokens[_msgSender()];
         if (tokensToClaim == 0) revert AllTokensClaimed();

@@ -198,7 +198,7 @@ contract ContractBTest is Test {
 
         skip(rewardsDuration + 1);
 
-        vm.expectRevert(AmountIsTooHigh.selector);
+        vm.expectRevert(AmountIsZero.selector);
         igoClaim.payForTokens(balance);
     }
 
@@ -227,8 +227,23 @@ contract ContractBTest is Test {
         uint deserved = igoClaim.deservedAllocation(address(this));
         mockToken.approve(address(igoClaim), balance);
 
-        vm.expectRevert(AmountIsTooHigh.selector);
         igoClaim.payForTokens(deserved + 1);
+        assertEq(igoClaim.paidAmounts(address(this)), deserved);
+    }
+
+    function test_tryPayPublicMoreThanDeserved() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + allocationPeriod + 1);
+        uint deserved = igoClaim.maxPublicBuy(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokensPublic(deserved + 1);
+        assertEq(igoClaim.paidAmounts(address(this)), deserved);
     }
 
     function test_tryClaimBeforeLinearVestingStarts() public {
@@ -246,7 +261,100 @@ contract ContractBTest is Test {
 
         skip(allocationPeriod + publicPeriod);
 
-        vm.expectRevert(LinearVestingNotStarted.selector);
+        vm.expectRevert(AllTokensClaimed.selector);
+//        vm.expectRevert(LinearVestingNotStarted.selector);
+        igoClaim.claimTokens();
+    }
+
+    function test_successfulRefund() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            0,
+            0,
+            block.timestamp,
+            block.timestamp + 43200,
+            25
+        );
+
+        skip(1);
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)));
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)));
+        deal(address(mockToken), address(this), 0);
+
+        assertEq(mockToken.balanceOf(address(this)), 0);
+        igoClaim.askForRefund();
+        assertEq(mockToken.balanceOf(address(this)), deserved);
+
+        vm.expectRevert(AlreadyRefunded.selector);
+        igoClaim.claimTokens();
+    }
+
+    function test_successfulTGEUnlock() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            0,
+            0,
+            block.timestamp,
+            block.timestamp + 43200,
+            25
+        );
+
+        skip(1);
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 4);
+
+        mockToken.transfer(address(igoClaim), mockToken.balanceOf(address(this)));
+
+        assertEq(mockToken.balanceOf(address(this)), 0);
+        igoClaim.claimTokens();
+        uint balance1 = mockToken.balanceOf(address(this));
+
+        vm.expectRevert(AllTokensClaimed.selector);
+        igoClaim.claimTokens();
+
+        igoVault.setLinearParams(
+            address(igo),
+            block.timestamp,
+            86400,
+            block.timestamp,
+            block.timestamp + 43200,
+            25
+        );
+        skip(86400);
+
+        igoClaim.claimTokens();
+        uint balance2 = mockToken.balanceOf(address(this));
+        assertEq(balance1 * 4, balance2);
+
+        vm.expectRevert(AllTokensClaimed.selector);
         igoClaim.claimTokens();
     }
 
@@ -361,7 +469,6 @@ contract ContractBTest is Test {
         skip(rewardsDuration + 1);
         uint deserved = igoClaim.deservedAllocation(makeAddr("enes"));
         uint deserved2 = igoClaim.deservedAllocation(makeAddr("enes2"));
-
         assert(deserved <= totalDollars);
         assert(deserved2 <= totalDollars);
         assert(deserved == deserved2);
@@ -519,5 +626,128 @@ contract ContractBTest is Test {
         vm.expectRevert(AmountIsZero.selector);
         igoVault.exit();
         vm.stopPrank();
+    }
+
+    function test_tryClaimWithZeroClaimPercentage() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            0,
+            0,
+            block.timestamp,
+            block.timestamp + 43200,
+            0
+        );
+
+        vm.expectRevert(AllTokensClaimed.selector);
+        igoClaim.claimTokens();
+
+        assertEq(igoClaim.deservedByUser(address(this)), 0);
+
+        igoVault.setLinearParams(
+            address(igo),
+            0,
+            0,
+            block.timestamp,
+            block.timestamp + 43200,
+            100
+        );
+
+        uint deservedAll = igoClaim.deservedByUser(address(this));
+
+        igoVault.setLinearParams(
+            address(igo),
+            0,
+            0,
+            block.timestamp,
+            block.timestamp + 43200,
+            10
+        );
+
+        uint deserved10Percent = igoClaim.deservedByUser(address(this));
+
+        assert(deservedAll > 0);
+        assertEq(deservedAll / 10, deserved10Percent);
+
+        uint totalTokens = (totalDollars / price) * 10**priceDecimals;
+        totalTokens = (totalTokens / 1e18) * 10**gameTokenDecimal;
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)));
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)));
+        deal(address(mockToken), address(this), 0);
+
+        igoClaim.claimTokens();
+
+        assert(mockToken.balanceOf(address(this)) < totalTokens / 10);
+
+    }
+
+    function test_successfulLinearVesting() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            block.timestamp,
+            86400,
+            block.timestamp,
+            block.timestamp + 43200,
+            10
+        );
+
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)) * 10);
+        assertEq(mockToken.balanceOf(address(this)), 0);
+
+        igoClaim.claimTokens();
+        uint tokenBalance = mockToken.balanceOf(address(this));
+
+        vm.expectRevert(AlreadyClaimed.selector);
+        igoClaim.askForRefund();
+
+        skip(86400);
+        igoClaim.claimTokens();
+
+        vm.expectRevert(AlreadyClaimed.selector);
+        igoClaim.askForRefund();
+
+        uint tokenBalance2 = mockToken.balanceOf(address(this));
+        console2.log("tokenBalance2", tokenBalance2);
+
+        assertEq(tokenBalance * 10, tokenBalance2);
+
+        vm.expectRevert(AllTokensClaimed.selector);
+        igoClaim.claimTokens();
+
+        skip(86400);
+
+        vm.expectRevert(AllTokensClaimed.selector);
+        igoClaim.claimTokens();
+
     }
 }
