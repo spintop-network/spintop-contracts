@@ -7,7 +7,6 @@ async function main() {
     "0x22c446155db0ca9c6ec0552df07636ad9bfcb541", // Proxy address
     SpinVaultContract
   );
-  // await spinVault.waitForDeployment();
   console.log("SpinVault upgraded: ", spinVault.target);
 }
 main()
