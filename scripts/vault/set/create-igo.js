@@ -1,14 +1,23 @@
-const { upgrades } = require("hardhat");
+const hardhat = require("hardhat");
+const upgrades = hardhat.upgrades;
+const CONSTANTS = require("../../constants");
 async function main() {
+  const isBscTestnet = hardhat.network.name === "bsctestnet";
   const spinVaultInstance = await ethers.getContractFactory("IGOVault");
-  const spinVaultAddress = "0x22c446155db0ca9c6ec0552df07636ad9bfcb541";
+  const spinVaultAddress = isBscTestnet
+    ? CONSTANTS.TESTNET_VAULT_ADDRESS
+    : CONSTANTS.BINANCE_VAULT_ADDRESS;
   const spinVault = spinVaultInstance.attach(spinVaultAddress);
-  const paymentToken = "0x6c96d72b04EA665bA7147C997457D07beC973593";
-  const gameToken = "0x6c96d72b04EA665bA7147C997457D07beC973593";
+  const paymentToken = isBscTestnet
+    ? CONSTANTS.TESTNET_SPIN_ADDRESS
+    : CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
+  const gameToken = isBscTestnet
+    ? CONSTANTS.TESTNET_SPIN_ADDRESS
+    : CONSTANTS.BINANCE_SPIN_ADDRESS;
   const gameTokenDecimal = 18;
-  const contributionRoundDuration = "300";
-  const allocationPeriod = 300; // in seconds
-  const publicPeriod =300; // in seconds
+  const contributionRoundDuration = "30";
+  const allocationPeriod = 120; // in seconds
+  const publicPeriod =120; // in seconds
   const totalDollars = ethers.parseUnits("1000", 18);
   const igoName = "Test IGO";
   const price = "10";

@@ -1,11 +1,18 @@
+const hardhat = require("hardhat");
+const CONSTANTS = require("../../constants");
+
 async function main() {
+  const isBscTestnet = hardhat.network.name === "bsctestnet";
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach("0x22c446155db0ca9c6ec0552df07636ad9bfcb541");
+  const spinVaultAddress = isBscTestnet
+    ? CONSTANTS.TESTNET_VAULT_ADDRESS
+    : CONSTANTS.BINANCE_VAULT_ADDRESS;
+  const spinVault = SpinVault.attach(spinVaultAddress);
 
   const now = Math.floor(Date.now()/1000);
-  const igoId = 2; // Unique IGO id
-  const startDate = now + 60;
-  const duration = 1800;
+  const igoId = 14; // Unique IGO id
+  const startDate = 0;
+  const duration = 0;
   const refundStart = now + 60;
   const refundEnd = now + 60 + 10*60;
   const percentageUnlocked = 20;
