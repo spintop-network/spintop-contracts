@@ -14,8 +14,18 @@ const manager_abi = [
     anonymous: false,
     inputs: [
       { indexed: true, internalType: "address", name: "user", type: "address" },
-      { indexed: true, internalType: "uint256", name: "poolid", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "poolid",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
     name: "Deposited",
     type: "event",
@@ -24,8 +34,18 @@ const manager_abi = [
     anonymous: false,
     inputs: [
       { indexed: true, internalType: "address", name: "user", type: "address" },
-      { indexed: true, internalType: "uint256", name: "poolid", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "poolid",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
     name: "Withdrawn",
     type: "event",
@@ -37,7 +57,13 @@ const manager_abi = [
     stateMutability: "view",
     type: "function",
   },
-  { inputs: [], name: "MaxFees", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" },
+  {
+    inputs: [],
+    name: "MaxFees",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [
       { internalType: "address", name: "_lptoken", type: "address" },
@@ -59,7 +85,13 @@ const manager_abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  { inputs: [], name: "crv", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" },
+  {
+    inputs: [],
+    name: "crv",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [
       { internalType: "uint256", name: "_pid", type: "uint256" },
@@ -137,7 +169,13 @@ const manager_abi = [
     stateMutability: "view",
     type: "function",
   },
-  { inputs: [], name: "isShutdown", outputs: [{ internalType: "bool", name: "", type: "bool" }], stateMutability: "view", type: "function" },
+  {
+    inputs: [],
+    name: "isShutdown",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [],
     name: "lockFees",
@@ -159,8 +197,20 @@ const manager_abi = [
     stateMutability: "view",
     type: "function",
   },
-  { inputs: [], name: "minter", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" },
-  { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" },
+  {
+    inputs: [],
+    name: "minter",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [],
     name: "platformFee",
@@ -246,7 +296,13 @@ const manager_abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  { inputs: [], name: "setFeeInfo", outputs: [], stateMutability: "nonpayable", type: "function" },
+  {
+    inputs: [],
+    name: "setFeeInfo",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
   {
     inputs: [{ internalType: "address", name: "_feeM", type: "address" }],
     name: "setFeeManager",
@@ -305,7 +361,9 @@ const manager_abi = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "_voteDelegate", type: "address" }],
+    inputs: [
+      { internalType: "address", name: "_voteDelegate", type: "address" },
+    ],
     name: "setVoteDelegate",
     outputs: [],
     stateMutability: "nonpayable",
@@ -318,8 +376,20 @@ const manager_abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  { inputs: [], name: "shutdownSystem", outputs: [], stateMutability: "nonpayable", type: "function" },
-  { inputs: [], name: "staker", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" },
+  {
+    inputs: [],
+    name: "shutdownSystem",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "staker",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [],
     name: "stakerIncentive",
@@ -460,8 +530,24 @@ const pool_abi = [
     payable: false,
     type: "constructor",
   },
-  { name: "set_minter", outputs: [], inputs: [{ type: "address", name: "_minter" }], constant: false, payable: false, type: "function", gas: 36247 },
-  { name: "totalSupply", outputs: [{ type: "uint256", name: "out" }], inputs: [], constant: true, payable: false, type: "function", gas: 1181 },
+  {
+    name: "set_minter",
+    outputs: [],
+    inputs: [{ type: "address", name: "_minter" }],
+    constant: false,
+    payable: false,
+    type: "function",
+    gas: 36247,
+  },
+  {
+    name: "totalSupply",
+    outputs: [{ type: "uint256", name: "out" }],
+    inputs: [],
+    constant: true,
+    payable: false,
+    type: "function",
+    gas: 1181,
+  },
   {
     name: "allowance",
     outputs: [{ type: "uint256", name: "out" }],
@@ -523,7 +609,15 @@ const pool_abi = [
     type: "function",
     gas: 75733,
   },
-  { name: "burn", outputs: [], inputs: [{ type: "uint256", name: "_value" }], constant: false, payable: false, type: "function", gas: 76623 },
+  {
+    name: "burn",
+    outputs: [],
+    inputs: [{ type: "uint256", name: "_value" }],
+    constant: false,
+    payable: false,
+    type: "function",
+    gas: 76623,
+  },
   {
     name: "burnFrom",
     outputs: [],
@@ -536,9 +630,33 @@ const pool_abi = [
     type: "function",
     gas: 76696,
   },
-  { name: "name", outputs: [{ type: "string", name: "out" }], inputs: [], constant: true, payable: false, type: "function", gas: 7853 },
-  { name: "symbol", outputs: [{ type: "string", name: "out" }], inputs: [], constant: true, payable: false, type: "function", gas: 6906 },
-  { name: "decimals", outputs: [{ type: "uint256", name: "out" }], inputs: [], constant: true, payable: false, type: "function", gas: 1511 },
+  {
+    name: "name",
+    outputs: [{ type: "string", name: "out" }],
+    inputs: [],
+    constant: true,
+    payable: false,
+    type: "function",
+    gas: 7853,
+  },
+  {
+    name: "symbol",
+    outputs: [{ type: "string", name: "out" }],
+    inputs: [],
+    constant: true,
+    payable: false,
+    type: "function",
+    gas: 6906,
+  },
+  {
+    name: "decimals",
+    outputs: [{ type: "uint256", name: "out" }],
+    inputs: [],
+    constant: true,
+    payable: false,
+    type: "function",
+    gas: 1511,
+  },
   {
     name: "balanceOf",
     outputs: [{ type: "uint256", name: "out" }],
@@ -552,11 +670,19 @@ const pool_abi = [
 
 // doesn't work with some pool contracts for some reason(maybe gas values? vyper stuff?)
 async function main() {
-  const pool_manager = new ethers.Contract("0xF403C135812408BFbE8713b5A23a04b3D48AAE31", manager_abi, ethers.provider);
+  const pool_manager = new ethers.Contract(
+    "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+    manager_abi,
+    ethers.provider,
+  );
   for (let i = 0; i < 125; i++) {
     try {
       let pool_address = (await pool_manager.poolInfo(i)).lptoken;
-      let pool_contract = new ethers.Contract(pool_address, pool_abi, ethers.provider);
+      let pool_contract = new ethers.Contract(
+        pool_address,
+        pool_abi,
+        ethers.provider,
+      );
       let pool_name = await pool_contract.name();
       console.log("ID:", i, " NAME:", pool_name);
     } catch (e) {

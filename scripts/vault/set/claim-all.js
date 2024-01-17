@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
   const spinVault = SpinVault.attach(
-    "0xAdea083E4c3dD1f1EDF3206479378D8894B1ca66"
+    "0xAdea083E4c3dD1f1EDF3206479378D8894B1ca66",
   );
 
   const igoId = 4; // Unique IGO id

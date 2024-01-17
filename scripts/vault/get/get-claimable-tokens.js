@@ -17,8 +17,8 @@ async function main() {
 
   const claimable = parseFloat(
     ethers.utils.formatEther(
-      await claim.claimableTokens("0xC370b50eC6101781ed1f1690A00BF91cd27D77c4")
-    )
+      await claim.claimableTokens("0xC370b50eC6101781ed1f1690A00BF91cd27D77c4"),
+    ),
   );
   console.log("Claimable: ", claimable);
 }

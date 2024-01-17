@@ -13,12 +13,12 @@ async function main() {
     : CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
   const gameToken = isBscTestnet
     ? CONSTANTS.TESTNET_SPIN_ADDRESS
-    : CONSTANTS.BINANCE_SPIN_ADDRESS;
+    : CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
   const gameTokenDecimal = 18;
-  const contributionRoundDuration = "30";
-  const allocationPeriod = 120; // in seconds
-  const publicPeriod =120; // in seconds
-  const totalDollars = ethers.parseUnits("1000", 18);
+  const contributionRoundDuration = "60";
+  const allocationPeriod = 600; // in seconds
+  const publicPeriod = 600; // in seconds
+  const totalDollars = ethers.parseUnits("50", 18);
   const igoName = "Test IGO";
   const price = "10";
   const priceDecimals = "3";
@@ -30,15 +30,12 @@ async function main() {
   console.log("Paused.");
 
   const igo = await ethers.getContractFactory("IGO");
-  const igoInstance = await upgrades.deployProxy(
-    igo,
-    [
-      igoName, // IGO Name
-      totalDollars, // Total Dollars
-      contributionRoundDuration, // Duration of IGO (contribution round)
-      spinVaultAddress
-    ],
-  );
+  const igoInstance = await upgrades.deployProxy(igo, [
+    igoName, // IGO Name
+    totalDollars, // Total Dollars
+    contributionRoundDuration, // Duration of IGO (contribution round)
+    spinVaultAddress,
+  ]);
   await igoInstance.waitForDeployment();
   const igoAddress = await igoInstance.getAddress();
   console.log("IGO deployed: ", igoAddress);
@@ -47,20 +44,17 @@ async function main() {
   await cmdCreateIGO.wait();
 
   const igoClaim = await ethers.getContractFactory("IGOClaim");
-  const igoClaimInstance = await upgrades.deployProxy(
-    igoClaim,
-    [
-      spinVaultAddress,
-      igoAddress,
-      totalDollars, // Total Dollars
-      paymentToken, // Payment token (dollars),
-      price, // Price (integer)
-      priceDecimals, // Price (decimal count)
-      priceBuyMultiplier, // Public buy multiplier
-      isLinear, // Is linear?
-      igoAddress
-    ],
-  );
+  const igoClaimInstance = await upgrades.deployProxy(igoClaim, [
+    spinVaultAddress,
+    igoAddress,
+    totalDollars, // Total Dollars
+    paymentToken, // Payment token (dollars),
+    price, // Price (integer)
+    priceDecimals, // Price (decimal count)
+    priceBuyMultiplier, // Public buy multiplier
+    isLinear, // Is linear?
+    igoAddress,
+  ]);
 
   await igoClaimInstance.waitForDeployment();
   const igoClaimAddress = await igoClaimInstance.getAddress();
@@ -80,7 +74,7 @@ async function main() {
   const cmdStart = await spinVault.start();
   await cmdStart.wait();
 
-  for (let i = 0; i < batchCount ; i++) {
+  for (let i = 0; i < batchCount; i++) {
     const cmdMigrate = await spinVault.migrateBalances();
     await cmdMigrate.wait();
     console.log("Migrated batch.");
@@ -90,11 +84,19 @@ async function main() {
   await cmdUnpause.wait();
   console.log("Unpaused.");
 
-  const cmdSetPeriods = await spinVault.setPeriods(igoAddress, allocationPeriod, publicPeriod);
+  const cmdSetPeriods = await spinVault.setPeriods(
+    igoAddress,
+    allocationPeriod,
+    publicPeriod,
+  );
   await cmdSetPeriods.wait();
   console.log("Set periods.");
 
-  const cmdSetToken = await spinVault.setToken(igoAddress, gameToken, gameTokenDecimal);
+  const cmdSetToken = await spinVault.setToken(
+    igoAddress,
+    gameToken,
+    gameTokenDecimal,
+  );
   await cmdSetToken.wait();
   console.log("Set token.");
 }

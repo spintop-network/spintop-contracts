@@ -15,19 +15,18 @@ async function main() {
     bnb_busd_lp,
     spin,
     spin_bnb_lp,
-    spin_bnb_farm
-  )
-  console.log("Result:", farm_result)
+    spin_bnb_farm,
+  );
+  console.log("Result:", farm_result);
 
   let pool_result = await dataServer.getPoolData(
     wbnb,
     bnb_busd_lp,
     spin,
     spin_bnb_lp,
-    spin_pool
-  )
-  console.log("Result:", pool_result)
-
+    spin_pool,
+  );
+  console.log("Result:", pool_result);
 }
 main()
   .then(() => process.exit(0))

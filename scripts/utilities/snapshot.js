@@ -12,7 +12,11 @@ async function main() {
   for (let i = startBlock; i < endBlock; i += 5000) {
     const _startBlock = i;
     const _endBlock = Math.min(endBlock, i + 5000);
-    const events = await igoClaim.queryFilter("UserPaid", _startBlock, _endBlock);
+    const events = await igoClaim.queryFilter(
+      "UserPaid",
+      _startBlock,
+      _endBlock,
+    );
     console.log(events.length);
     allEvents = [...allEvents, ...events];
   }
@@ -20,9 +24,9 @@ async function main() {
   let allTuples = [];
   let totalAmount = BigInt(0);
   let buyers = allEvents.map((event) => event.args[0]);
-  let amounts = allEvents.map((event) => BigInt((event.args[1]).toString()));
+  let amounts = allEvents.map((event) => BigInt(event.args[1].toString()));
 
-  console.log(amounts[0], typeof amounts[0])
+  console.log(amounts[0], typeof amounts[0]);
   // const UNKNOWN_MULTIPLIER = 0.7083; Is this token price?
   const UNKNOWN_MULTIPLIER = BigInt(100);
 
@@ -47,7 +51,7 @@ async function main() {
   console.log("Total amount -> ", totalAmount);
   console.log("Total unique entries -> ", allTuples.length);
 
-  allTuples = allTuples.map((tuple) => ([tuple[0], tuple[1].toString()]));
+  allTuples = allTuples.map((tuple) => [tuple[0], tuple[1].toString()]);
   const fs = require("fs");
   const data = JSON.stringify(allTuples);
   fs.writeFileSync("./ookenga-unq-amounts.json", data, "utf8", (err) => {

@@ -7,12 +7,20 @@ async function main() {
   console.log("Spin Token deployed:", spinToken.address);
 
   const SpinStakable = await ethers.getContractFactory("SpinStakable");
-  const spinStakable = await SpinStakable.deploy(spinToken.address, spinToken.address);
+  const spinStakable = await SpinStakable.deploy(
+    spinToken.address,
+    spinToken.address,
+  );
   await spinStakable.deployed();
   console.log("Staking Pool deployed: ", spinStakable.address);
 
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
-  const spinVault = await SpinVaultContract.deploy("SpinStarter Vault Shares", "SSvS", spinStakable.address, spinToken.address);
+  const spinVault = await SpinVaultContract.deploy(
+    "SpinStarter Vault Shares",
+    "SSvS",
+    spinStakable.address,
+    spinToken.address,
+  );
   await spinVault.deployed();
   console.log("SpinVault deployed: ", spinVault.address);
 }

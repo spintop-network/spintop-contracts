@@ -10,7 +10,7 @@ async function main() {
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
   const spinVault = await upgrades.upgradeProxy(
     spinVaultAddress, // Proxy address
-    SpinVaultContract
+    SpinVaultContract,
   );
   console.log("SpinVault upgraded: ", spinVault.target);
 }

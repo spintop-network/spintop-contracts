@@ -4,7 +4,11 @@ async function main() {
   const lpAddress = "0x591E3322b89d35Bb2A96B326bE55A07187BC7fb9";
 
   const SpinStakable = await ethers.getContractFactory("MultiStaking");
-  const spinStakable = await SpinStakable.deploy(lpAddress, spinAddress, tokenAddress);
+  const spinStakable = await SpinStakable.deploy(
+    lpAddress,
+    spinAddress,
+    tokenAddress,
+  );
   await spinStakable.deployed();
 
   console.log("Staking Pool deployed: ", spinStakable.address);

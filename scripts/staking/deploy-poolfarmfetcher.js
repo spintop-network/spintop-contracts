@@ -1,12 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
-  
-  const fetcher = await hre.ethers.deployContract("PoolFarmFetcher")
+  const fetcher = await hre.ethers.deployContract("PoolFarmFetcher");
 
   await fetcher.waitForDeployment();
 
-console.log("PoolFarmFetcher deployed to:", fetcher.target);
+  console.log("PoolFarmFetcher deployed to:", fetcher.target);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

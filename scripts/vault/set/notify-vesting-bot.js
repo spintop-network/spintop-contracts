@@ -1,6 +1,8 @@
 async function main() {
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach("0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77");
+  const spinVault = SpinVault.attach(
+    "0x03447d28FC19cD3f3cB449AfFE6B3725b3BCdA77",
+  );
 
   const igoId = 5; // Unique IGO id
   const percentage = 1500; // tenthousandths
@@ -12,7 +14,10 @@ async function main() {
     now = parseInt(now / 1000);
     if (now >= target && !notified) {
       const igoAddress = await spinVault.IGOs(igoId);
-      const cmdNotifyVesting = await spinVault.notifyVesting(igoAddress, percentage);
+      const cmdNotifyVesting = await spinVault.notifyVesting(
+        igoAddress,
+        percentage,
+      );
       await cmdNotifyVesting.wait();
       console.log("Notified vesting @", now);
       notified = true;

@@ -9,7 +9,9 @@ const claimContract = "0x0ca4d43fa7a5032a0cee1f9cbdf717dbb614df05";
 async function main() {
   let final = [];
   for (let i = 0; i < given.result.length; i++) {
-    final = given.result.filter((item) => "0x" + item.topics[1].substring(26, 66) == claimContract);
+    final = given.result.filter(
+      (item) => "0x" + item.topics[1].substring(26, 66) == claimContract,
+    );
   }
   const amounts = final.map((item) => {
     return parseInt(item.data, 16);
@@ -35,7 +37,10 @@ async function main() {
   for (let i = 0; i < deserved.length; i++) {
     let index = realClaimers.indexOf(ethers.utils.hexlify(deserved[i][0]));
     let amount = index == -1 ? 0 : claimed[index][1];
-    toGive[i] = [ethers.utils.hexlify(deserved[i][0]), deserved[i][1] * 1000 - amount];
+    toGive[i] = [
+      ethers.utils.hexlify(deserved[i][0]),
+      deserved[i][1] * 1000 - amount,
+    ];
   }
 
   const fs = require("fs");

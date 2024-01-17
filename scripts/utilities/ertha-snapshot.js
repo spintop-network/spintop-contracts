@@ -21,7 +21,9 @@ async function main() {
   let totalAmount = 0;
   let blocks = allEvents.map((event) => event.blockNumber);
   //   let buyers = allEvents.map((event) => event.args[0]);
-  let amounts = allEvents.map((event) => parseFloat(ethers.utils.formatEther(event.args[1])));
+  let amounts = allEvents.map((event) =>
+    parseFloat(ethers.utils.formatEther(event.args[1])),
+  );
 
   // const set = new Set();
   // const unq_buyers = buyers.filter((buyer, i) => {

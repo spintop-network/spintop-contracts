@@ -13,7 +13,7 @@ async function main() {
     if (now >= target && !notified) {
       const notifyFarm = await farm.notifyRewardAmount(
         rewardAmount,
-        bonusAmount
+        bonusAmount,
       );
       await notifyFarm.wait();
       console.log("Farm notified.");
