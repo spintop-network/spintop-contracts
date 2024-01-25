@@ -1,12 +1,21 @@
 const hardhat = require("hardhat");
+const {
+  TESTNET_POOL_ADDRESS,
+  BINANCE_POOL_ADDRESS,
+  TESTNET_SPIN_ADDRESS,
+  BINANCE_SPIN_ADDRESS,
+} = require("../../constants");
 const { ethers, upgrades } = hardhat;
 
 async function main() {
   const isBscTestnet = hardhat.network.name === "bsctestnet";
-  // const poolAddress = isBscTestnet;
-  const poolAddress = "0x06F2bA50843e2D26D8FD3184eAADad404B0F1A67";
-  const spinAddress = "0x6AA217312960A21aDbde1478DC8cBCf828110A67";
-  const owner = "0xF04a7d27F93f48B69e5C846097D21F52806BC135";
+  const poolAddress = isBscTestnet
+    ? TESTNET_POOL_ADDRESS
+    : BINANCE_POOL_ADDRESS;
+  const spinAddress = isBscTestnet
+    ? TESTNET_SPIN_ADDRESS
+    : BINANCE_SPIN_ADDRESS;
+  const owner = new ethers.Wallet(hardhat.network.config.accounts[0]).address;
   const SpinVaultContract = await ethers.getContractFactory("IGOVault");
   const spinVault = await upgrades.deployProxy(SpinVaultContract, [
     "SpinStarter Vault Shares v2",

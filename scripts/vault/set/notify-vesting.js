@@ -1,8 +1,13 @@
+const hardhat = require("hardhat");
+const CONSTANTS = require("../../constants");
+
 async function main() {
+  const isBscTestnet = hardhat.network.name === "bsctestnet";
+  const spinVaultAddress = isBscTestnet
+    ? CONSTANTS.TESTNET_VAULT_ADDRESS
+    : CONSTANTS.BINANCE_VAULT_ADDRESS;
   const SpinVault = await ethers.getContractFactory("IGOVault");
-  const spinVault = SpinVault.attach(
-    "0x7585C090C772A7bd5dAcAe3495BE615BcA868002",
-  );
+  const spinVault = SpinVault.attach(spinVaultAddress);
 
   const igoId = 10; // Unique IGO id
   const percentage = 2500; // tenthousandths
