@@ -246,10 +246,10 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     // Public mutative functions //
 
     function deposit(uint _amount) external nonReentrant whenNotPaused {
+        compound();
         if (_amount == 0) revert AmountIsZero();
         uint256 totalAmount = _amount + getUserStaked(_msgSender());
         if (totalAmount >= maxStakeAmount) revert ExceedsMaxStakeAmount();
-        compound();
         uint256 _bal = balance();
         IERC20(vaultInfo.tokenSpin).transferFrom(_msgSender(), address(this), _amount);
         if (vaultBalance() > 0) {
@@ -272,8 +272,8 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     }
 
     function withdraw(uint _amount) external nonReentrant whenNotPaused {
-        if (_amount == 0) revert AmountIsZero();
         compound();
+        if (_amount == 0) revert AmountIsZero();
         uint256 balanceOfSender = balanceOf(_msgSender()); // vault token shares count of user
         if (balanceOfSender == 0) revert ExceedsUserBalance();
         uint256 requested =  balance() * balanceOfSender / totalSupply(); // total spin balance of user

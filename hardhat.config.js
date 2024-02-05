@@ -88,7 +88,7 @@ module.exports = {
         "https://data-seed-prebsc-1-s1.binance.org:8545/",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 11000000000,
+      gasPrice: 7000000000,
     },
     polygon: {
       url: process.env.POLYGON_URL || "",

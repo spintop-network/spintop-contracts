@@ -10,12 +10,12 @@ async function main() {
   const spinVault = SpinVault.attach(spinVaultAddress);
 
   const now = Math.floor(Date.now() / 1000);
-  const igoId = 4; // Unique IGO id
+  const igoId = 9; // Unique IGO id
   const startDate = now;
-  const duration = 60 * 30;
-  const refundStart = now + 60;
-  const refundEnd = now + 60 + 10 * 60;
-  const percentageUnlocked = 20;
+  const duration = 60;
+  const refundStart = 0;
+  const refundEnd = 0;
+  const percentageUnlocked = 10;
 
   const igoAddress = await spinVault.IGOs(igoId);
   const cmdSetPeriods = await spinVault.setLinearParams(

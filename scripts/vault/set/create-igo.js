@@ -15,15 +15,15 @@ async function main() {
     ? CONSTANTS.TESTNET_SPIN_ADDRESS
     : CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
   const gameTokenDecimal = 18;
-  const contributionRoundDuration = "60";
-  const allocationPeriod = 600; // in seconds
-  const publicPeriod = 600; // in seconds
-  const totalDollars = ethers.parseUnits("50", 18);
+  const contributionRoundDuration = "30";
+  const allocationPeriod = 30; // in seconds
+  const publicPeriod = 120; // in seconds
+  const totalDollars = ethers.parseUnits("50000", 18);
   const igoName = "Test IGO";
   const price = "10";
   const priceDecimals = "3";
   const priceBuyMultiplier = "2";
-  const isLinear = true;
+  const isLinear = false;
 
   const cmdPause = await spinVault.pause();
   await cmdPause.wait();
@@ -64,6 +64,22 @@ async function main() {
   await cmdSetClaim.wait();
   console.log("Claim contract set.");
 
+  const cmdSetPeriods = await spinVault.setPeriods(
+    igoAddress,
+    allocationPeriod,
+    publicPeriod,
+  );
+  await cmdSetPeriods.wait();
+  console.log("Set periods.");
+
+  const cmdSetToken = await spinVault.setToken(
+    igoAddress,
+    gameToken,
+    gameTokenDecimal,
+  );
+  await cmdSetToken.wait();
+  console.log("Set token.");
+
   const cmdBatch = await spinVault.setBatchSize("200");
   await cmdBatch.wait();
   console.log("Batch sized.");
@@ -83,22 +99,6 @@ async function main() {
   const cmdUnpause = await spinVault.unpause();
   await cmdUnpause.wait();
   console.log("Unpaused.");
-
-  const cmdSetPeriods = await spinVault.setPeriods(
-    igoAddress,
-    allocationPeriod,
-    publicPeriod,
-  );
-  await cmdSetPeriods.wait();
-  console.log("Set periods.");
-
-  const cmdSetToken = await spinVault.setToken(
-    igoAddress,
-    gameToken,
-    gameTokenDecimal,
-  );
-  await cmdSetToken.wait();
-  console.log("Set token.");
 }
 main()
   .then(() => process.exit(0))
