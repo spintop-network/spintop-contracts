@@ -194,6 +194,10 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         decimal = _decimal;
     }
 
+    function setMultiplier(uint256 _multiplier) external onlyOwner {
+        multiplier = _multiplier;
+    }
+
     // Private functions //
 
     function normalize(uint256 _amount) private view returns (uint256) {
