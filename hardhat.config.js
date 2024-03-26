@@ -5,6 +5,7 @@ require("hardhat-gas-reporter");
 require("hardhat-tracer");
 require("@nomicfoundation/hardhat-foundry");
 require("@openzeppelin/hardhat-upgrades");
+require("xdeployer");
 
 module.exports = {
   solidity: {
@@ -91,13 +92,32 @@ module.exports = {
       gasPrice: 7000000000,
     },
     polygon: {
-      url: process.env.POLYGON_URL || "",
+      url: process.env.POLYGON_URL || "https://rpc-mainnet.maticvigil.com/",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    optimism: {
+      url: "https://1rpc.io/op",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
+  xdeploy: {
+    contract: "SwapRouter",
+    constructorArgsPath: "./scripts/swapargs.js", // optional; default value is `undefined`
+    salt: "SPINTOP",
+    signer: process.env.PRIVATE_KEY,
+    networks: ["bscTestnet"],
+    rpcUrls: ["https://data-seed-prebsc-1-s1.binance.org:8545"],
+    gasLimit: 1_500_000, // optional; default value is `1.5e6`
+  },
   etherscan: {
-    apiKey: "QH3QDHPBQ65XU2D98M3I6DNXK35BV6AWDJ",
+    apiKey: {
+      bsc: "FZ9HIYU2M91H29XAJ7G6MPTK3IYNDNUGET",
+      polygon: "GVNSPADSK181BHEZH58I6XNGSC46TWM4D7",
+      bscTestnet: "FZ9HIYU2M91H29XAJ7G6MPTK3IYNDNUGET",
+      optimisticEthereum: "ZTAQ6XTRWG9BXCNPY5R284VH5CZAKPDEDV",
+    },
   },
   sourcify: {
     // Disabled by default
