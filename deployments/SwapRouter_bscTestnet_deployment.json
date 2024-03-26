@@ -1,0 +1,59 @@
+{
+  "network": "bscTestnet",
+  "chainId": "97",
+  "contract": "SwapRouter",
+  "txHash": "0x9d1f872c94b560eae12a97d1bfd52e35fef879a1e027c4c40c9d00d71c03a982",
+  "txHashLink": "https://testnet.bscscan.com/tx/0x9d1f872c94b560eae12a97d1bfd52e35fef879a1e027c4c40c9d00d71c03a982",
+  "address": "0xC566ba1dA4b7c7126c65C76fF288a0231C0DfB79",
+  "addressLink": "https://testnet.bscscan.com/address/0xC566ba1dA4b7c7126c65C76fF288a0231C0DfB79",
+  "receipt": {
+    "_type": "TransactionReceipt",
+    "blockHash": "0xebec92e32f78a314d97484aba89a0beaf973a179eed31cbd6ce5dd5d7a321d42",
+    "blockNumber": 38921628,
+    "contractAddress": null,
+    "cumulativeGasUsed": "1204488",
+    "from": "0xF04a7d27F93f48B69e5C846097D21F52806BC135",
+    "gasPrice": "5000000000",
+    "blobGasUsed": null,
+    "blobGasPrice": null,
+    "gasUsed": "1143785",
+    "hash": "0x9d1f872c94b560eae12a97d1bfd52e35fef879a1e027c4c40c9d00d71c03a982",
+    "index": 2,
+    "logs": [
+      {
+        "_type": "log",
+        "address": "0xC566ba1dA4b7c7126c65C76fF288a0231C0DfB79",
+        "blockHash": "0xebec92e32f78a314d97484aba89a0beaf973a179eed31cbd6ce5dd5d7a321d42",
+        "blockNumber": 38921628,
+        "data": "0x",
+        "index": 0,
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x00000000000000000000000097a4be8f51fa04368d8ee2128d62c51fbada44ef"
+        ],
+        "transactionHash": "0x9d1f872c94b560eae12a97d1bfd52e35fef879a1e027c4c40c9d00d71c03a982",
+        "transactionIndex": 2
+      },
+      {
+        "_type": "log",
+        "address": "0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed",
+        "blockHash": "0xebec92e32f78a314d97484aba89a0beaf973a179eed31cbd6ce5dd5d7a321d42",
+        "blockNumber": 38921628,
+        "data": "0x",
+        "index": 1,
+        "topics": [
+          "0xb8fda7e00c6b06a2b54e58521bc5894fee35f1090e5a3bb6390bfe2b98b497f7",
+          "0x000000000000000000000000c566ba1da4b7c7126c65c76ff288a0231c0dfb79",
+          "0x8b254649b8d172f16c0af8143ffc77d3f9dcfd4954be73d7d5d4de026d5a95bf"
+        ],
+        "transactionHash": "0x9d1f872c94b560eae12a97d1bfd52e35fef879a1e027c4c40c9d00d71c03a982",
+        "transactionIndex": 2
+      }
+    ],
+    "logsBloom": "0x00020000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000040000002020000000000000000000000000040400200000000000001000000000000000000000000000000000000020000000000000000000800100000000000000001000000000000400000000000000000000000000000100000000000000000000000000000000000000080000000000000000000000000000000020004000000000200000000000000000000000000000200000010000000000000042000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "status": 1,
+    "to": "0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed"
+  },
+  "deployed": true
+}
