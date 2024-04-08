@@ -737,7 +737,6 @@ contract ContractBTest is Test {
         igoClaim.askForRefund();
 
         uint tokenBalance2 = mockToken.balanceOf(address(this));
-        console2.log("tokenBalance2", tokenBalance2);
 
         assertEq(tokenBalance * 10, tokenBalance2);
 
@@ -749,5 +748,59 @@ contract ContractBTest is Test {
         vm.expectRevert(AllTokensClaimed.selector);
         igoClaim.claimTokens();
 
+    }
+
+    function test_successfulLinearVestingOneSecond() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            block.timestamp,
+            86400,
+            block.timestamp,
+            block.timestamp + 43200,
+            10
+        );
+
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)) * 10);
+        assertEq(mockToken.balanceOf(address(this)), 0);
+
+        igoClaim.claimTokens();
+        uint tokenBalance = mockToken.balanceOf(address(this));
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint secondClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(secondClaimTokenBalance > tokenBalance);
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint thirdClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(thirdClaimTokenBalance > secondClaimTokenBalance);
+
+        skip(86400);
+        igoClaim.claimTokens();
+        uint fourthClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(fourthClaimTokenBalance > thirdClaimTokenBalance);
+
+        skip(86400);
+        vm.expectRevert(AllTokensClaimed.selector);
+        igoClaim.claimTokens();
+        uint fifthClaimTokenBalance = mockToken.balanceOf(address(this));
+        assertEq(fifthClaimTokenBalance, fourthClaimTokenBalance);
     }
 }

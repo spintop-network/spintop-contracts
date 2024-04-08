@@ -202,7 +202,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     function normalize(uint256 _amount) private view returns (uint256) {
         _amount = (_amount / price) * 10**priceDecimal;
-        return (_amount / 1e18) * 10**decimal;
+        return (_amount * 10**decimal) / 1e18;
     }
 
     // Public view functions //
@@ -259,24 +259,17 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _claimable = normalize(claimableAllocation(_user));
     }
 
-    // scale up by 1e4
-    function percentageDeserved() public view returns (uint256 percentage) {
-        if (_startDate == 0){
-            percentage = claimPercentage * 1e2;
+    function deserved(uint256 _amount) public view returns (uint256 _deserved) {
+        if (_startDate == 0) {
+            _deserved = (_amount * claimPercentage * 1e5) / 1e7;
         } else {
             uint256 _now = block.timestamp > _startDate + _duration
                 ? _startDate + _duration
                 : block.timestamp;
-            uint256 timePast = (_now - _startDate) * 1e12;
-            uint256 scaledPercentage = (timePast / _duration / 1e10) * (100 - claimPercentage);
-            percentage = claimPercentage * 1e2 + scaledPercentage;
+            uint256 timePast = (_now - _startDate);
+            uint256 scaledAmount = ((timePast * _amount * (1e7 - claimPercentage * 1e5)) / _duration) / 1e7;
+            _deserved = scaledAmount + (_amount * claimPercentage * 1e5) / 1e7;
         }
-    }
-
-    // scale down by 1e4
-    function deserved(uint256 _amount) public view returns (uint256 _deserved) {
-        uint256 _percentage = percentageDeserved();
-        _deserved = (_percentage * _amount) / 1e4;
     }
 
     function deservedByUser(address _user) public view returns (uint256 _deserved) {
@@ -374,7 +367,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function _claimTokensLinear() private {
-        uint256 _deserved = deserved(normalize(paidAmounts[_msgSender()]));
+        uint256 _deserved = deservedByUser(_msgSender());
         uint256 tokensToClaim = _deserved - claimedTokens[_msgSender()];
         if (tokensToClaim == 0) revert AllTokensClaimed();
         if (totalClaimed + tokensToClaim > normalize(totalDollars)) revert NotEnoughTokens();
