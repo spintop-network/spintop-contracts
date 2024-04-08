@@ -9,7 +9,7 @@ contract Lock is Ownable {
 
     event Deposit(address indexed sender, uint256 amount);
 
-    constructor(address _corrupt_spin) {
+    constructor(address _corrupt_spin) Ownable(msg.sender) {
         corrupt_spin = _corrupt_spin;
     }
 

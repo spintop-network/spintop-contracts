@@ -12,7 +12,7 @@ contract Release is Ownable {
 
     event Claim(address indexed sender, uint256 amount);
 
-    constructor(address _spin) {
+    constructor(address _spin) Ownable(msg.sender) {
         spin = _spin;
     }
 
