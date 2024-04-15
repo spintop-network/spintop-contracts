@@ -16,7 +16,8 @@ import "../Interfaces/IIGO.sol";
 contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
-    address private vault;
+    // Vault address removed from future versions.
+//    address private vault;
     address public paymentToken;
     address public igo;
     address public token;
@@ -59,7 +60,6 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     error TransferFailed();
 
     function initialize(
-        address _vault,
         address _igo,
         uint256 _totalDollars,
         address _paymentToken,
@@ -73,7 +73,6 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         allocationTime = 6 hours;
         publicTime = 24 hours;
         claimPercentage = 0;
-        vault = _vault;
         igo = _igo;
         totalDollars = _totalDollars;
         paymentToken = _paymentToken;

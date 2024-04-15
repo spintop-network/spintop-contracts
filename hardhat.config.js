@@ -81,7 +81,7 @@ module.exports = {
       url: process.env.RPC_URL || "https://bsc-dataseed.binance.org/",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 3000000000,
+      gasPrice: 1000000000,
     },
     bsctestnet: {
       url:

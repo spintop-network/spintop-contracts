@@ -10,24 +10,32 @@ async function main() {
   const spinVault = spinVaultInstance.attach(spinVaultAddress);
   const paymentToken = isBscTestnet
     ? CONSTANTS.TESTNET_SPIN_ADDRESS
-    : CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
-  const gameToken = isBscTestnet
-    ? CONSTANTS.TESTNET_SPIN_ADDRESS
-    : CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
+    : CONSTANTS.BINANCE_PEGGED_USDT;
+  let gameToken;
+  if (isBscTestnet) {
+    gameToken = CONSTANTS.TESTNET_SPIN_ADDRESS;
+  }
+  // gameToken = CONSTANTS.BINANCE_FAKE_BUSD_ADDRESS;
+  if (!gameToken) {
+    throw new Error("Game token not found.");
+  }
   const gameTokenDecimal = 18;
-  const contributionRoundDuration = "30";
-  const allocationPeriod = 30; // in seconds
-  const publicPeriod = 120; // in seconds
+  const contributionRoundDuration = "345600";
+  const allocationPeriod = 86400; // in seconds
+  const publicPeriod = 86400; // in seconds
   const totalDollars = ethers.parseUnits("50000", 18);
-  const igoName = "Test IGO";
-  const price = "10";
-  const priceDecimals = "3";
-  const priceBuyMultiplier = "2";
+  const igoName = "Fishverse";
+  const price = "70";
+  const priceDecimals = "4";
+  const priceBuyMultiplier = "5";
   const isLinear = false;
 
-  const cmdPause = await spinVault.pause();
-  await cmdPause.wait();
-  console.log("Paused.");
+  const isPaused = await spinVault.paused();
+  if (!isPaused) {
+    const cmdPause = await spinVault.pause();
+    await cmdPause.wait();
+    console.log("Paused.");
+  }
 
   const igo = await ethers.getContractFactory("IGO");
   const igoInstance = await upgrades.deployProxy(igo, [
@@ -45,7 +53,6 @@ async function main() {
 
   const igoClaim = await ethers.getContractFactory("IGOClaim");
   const igoClaimInstance = await upgrades.deployProxy(igoClaim, [
-    spinVaultAddress,
     igoAddress,
     totalDollars, // Total Dollars
     paymentToken, // Payment token (dollars),
@@ -80,18 +87,19 @@ async function main() {
   await cmdSetToken.wait();
   console.log("Set token.");
 
-  const cmdBatch = await spinVault.setBatchSize("200");
-  await cmdBatch.wait();
-  console.log("Batch sized.");
-
+  const batchSize = await spinVault.batchSize();
   const members = await spinVault.membersLength();
-  const batchCount = Math.floor(Number(members) / 200) + 1;
+  const batchCount = Math.floor(Number(members) / Number(batchSize)) + 1;
 
   const cmdStart = await spinVault.start();
   await cmdStart.wait();
 
   for (let i = 0; i < batchCount; i++) {
-    const cmdMigrate = await spinVault.migrateBalances();
+    const migrateBalancesGasLimit =
+      await spinVault.migrateBalances.estimateGas();
+    const cmdMigrate = await spinVault.migrateBalances({
+      gasLimit: Math.floor(Number(migrateBalancesGasLimit) * 1.75),
+    });
     await cmdMigrate.wait();
     console.log("Migrated batch.");
   }
