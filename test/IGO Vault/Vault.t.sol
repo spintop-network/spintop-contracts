@@ -137,7 +137,6 @@ contract ContractBTest is Test {
         igoClaim = IGOClaim(address(igoClaimProxy));
 
         igoClaim.initialize(
-            address(igoVaultProxy),
             address(igoProxy),
             totalDollars,
             paymentToken,
