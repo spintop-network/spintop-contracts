@@ -18,16 +18,16 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     address public paymentToken;
     address public token;
-    uint256 public decimal;
     uint256 public totalDollars;
-    uint256 public price;
-    uint256 public priceDecimal;
-    uint256 public claimPercentage;
     uint256 public totalClaimed;
-    uint256 public _startDate;
-    uint256 public _duration;
-    uint256 public _refundPeriodStart;
-    uint256 public _refundPeriodEnd;
+    uint32 public _startDate;
+    uint32 public _duration;
+    uint32 public _refundPeriodStart;
+    uint32 public _refundPeriodEnd;
+    uint32 public price;
+    uint8 public decimal;
+    uint8 public priceDecimal;
+    uint8 public claimPercentage;
     bool public isLinear;
     mapping(address => bool) public refunded;
     mapping(address => uint256) public paidAmounts;
@@ -46,14 +46,13 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     function initialize(
         uint256 _totalDollars,
+        uint32 _price,
         address _paymentToken,
-        uint256 _price,
-        uint256 _priceDecimal,
-        bool _isLinear,
-        address initialOwner
+        address initialOwner,
+        uint8 _priceDecimal,
+        bool _isLinear
     ) initializer public {
         __Ownable_init(initialOwner);
-        claimPercentage = 0;
         totalDollars = _totalDollars;
         paymentToken = _paymentToken;
         price = _price;
@@ -103,11 +102,11 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function setLinearParams(
-        uint256 startDate,
-        uint256 duration,
-        uint256 refundPeriodStart,
-        uint256 refundPeriodEnd,
-        uint256 percentageUnlocked
+        uint32 startDate,
+        uint32 duration,
+        uint32 refundPeriodStart,
+        uint32 refundPeriodEnd,
+        uint8 percentageUnlocked
     ) external onlyOwner {
         if (!isLinear) revert LinearVestingDisabled();
         _startDate = startDate;
@@ -117,16 +116,16 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         claimPercentage = percentageUnlocked;
     }
 
-    function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external onlyOwner {
+    function setRefundPeriod(uint32 refundPeriodStart, uint32 refundPeriodEnd) external onlyOwner {
         _refundPeriodStart = refundPeriodStart;
         _refundPeriodEnd = refundPeriodEnd;
     }
 
-    function notifyVesting(uint256 percentage) external onlyOwner {
+    function notifyVesting(uint8 percentage) external onlyOwner {
         claimPercentage = percentage;
     }
 
-    function setToken(address _token, uint256 _decimal) external onlyOwner {
+    function setToken(address _token, uint8 _decimal) external onlyOwner {
         token = _token;
         decimal = _decimal;
     }
