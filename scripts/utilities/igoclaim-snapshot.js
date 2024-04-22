@@ -6,7 +6,7 @@ async function main() {
     "0x188c4d19b4fadd1889d9bd9bf0ab7c97e0719434751e6c05feac6339c1c001ec";
   const userPaidPublicEventHash =
     "0xe8f6864160c28ae0156d5a613860d50b6321685091569283c9ab980401b4ab81";
-  const igoClaimContractAddress = "0xFD4122c5D3c2876a04131F81005b5d323ddB798F";
+  const igoClaimContractAddress = "0xDdce4D9d24a226f4f2867f1E29715aA22380C7Cc";
 
   const provider = new ethers.JsonRpcProvider(
     "https://bsc-mainnet.nodereal.io/v1/f95f3a4751cb4b81a5c2ea4ee81afd4c",
@@ -15,7 +15,7 @@ async function main() {
   console.log(currentBlockNumber);
 
   const events = [];
-  let fromBlock = 37505126;
+  let fromBlock = 37883111;
   while (true) {
     try {
       const toBlock =
@@ -59,6 +59,8 @@ async function main() {
         events.push(...data.result);
       }
 
+      await new Promise((resolve) => setTimeout(resolve, 250));
+
       if (toBlock >= currentBlockNumber) {
         console.log("No more events", events.length);
         break;
@@ -72,11 +74,24 @@ async function main() {
   }
 
   const userMappedPaidAmounts = {};
+  const userAllocationRoundOnly = {};
+  const userPublicRoundOnly = {};
 
   for (const event of events) {
     const wallet = `0x${event.topics[1].slice(26)}`;
     if (userMappedPaidAmounts[wallet] === undefined) {
       userMappedPaidAmounts[wallet] = BigInt(0);
+    }
+    if (event.topics[0] === userPaidEventHash) {
+      userAllocationRoundOnly[wallet] =
+        userAllocationRoundOnly[wallet] === undefined
+          ? BigInt(event.data)
+          : userAllocationRoundOnly[wallet] + BigInt(event.data);
+    } else if (event.topics[0] === userPaidPublicEventHash) {
+      userPublicRoundOnly[wallet] =
+        userPublicRoundOnly[wallet] === undefined
+          ? BigInt(event.data)
+          : userPublicRoundOnly[wallet] + BigInt(event.data);
     }
     userMappedPaidAmounts[wallet] += BigInt(event.data);
   }
@@ -88,13 +103,35 @@ async function main() {
 
   console.log("Total paid amount: ", totalPaidAmount);
 
-  await writeFile("snapshot.json", JSON.stringify(events, null, 2), "utf-8");
   await writeFile(
-    "amounts.json",
+    `${igoClaimContractAddress.slice(0, 8)}-events.json`,
+    JSON.stringify(events, null, 2),
+    "utf-8",
+  );
+  await writeFile(
+    `${igoClaimContractAddress.slice(0, 8)}-amounts-merged.json`,
     JSON.stringify(
       Object.entries(userMappedPaidAmounts).map(([wallet, amount]) => [
         wallet,
         amount.toString(),
+      ]),
+      null,
+      2,
+    ),
+    "utf-8",
+  );
+  await writeFile(
+    `${igoClaimContractAddress.slice(0, 8)}-amounts-separated.json`,
+    JSON.stringify(
+      Object.entries(userMappedPaidAmounts).map(([wallet, amount]) => [
+        wallet,
+        ethers.formatEther(amount.toString()),
+        userAllocationRoundOnly[wallet]
+          ? ethers.formatEther(userAllocationRoundOnly[wallet].toString())
+          : "0",
+        userPublicRoundOnly[wallet]
+          ? ethers.formatEther(userPublicRoundOnly[wallet].toString())
+          : "0",
       ]),
       null,
       2,

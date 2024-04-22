@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../Interfaces/IIGO.sol";
 
@@ -13,25 +14,22 @@ import "../Interfaces/IIGO.sol";
 /// @author Spintop.Network
 /// @notice Pay for and claim earned tokens.
 /// @dev 'Dollars' symbolize underlying payment tokens. Assumed 18 decimal.
-contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
-    address public paymentToken;
-    address public token;
-    uint256 public totalDollars;
-    uint256 public totalClaimed;
+    bytes32 public _root;
     uint32 public _startDate;
     uint32 public _duration;
     uint32 public _refundPeriodStart;
     uint32 public _refundPeriodEnd;
     uint32 public price;
+    address public paymentToken;
+    address public token;
     uint8 public decimal;
     uint8 public priceDecimal;
     uint8 public claimPercentage;
     bool public isLinear;
     mapping(address => bool) public refunded;
-    mapping(address => uint256) public paidAmounts;
-    mapping(address => uint256) public claimedAmounts;
     mapping(address => uint256) public claimedTokens;
 
     error LinearVestingDisabled();
@@ -43,21 +41,32 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     error AllTokensClaimed();
     error NotEnoughTokens();
     error TransferFailed();
+    error InvalidMerkleProof();
 
     function initialize(
-        uint256 _totalDollars,
+        bytes32 _merkleRoot,
         uint32 _price,
         address _paymentToken,
         address initialOwner,
         uint8 _priceDecimal,
-        bool _isLinear
+        bool _isLinear,
+        address _token,
+        uint8 tokenDecimal,
+        uint8 _claimPercentage,
+        uint32 refundPeriodStart,
+        uint32 refundPeriodEnd
     ) initializer public {
         __Ownable_init(initialOwner);
-        totalDollars = _totalDollars;
+        _root = _merkleRoot;
         paymentToken = _paymentToken;
         price = _price;
         priceDecimal = _priceDecimal;
         isLinear = _isLinear;
+        token = _token;
+        decimal = tokenDecimal;
+        claimPercentage = _claimPercentage;
+        _refundPeriodStart = refundPeriodStart;
+        _refundPeriodEnd = refundPeriodEnd;
     }
 
     function pause() external onlyOwner {
@@ -72,6 +81,14 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     event UserPaidPublic(address indexed user, uint256 amount);
     event UserClaimed(address indexed user, uint256 amount);
     event Refunded(address indexed user, uint256 amount);
+
+    // Modifiers //
+
+    modifier onlyValid(uint256 amount, bytes32[] calldata proof) {
+        string memory payload = string(abi.encodePacked(_msgSender(), amount));
+        if (!MerkleProof.verify(proof, _root, keccak256(abi.encodePacked(payload)))) revert InvalidMerkleProof();
+        _;
+    }
 
     // Admin functions //
 
@@ -130,6 +147,14 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         decimal = _decimal;
     }
 
+    function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
+        _root = _merkleRoot;
+    }
+
+    function setIsLinear(bool _isLinear) external onlyOwner {
+        isLinear = _isLinear;
+    }
+
     // Private functions //
 
     function normalize(uint256 _amount) private view returns (uint256) {
@@ -139,22 +164,21 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     // Public view functions //
 
-    function claimableAllocation(address _user)
+    function claimableAllocation(uint256 amount)
     public
     view
     returns (uint256 _claimable)
     {
         _claimable =
-            ((paidAmounts[_user] * claimPercentage) / 10000) -
-            claimedAmounts[_user];
+            ((amount * claimPercentage) / 10000);
     }
 
-    function claimableTokens(address _user)
+    function claimableTokens(address _user, uint256 amount)
     public
     view
     returns (uint256 _claimable)
     {
-        _claimable = normalize(claimableAllocation(_user));
+        _claimable = normalize(claimableAllocation(amount)) - claimedTokens[_user];
     }
 
     function deserved(uint256 _amount) public view returns (uint256 _deserved) {
@@ -170,8 +194,8 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         }
     }
 
-    function deservedByUser(address _user) public view returns (uint256 _deserved) {
-        _deserved = deserved(normalize(paidAmounts[_user]));
+    function deservedByUser(uint256 amount) public view returns (uint256 _deserved) {
+        _deserved = deserved(normalize(amount));
     }
 
     function isRefunded(address _user) public view returns (bool){
@@ -180,13 +204,12 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     // Public mutative functions //
 
-    function askForRefund() external nonReentrant whenNotPaused {
-        if (claimedTokens[_msgSender()] > 0 || claimedAmounts[_msgSender()] > 0) revert AlreadyClaimed();
+    function askForRefund(uint256 _amount, bytes32[] calldata proof) external nonReentrant whenNotPaused onlyValid(_amount, proof) {
+        if (claimedTokens[_msgSender()] > 0) revert AlreadyClaimed();
         if (isRefunded(_msgSender())) revert AlreadyRefunded();
         if (_refundPeriodStart >= block.timestamp || _refundPeriodStart == 0) revert RefundPeriodNotStarted();
         if (_refundPeriodEnd <= block.timestamp) revert RefundPeriodEnded();
 
-        uint256 _amount = paidAmounts[_msgSender()];
         if (_amount == 0) revert AmountIsZero();
 
         refunded[_msgSender()] = true;
@@ -194,33 +217,28 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         emit Refunded(_msgSender(), _amount);
     }
 
-    function claimTokens() external nonReentrant whenNotPaused {
+    function claimTokens(uint256 amount, bytes32[] calldata proof) external nonReentrant whenNotPaused onlyValid(amount, proof) {
         if (isRefunded(_msgSender())) revert AlreadyRefunded();
         if (isLinear) {
-            _claimTokensLinear();
+            _claimTokensLinear(amount);
         } else {
-            _claimTokens();
+            _claimTokens(amount);
         }
     }
 
-    function _claimTokens() private {
-        uint256 _amount = claimableTokens(_msgSender());
-        uint256 amount_ = claimableAllocation(_msgSender());
+    function _claimTokens(uint256 amount) private {
+        uint256 _amount = claimableTokens(_msgSender(), amount);
         if (_amount == 0) revert AmountIsZero();
         IERC20(token).safeTransfer(_msgSender(), _amount);
-        claimedAmounts[_msgSender()] += amount_;
         claimedTokens[_msgSender()] += _amount;
-        totalClaimed += _amount;
         emit UserClaimed(_msgSender(), _amount);
     }
 
-    function _claimTokensLinear() private {
-        uint256 _deserved = deservedByUser(_msgSender());
+    function _claimTokensLinear(uint256 amount) private {
+        uint256 _deserved = deserved(normalize(amount));
         uint256 tokensToClaim = _deserved - claimedTokens[_msgSender()];
         if (tokensToClaim == 0) revert AllTokensClaimed();
-        if (totalClaimed + tokensToClaim > normalize(totalDollars)) revert NotEnoughTokens();
         claimedTokens[_msgSender()] += tokensToClaim;
-        totalClaimed += tokensToClaim;
         IERC20(token).safeTransfer(_msgSender(), tokensToClaim);
         emit UserClaimed(_msgSender(), tokensToClaim);
     }
