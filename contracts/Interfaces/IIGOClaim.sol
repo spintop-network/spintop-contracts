@@ -16,6 +16,7 @@ interface IIGOClaim {
     function withdrawDollars() external;
     function notifyVesting(uint256 percentage) external;
     function setPeriods(uint256 _allocationTime, uint256 _publicTime) external;
+    function setMultiplier(uint256 _multiplier) external;
     function setToken(address _token, uint256 _decimal) external;
     function getState() external view returns (uint256);
     function tokensLeft() external view returns (uint256 tokens);

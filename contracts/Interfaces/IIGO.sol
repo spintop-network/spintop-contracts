@@ -22,6 +22,7 @@ interface IIGO {
     function notifyVesting(uint256 _percentage) external;
     function setToken(address _token, uint256 _decimal) external;
     function setPeriods(uint256 _allocationTime, uint256 _publicTime) external;
+    function setMultiplier(uint256 _multiplier) external;
     function start() external;
     function setStateVault() external;
     function lastTimeRewardApplicable() external view returns (uint256);

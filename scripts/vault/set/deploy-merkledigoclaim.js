@@ -2,6 +2,8 @@ const hardhat = require("hardhat");
 const {
   TESTNET_SPIN_ADDRESS,
   BINANCE_PEGGED_USDT,
+  POLYGON_USDT,
+  POLYGON_FISHVERSE,
 } = require("../../constants");
 const { ethers, upgrades } = hardhat;
 
@@ -16,9 +18,12 @@ async function main() {
   const paymentToken = isBscTestnet
     ? TESTNET_SPIN_ADDRESS
     : BINANCE_PEGGED_USDT;
+  const paymentTokenDecimal = 18;
+  // const paymentToken = POLYGON_USDT;
+  // const token = POLYGON_FISHVERSE;
   const token = isBscTestnet ? TESTNET_SPIN_ADDRESS : BINANCE_PEGGED_USDT;
-  const price = 5;
-  const priceDecimal = 2;
+  const price = 7;
+  const priceDecimal = 3;
   const tokenDecimal = 18;
   const claimPercentage = 10;
   const isLinear = true;
@@ -29,6 +34,7 @@ async function main() {
     merkleRoot,
     price,
     paymentToken,
+    paymentTokenDecimal,
     owner,
     priceDecimal,
     isLinear,

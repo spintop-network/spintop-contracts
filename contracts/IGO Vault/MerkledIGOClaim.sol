@@ -17,6 +17,7 @@ import "../Interfaces/IIGO.sol";
 contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
+//    uint public totalRefunded;
     bytes32 public _root;
     uint32 public _startDate;
     uint32 public _duration;
@@ -29,6 +30,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
     uint8 public priceDecimal;
     uint8 public claimPercentage;
     bool public isLinear;
+    uint8 public paymentTokenDecimal;
     mapping(address => bool) public refunded;
     mapping(address => uint256) public claimedTokens;
 
@@ -47,6 +49,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         bytes32 _merkleRoot,
         uint32 _price,
         address _paymentToken,
+        uint8 _paymentTokenDecimal,
         address initialOwner,
         uint8 _priceDecimal,
         bool _isLinear,
@@ -59,6 +62,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         __Ownable_init(initialOwner);
         _root = _merkleRoot;
         paymentToken = _paymentToken;
+        paymentTokenDecimal = _paymentTokenDecimal;
         price = _price;
         priceDecimal = _priceDecimal;
         isLinear = _isLinear;
@@ -92,9 +96,11 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
 
     // Admin functions //
 
-    function withdrawTokens(address to) external onlyOwner {
-        uint256 leftover = IERC20(token).balanceOf(address(this));
-        IERC20(token).safeTransfer(to, leftover);
+    function withdrawTokens(address to, uint amount) external onlyOwner {
+        if (amount == 0) {
+            amount = IERC20(token).balanceOf(address(this));
+        }
+        IERC20(token).safeTransfer(to, amount);
     }
 
     function withdrawDollars(address to) external onlyOwner {
@@ -102,7 +108,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         IERC20(paymentToken).safeTransfer(to, _balance);
     }
 
-    function emergencyWithdraw(address to) public onlyOwner {
+    function emergencyWithdraw(address to) external onlyOwner {
         uint256 _balance = IERC20(token).balanceOf(address(this));
         if (_balance > 0) {
             IERC20(token).transfer(to, _balance);
@@ -147,6 +153,16 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         decimal = _decimal;
     }
 
+    function setPrice(uint32 _price, uint8 _priceDecimal) external onlyOwner {
+        price = _price;
+        priceDecimal = _priceDecimal;
+    }
+
+    function setPaymentToken (address _paymentToken, uint8 _paymentTokenDecimal) external onlyOwner {
+        paymentToken = _paymentToken;
+        paymentTokenDecimal = _paymentTokenDecimal;
+    }
+
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
         _root = _merkleRoot;
     }
@@ -159,7 +175,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
 
     function normalize(uint256 _amount) private view returns (uint256) {
         _amount = (_amount / price) * 10**priceDecimal;
-        return (_amount * 10**decimal) / 1e18;
+        return (_amount * 10**decimal) / 10**paymentTokenDecimal;
     }
 
     // Public view functions //

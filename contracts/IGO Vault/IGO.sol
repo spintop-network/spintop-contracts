@@ -107,6 +107,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         claimContract.setPeriods(_allocationTime, _publicTime);
     }
 
+    function setMultiplier(uint256 _multiplier) external onlyOwner {
+        claimContract.setMultiplier(_multiplier);
+    }
+
     function start() external onlyOwner updateReward(address(0)) {
         startDate = block.timestamp;
         claimContract.setAllocationStartDate(startDate + rewardsDuration);

@@ -134,6 +134,10 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         IIGO(_igo).setPeriods(_allocationTime, _publicTime);
     }
 
+    function setMultiplier (address _igo, uint256 _multiplier) external onlyOwner {
+        IIGO(_igo).setMultiplier(_multiplier);
+    }
+
     function withdrawIGOFunds (address _igo, uint256 token) external onlyOwner {
         IIGO(_igo).withdrawFunds(token);
     }
@@ -168,7 +172,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
     function addToIGOs (uint256 amount) private {
         address[] memory igosToRemove = new address[](active_igos_.length());
 
-        for (uint256 i; i< active_igos_.length(); i++) {
+        for (uint256 i; i< active_igos_.length();) {
             IIGO _igo = IIGO(active_igos_.at(i));
             _igo.setStateVault();
             if (_igo.IGOstate()) {
@@ -176,18 +180,24 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
             } else {
                 igosToRemove[i] = active_igos_.at(i);
             }
+            unchecked {
+                ++i;
+            }
         }
 
-        for (uint256 i; i< igosToRemove.length; i++) {
+        for (uint256 i; i< igosToRemove.length;) {
             if (igosToRemove[i] != address(0)) {
                 active_igos_.remove(igosToRemove[i]);
+            }
+            unchecked {
+                ++i;
             }
         }
     }
 
     function removeFromIGOs (uint256 amount) private {
         address[] memory igosToRemove = new address[](active_igos_.length());
-        for (uint256 i; i< active_igos_.length(); i++) {
+        for (uint256 i; i< active_igos_.length();) {
             IIGO _igo = IIGO(active_igos_.at(i));
             _igo.setStateVault();
             if (_igo.IGOstate()) {
@@ -195,11 +205,17 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
             } else {
                 igosToRemove[i] = active_igos_.at(i);
             }
+            unchecked {
+                ++i;
+            }
         }
 
-        for (uint256 i; i< igosToRemove.length; i++) {
+        for (uint256 i; i< igosToRemove.length;) {
             if (igosToRemove[i] != address(0)) {
                 active_igos_.remove(igosToRemove[i]);
+            }
+            unchecked {
+                ++i;
             }
         }
     }

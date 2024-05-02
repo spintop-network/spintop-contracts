@@ -122,6 +122,6 @@ module.exports = {
   sourcify: {
     // Disabled by default
     // Doesn't need an API key
-    enabled: true,
+    enabled: false,
   },
 };
