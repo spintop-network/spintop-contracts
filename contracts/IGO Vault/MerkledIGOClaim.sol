@@ -31,6 +31,10 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
     uint8 public claimPercentage;
     bool public isLinear;
     uint8 public paymentTokenDecimal;
+    struct paymentTokenInfo {
+        address token;
+        uint8 decimal;
+    }
     mapping(address => bool) public refunded;
     mapping(address => uint256) public claimedTokens;
 
@@ -48,8 +52,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
     function initialize(
         bytes32 _merkleRoot,
         uint32 _price,
-        address _paymentToken,
-        uint8 _paymentTokenDecimal,
+        paymentTokenInfo memory _paymentTokenInfo,
         address initialOwner,
         uint8 _priceDecimal,
         bool _isLinear,
@@ -61,8 +64,8 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
     ) initializer public {
         __Ownable_init(initialOwner);
         _root = _merkleRoot;
-        paymentToken = _paymentToken;
-        paymentTokenDecimal = _paymentTokenDecimal;
+        paymentToken = _paymentTokenInfo.token;
+        paymentTokenDecimal = _paymentTokenInfo.decimal;
         price = _price;
         priceDecimal = _priceDecimal;
         isLinear = _isLinear;

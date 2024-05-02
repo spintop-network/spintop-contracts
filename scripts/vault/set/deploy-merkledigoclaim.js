@@ -33,8 +33,10 @@ async function main() {
   const merkledIGOClaim = await upgrades.deployProxy(merkledIGOClaimContract, [
     merkleRoot,
     price,
-    paymentToken,
-    paymentTokenDecimal,
+    {
+      token: paymentToken,
+      decimal: paymentTokenDecimal,
+    },
     owner,
     priceDecimal,
     isLinear,

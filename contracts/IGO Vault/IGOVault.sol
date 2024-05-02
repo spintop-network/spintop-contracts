@@ -54,9 +54,9 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         vaultInfo.pool = _pool;
         vaultInfo.tokenSpin = _tokenSpin;
         IERC20(vaultInfo.tokenSpin).approve(vaultInfo.pool, MAX_INT);
-        minStakeAmount = 1000e18;
-        maxStakeAmount = 1000000e18;
-        batchSize = 500;
+        minStakeAmount = 15000e18;
+        maxStakeAmount = 5000000e18;
+        batchSize = 250;
     }
 
     // Admin functions //
