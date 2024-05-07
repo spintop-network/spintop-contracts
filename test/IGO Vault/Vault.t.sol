@@ -286,7 +286,8 @@ contract ContractBTest is Test {
             0,
             block.timestamp,
             block.timestamp + 43200,
-            25
+            25,
+            uint32(block.timestamp - 1)
         );
 
         skip(1);
@@ -324,7 +325,8 @@ contract ContractBTest is Test {
             0,
             block.timestamp,
             block.timestamp + 43200,
-            25
+            25,
+            uint32(block.timestamp - 1)
         );
 
         skip(1);
@@ -345,7 +347,8 @@ contract ContractBTest is Test {
             86400,
             block.timestamp,
             block.timestamp + 43200,
-            25
+            25,
+            uint32(block.timestamp - 1)
         );
         skip(86400);
 
@@ -383,7 +386,8 @@ contract ContractBTest is Test {
             86400,
             block.timestamp,
             block.timestamp + 43200,
-            25
+            25,
+            uint32(block.timestamp - 1)
         );
         deal(address(mockToken), address(this), balance + igoClaim.deservedByUser(address(this)));
 
@@ -416,7 +420,8 @@ contract ContractBTest is Test {
             86400,
             block.timestamp,
             block.timestamp + 43200,
-            25
+            25,
+            uint32(block.timestamp - 1)
         );
         skip(1);
         deal(address(mockToken), address(this), balance + igoClaim.deservedByUser(address(this)));
@@ -451,7 +456,8 @@ contract ContractBTest is Test {
             86400,
             block.timestamp,
             block.timestamp + 43200,
-            25
+            25,
+            uint32(block.timestamp - 1)
         );
         deal(address(mockToken), address(this), balance + igoClaim.deservedByUser(address(this)));
 
@@ -648,7 +654,8 @@ contract ContractBTest is Test {
             0,
             block.timestamp,
             block.timestamp + 43200,
-            0
+            0,
+            uint32(block.timestamp - 1)
         );
 
         vm.expectRevert(AllTokensClaimed.selector);
@@ -662,7 +669,8 @@ contract ContractBTest is Test {
             0,
             block.timestamp,
             block.timestamp + 43200,
-            100
+            100,
+            uint32(block.timestamp - 1)
         );
 
         uint deservedAll = igoClaim.deservedByUser(address(this));
@@ -673,7 +681,8 @@ contract ContractBTest is Test {
             0,
             block.timestamp,
             block.timestamp + 43200,
-            10
+            10,
+            uint32(block.timestamp - 1)
         );
 
         uint deserved10Percent = igoClaim.deservedByUser(address(this));
@@ -715,7 +724,8 @@ contract ContractBTest is Test {
             86400,
             block.timestamp,
             block.timestamp + 43200,
-            10
+            10,
+            uint32(block.timestamp)
         );
 
         deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);
@@ -770,7 +780,8 @@ contract ContractBTest is Test {
             86400,
             block.timestamp,
             block.timestamp + 43200,
-            10
+            10,
+            uint32(block.timestamp - 1)
         );
 
         deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);

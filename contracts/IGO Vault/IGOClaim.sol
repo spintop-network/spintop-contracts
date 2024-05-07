@@ -37,6 +37,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     uint256 public _refundPeriodStart;
     uint256 public _refundPeriodEnd;
     bool public isLinear;
+    uint32 public tgeStartDate;
     mapping(address => bool) public refunded;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public paidPublic;
@@ -161,7 +162,8 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         uint256 duration,
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
-        uint256 percentageUnlocked
+        uint256 percentageUnlocked,
+        uint32 _tgeStartDate
     ) external onlyOwner {
         if (!isLinear) revert LinearVestingDisabled();
         _startDate = startDate;
@@ -169,6 +171,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _refundPeriodStart = refundPeriodStart;
         _refundPeriodEnd = refundPeriodEnd;
         claimPercentage = percentageUnlocked;
+        tgeStartDate = _tgeStartDate;
     }
 
     function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external onlyOwner {
@@ -176,8 +179,9 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _refundPeriodEnd = refundPeriodEnd;
     }
 
-    function notifyVesting(uint256 percentage) external onlyOwner {
+    function notifyVesting(uint256 percentage, uint32 _tgeStartDate) external onlyOwner {
         claimPercentage = percentage;
+        tgeStartDate = _tgeStartDate;
     }
 
     function setPeriods(uint256 _allocationTime, uint256 _publicTime)
@@ -245,6 +249,9 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         view
         returns (uint256 _claimable)
     {
+        if (tgeStartDate == 0 || block.timestamp < tgeStartDate) {
+            return 0;
+        }
         _claimable =
             ((paidAmounts[_user] * claimPercentage) / 10000) -
             claimedAmounts[_user];
@@ -259,15 +266,17 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     }
 
     function deserved(uint256 _amount) public view returns (uint256 _deserved) {
-        if (_startDate == 0) {
-            _deserved = (_amount * claimPercentage * 1e5) / 1e7;
-        } else {
+        if (tgeStartDate == 0 || block.timestamp < tgeStartDate) {
+            return 0;
+        }
+        _deserved = (_amount * claimPercentage * 1e5) / 1e7;
+        if (_startDate > 0 && block.timestamp > _startDate) {
             uint256 _now = block.timestamp > _startDate + _duration
                 ? _startDate + _duration
                 : block.timestamp;
             uint256 timePast = (_now - _startDate);
             uint256 scaledAmount = ((timePast * _amount * (1e7 - claimPercentage * 1e5)) / _duration) / 1e7;
-            _deserved = scaledAmount + (_amount * claimPercentage * 1e5) / 1e7;
+            _deserved += scaledAmount;
         }
     }
 

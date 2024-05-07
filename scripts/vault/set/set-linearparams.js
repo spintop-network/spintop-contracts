@@ -16,6 +16,7 @@ async function main() {
   const refundStart = 0;
   const refundEnd = 0;
   const percentageUnlocked = 10;
+  const tgeStartDate = now;
 
   const igoAddress = await spinVault.IGOs(igoId);
   const cmdSetPeriods = await spinVault.setLinearParams(
@@ -25,10 +26,12 @@ async function main() {
     refundStart,
     refundEnd,
     percentageUnlocked,
+    tgeStartDate,
   );
   await cmdSetPeriods.wait();
   console.log("Set linear params.");
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {

@@ -122,8 +122,8 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         IIGO(_igo).setClaimContract(_claimContract);
     }
 
-    function notifyVesting (address _igo, uint256 _percentage) external onlyOwner {
-        IIGO(_igo).notifyVesting(_percentage);
+    function notifyVesting (address _igo, uint256 _percentage, uint32 _tgeStartDate) external onlyOwner {
+        IIGO(_igo).notifyVesting(_percentage, _tgeStartDate);
     }
 
     function setToken (address _igo, address _token, uint256 _decimal) external onlyOwner {
@@ -152,14 +152,16 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         uint256 duration,
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
-        uint256 percentageUnlocked
+        uint256 percentageUnlocked,
+        uint32 _tgeStartDate
     ) external onlyOwner {
         IIGO(_igo).setLinearParams(
             startDate,
             duration,
             refundPeriodStart,
             refundPeriodEnd,
-            percentageUnlocked
+            percentageUnlocked,
+            _tgeStartDate
         );
     }
 

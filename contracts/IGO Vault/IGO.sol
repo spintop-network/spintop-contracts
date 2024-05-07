@@ -70,14 +70,16 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 duration,
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
-        uint256 percentageUnlocked
+        uint256 percentageUnlocked,
+        uint32 _tgeStartDate
     ) external onlyOwner {
         claimContract.setLinearParams(
             _startDate,
             duration,
             refundPeriodStart,
             refundPeriodEnd,
-            percentageUnlocked
+            percentageUnlocked,
+            _tgeStartDate
         );
     }
 
@@ -95,8 +97,8 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         claimContract.emergencyWithdraw();
     }
 
-    function notifyVesting(uint256 _percentage) external onlyOwner {
-        claimContract.notifyVesting(_percentage);
+    function notifyVesting(uint256 _percentage, uint32 _tgeStartDate) external onlyOwner {
+        claimContract.notifyVesting(_percentage, _tgeStartDate);
     }
 
     function setToken(address _token, uint256 _decimal) external onlyOwner {

@@ -14,7 +14,7 @@ interface IIGOClaim {
     function emergencyWithdraw() external;
     function withdrawTokens() external;
     function withdrawDollars() external;
-    function notifyVesting(uint256 percentage) external;
+    function notifyVesting(uint256 percentage, uint32 _tgeStartDate) external;
     function setPeriods(uint256 _allocationTime, uint256 _publicTime) external;
     function setMultiplier(uint256 _multiplier) external;
     function setToken(address _token, uint256 _decimal) external;
@@ -32,7 +32,8 @@ interface IIGOClaim {
         uint256 duration,
         uint256 refundPeriodStart,
         uint256 refundPeriodEnd,
-        uint256 percentageUnlocked
+        uint256 percentageUnlocked,
+        uint32 _tgeStartDate
     ) external;
     function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external;
 
