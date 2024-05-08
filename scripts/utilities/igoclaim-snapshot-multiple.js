@@ -11,6 +11,7 @@ async function main() {
     "0xf22ebcF36d2eB9d32736216Ee70f8c2BA29Cfe15", // SUGAR KINGDOM
     "0xFD4122c5D3c2876a04131F81005b5d323ddB798F", // RGAMES
     "0xDdce4D9d24a226f4f2867f1E29715aA22380C7Cc", // FISHVERSE
+    "0xbb4859eC1A3391A80113116A6570031A72F0FE58", // KOKODI
   ];
   const JSON_RPC_URL =
     "https://bsc-mainnet.nodereal.io/v1/f95f3a4751cb4b81a5c2ea4ee81afd4c";
@@ -66,7 +67,6 @@ async function main() {
         await new Promise((resolve) => setTimeout(resolve, 250));
 
         if (toBlock >= currentBlockNumber) {
-          // console.log("No more events", events.length);
           break;
         }
 
