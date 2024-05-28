@@ -1,10 +1,11 @@
 async function main() {
   const Plonk = await ethers.getContractFactory("TurboVerifier");
   const plonk = await Plonk.deploy();
-  await plonk.deployed();
+  await plonk.waitForDeployment();
 
   console.log("Plonk: ", plonk.address);
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {

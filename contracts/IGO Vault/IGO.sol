@@ -83,6 +83,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         );
     }
 
+    function setIsLinear(bool _isLinear) external onlyOwner {
+        claimContract.setIsLinear(_isLinear);
+    }
+
     function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external onlyOwner {
         claimContract.setRefundPeriod(refundPeriodStart, refundPeriodEnd);
     }

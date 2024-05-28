@@ -9,10 +9,11 @@ async function main() {
     spinAddress,
     tokenAddress,
   );
-  await spinStakable.deployed();
+  await spinStakable.waitForDeployment();
 
   console.log("Staking Pool deployed: ", spinStakable.address);
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {

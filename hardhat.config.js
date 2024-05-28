@@ -78,7 +78,6 @@ module.exports = {
     },
 
     binance: {
-      // url: "https://virtual.binance.rpc.tenderly.co/ea72080b-e2e7-423f-afde-8513e0eb5b65",
       url: process.env.RPC_URL || "https://bsc-dataseed.binance.org/",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],

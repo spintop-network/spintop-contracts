@@ -4,10 +4,11 @@ async function main() {
 
   const SpinStakable = await ethers.getContractFactory("SpinStakableDecimal");
   const spinStakable = await SpinStakable.deploy(triviaAddress, spinAddress);
-  await spinStakable.deployed();
+  await spinStakable.waitForDeployment();
 
   console.log("Staking Pool deployed: ", spinStakable.address);
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {

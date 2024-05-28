@@ -17,6 +17,7 @@ interface IIGO {
     event RewardPaid(address indexed user, uint256 reward);
 
     // Public and External Functions
+    function setIsLinear(bool _isLinear) external;
     function emergencyWithdraw() external;
     function withdrawFunds(uint256 token) external;
     function notifyVesting(uint256 _percentage, uint32 _tgeStartDate) external;

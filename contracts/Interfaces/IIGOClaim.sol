@@ -35,6 +35,7 @@ interface IIGOClaim {
         uint256 percentageUnlocked,
         uint32 _tgeStartDate
     ) external;
+    function setIsLinear(bool _isLinear) external;
     function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external;
 
     // Getter Functions for Public Variables

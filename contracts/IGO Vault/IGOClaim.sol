@@ -157,6 +157,10 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         }
     }
 
+    function setIsLinear(bool _isLinear) external onlyOwner {
+        isLinear = _isLinear;
+    }
+
     function setLinearParams(
         uint256 startDate,
         uint256 duration,

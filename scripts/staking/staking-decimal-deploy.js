@@ -3,10 +3,11 @@ async function main() {
 
   const Stakable = await ethers.getContractFactory("SpinStakableDecimal");
   const stakable = await Stakable.deploy(triviaAddress, triviaAddress);
-  await stakable.deployed();
+  await stakable.waitForDeployment();
 
   console.log("Staking Pool deployed: ", stakable.address);
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {

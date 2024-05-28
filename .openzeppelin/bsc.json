@@ -190,6 +190,26 @@
       "address": "0xbb4859eC1A3391A80113116A6570031A72F0FE58",
       "txHash": "0xaf28b3aa3eeb201272095aeb5ce52151307bd7bd9f5c3bc9ccce703320ce00b3",
       "kind": "transparent"
+    },
+    {
+      "address": "0x043b4354269d15fa17103a6B9800383283bE940d",
+      "txHash": "0x169a92b4ea7528a89f78dcc1a8c0da4e3bc444eb822c559ee1a36f801f0d4081",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x5c1737685f37Fcb15BEb85Ec43B138f117ca0285",
+      "txHash": "0x927134f69766847f7fe1952ac671824450ed3aa9fcb44af2be3ab8bf1e1fa96e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf36F79f8348Aaf5c16A464f1d344D7E8dBf58daC",
+      "txHash": "0x4329d0b8d802eb5b1ac7538af0dfa109541b1a6e2eb0de5b912ccf41868b39bb",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2DfEdfd287575CcE635Dcf6487CCb94D211A6003",
+      "txHash": "0x425ab6346074dda3fbda5253e0c0de3c427b705adb8f2f1f6887e9f854e88947",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -2827,7 +2847,7 @@
             "slot": "0",
             "type": "t_address",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:19"
+            "src": "contracts/IGO Vault/IGOClaim.sol:20"
           },
           {
             "label": "paymentToken",
@@ -2835,7 +2855,7 @@
             "slot": "1",
             "type": "t_address",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:20"
+            "src": "contracts/IGO Vault/IGOClaim.sol:21"
           },
           {
             "label": "igo",
@@ -2843,7 +2863,7 @@
             "slot": "2",
             "type": "t_address",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:21"
+            "src": "contracts/IGO Vault/IGOClaim.sol:22"
           },
           {
             "label": "token",
@@ -2851,7 +2871,7 @@
             "slot": "3",
             "type": "t_address",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:22"
+            "src": "contracts/IGO Vault/IGOClaim.sol:23"
           },
           {
             "label": "decimal",
@@ -2859,7 +2879,7 @@
             "slot": "4",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:23"
+            "src": "contracts/IGO Vault/IGOClaim.sol:24"
           },
           {
             "label": "allocationStartDate",
@@ -2867,7 +2887,7 @@
             "slot": "5",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:24"
+            "src": "contracts/IGO Vault/IGOClaim.sol:25"
           },
           {
             "label": "totalDollars",
@@ -2875,7 +2895,7 @@
             "slot": "6",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:25"
+            "src": "contracts/IGO Vault/IGOClaim.sol:26"
           },
           {
             "label": "price",
@@ -2883,7 +2903,7 @@
             "slot": "7",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:26"
+            "src": "contracts/IGO Vault/IGOClaim.sol:27"
           },
           {
             "label": "priceDecimal",
@@ -2891,7 +2911,7 @@
             "slot": "8",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:27"
+            "src": "contracts/IGO Vault/IGOClaim.sol:28"
           },
           {
             "label": "multiplier",
@@ -2899,7 +2919,7 @@
             "slot": "9",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:28"
+            "src": "contracts/IGO Vault/IGOClaim.sol:29"
           },
           {
             "label": "allocationTime",
@@ -2907,7 +2927,7 @@
             "slot": "10",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:29"
+            "src": "contracts/IGO Vault/IGOClaim.sol:30"
           },
           {
             "label": "publicTime",
@@ -2915,7 +2935,7 @@
             "slot": "11",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:30"
+            "src": "contracts/IGO Vault/IGOClaim.sol:31"
           },
           {
             "label": "claimPercentage",
@@ -2923,7 +2943,7 @@
             "slot": "12",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:31"
+            "src": "contracts/IGO Vault/IGOClaim.sol:32"
           },
           {
             "label": "totalPaid",
@@ -2931,7 +2951,7 @@
             "slot": "13",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:32"
+            "src": "contracts/IGO Vault/IGOClaim.sol:33"
           },
           {
             "label": "totalClaimed",
@@ -2939,7 +2959,7 @@
             "slot": "14",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:33"
+            "src": "contracts/IGO Vault/IGOClaim.sol:34"
           },
           {
             "label": "_startDate",
@@ -2947,7 +2967,7 @@
             "slot": "15",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:34"
+            "src": "contracts/IGO Vault/IGOClaim.sol:35"
           },
           {
             "label": "_duration",
@@ -2955,7 +2975,7 @@
             "slot": "16",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:35"
+            "src": "contracts/IGO Vault/IGOClaim.sol:36"
           },
           {
             "label": "_refundPeriodStart",
@@ -2963,7 +2983,7 @@
             "slot": "17",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:36"
+            "src": "contracts/IGO Vault/IGOClaim.sol:37"
           },
           {
             "label": "_refundPeriodEnd",
@@ -2971,7 +2991,7 @@
             "slot": "18",
             "type": "t_uint256",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:37"
+            "src": "contracts/IGO Vault/IGOClaim.sol:38"
           },
           {
             "label": "isLinear",
@@ -2979,7 +2999,7 @@
             "slot": "19",
             "type": "t_bool",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:38"
+            "src": "contracts/IGO Vault/IGOClaim.sol:39"
           },
           {
             "label": "refunded",
@@ -2987,7 +3007,7 @@
             "slot": "20",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:39"
+            "src": "contracts/IGO Vault/IGOClaim.sol:40"
           },
           {
             "label": "paidAmounts",
@@ -2995,7 +3015,7 @@
             "slot": "21",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:40"
+            "src": "contracts/IGO Vault/IGOClaim.sol:41"
           },
           {
             "label": "paidPublic",
@@ -3003,7 +3023,7 @@
             "slot": "22",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:41"
+            "src": "contracts/IGO Vault/IGOClaim.sol:42"
           },
           {
             "label": "claimedAmounts",
@@ -3011,7 +3031,7 @@
             "slot": "23",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:42"
+            "src": "contracts/IGO Vault/IGOClaim.sol:43"
           },
           {
             "label": "claimedTokens",
@@ -3019,7 +3039,7 @@
             "slot": "24",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "IGOClaim",
-            "src": "contracts/IGO Vault/IGOClaim.sol:43"
+            "src": "contracts/IGO Vault/IGOClaim.sol:44"
           }
         ],
         "types": {
@@ -3842,7 +3862,7 @@
             "label": "claimContract",
             "offset": 0,
             "slot": "1",
-            "type": "t_contract(IIGOClaim)7923",
+            "type": "t_contract(IIGOClaim)12164",
             "contract": "IGO",
             "src": "contracts/IGO Vault/IGO.sol:17"
           },
@@ -3994,7 +4014,7 @@
             "label": "uint64",
             "numberOfBytes": "8"
           },
-          "t_contract(IIGOClaim)7923": {
+          "t_contract(IIGOClaim)12164": {
             "label": "contract IIGOClaim",
             "numberOfBytes": "20"
           },
@@ -5063,6 +5083,2199 @@
               "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:21",
               "offset": 0,
               "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "4d3e0dea57587f328d12cb83056099d0bbfa12e382019c99d4054608a2b221b0": {
+      "address": "0x5B67EBD4320357d43E440735EcA92EA96998cfDa",
+      "txHash": "0x2d440a24fc998b820e6b8e493a22e289b304492d083580ec8f07344b946b57d9",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "gameName",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_string_storage",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:16"
+          },
+          {
+            "label": "claimContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IIGOClaim)7976",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:17"
+          },
+          {
+            "label": "IGOstate",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:18"
+          },
+          {
+            "label": "startDate",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:19"
+          },
+          {
+            "label": "rewardRate",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:20"
+          },
+          {
+            "label": "lastUpdateTime",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:21"
+          },
+          {
+            "label": "rewardPerTokenStored",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:22"
+          },
+          {
+            "label": "rewardsDuration",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:23"
+          },
+          {
+            "label": "totalDollars",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:24"
+          },
+          {
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:25"
+          },
+          {
+            "label": "userRewardPerTokenPaid",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:27"
+          },
+          {
+            "label": "rewards",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:28"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:29"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)299_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IIGOClaim)7976": {
+            "label": "contract IIGOClaim",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "06621398480bf318bc07d45652b0240e9944a0ea16ea4ff41062977fcde60197": {
+      "address": "0xefF3AfCac1106dFe7299B5E5773bA1d90300561e",
+      "txHash": "0x5b15d261ef80d7c98d37891502af80637ce07fd0abe8bc752098dca67d7a5f12",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "paymentToken",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:21"
+          },
+          {
+            "label": "igo",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:22"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:23"
+          },
+          {
+            "label": "decimal",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:24"
+          },
+          {
+            "label": "allocationStartDate",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:25"
+          },
+          {
+            "label": "totalDollars",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:26"
+          },
+          {
+            "label": "price",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:27"
+          },
+          {
+            "label": "priceDecimal",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:28"
+          },
+          {
+            "label": "multiplier",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:29"
+          },
+          {
+            "label": "allocationTime",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:30"
+          },
+          {
+            "label": "publicTime",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:31"
+          },
+          {
+            "label": "claimPercentage",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:32"
+          },
+          {
+            "label": "totalPaid",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:33"
+          },
+          {
+            "label": "totalClaimed",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:34"
+          },
+          {
+            "label": "_startDate",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:35"
+          },
+          {
+            "label": "_duration",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:36"
+          },
+          {
+            "label": "_refundPeriodStart",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:37"
+          },
+          {
+            "label": "_refundPeriodEnd",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:38"
+          },
+          {
+            "label": "isLinear",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_bool",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:39"
+          },
+          {
+            "label": "tgeStartDate",
+            "offset": 1,
+            "slot": "18",
+            "type": "t_uint32",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:40"
+          },
+          {
+            "label": "refunded",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:41"
+          },
+          {
+            "label": "paidAmounts",
+            "offset": 0,
+            "slot": "20",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:42"
+          },
+          {
+            "label": "paidPublic",
+            "offset": 0,
+            "slot": "21",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:43"
+          },
+          {
+            "label": "claimedAmounts",
+            "offset": 0,
+            "slot": "22",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:44"
+          },
+          {
+            "label": "claimedTokens",
+            "offset": 0,
+            "slot": "23",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:45"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)238_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)299_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "0d85e5eb214424bb5924f6b53d257c7beb1f2ddc4840f0e9c999dfc662eb2757": {
+      "address": "0xC72033108A6eD8C211C049762d0200D44DdBf816",
+      "txHash": "0xec5e35a1695a3f0ca041baff97736a94376621f07f781f489ce65caa14e35fb9",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "vault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:20"
+          },
+          {
+            "label": "paymentToken",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:21"
+          },
+          {
+            "label": "igo",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:22"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:23"
+          },
+          {
+            "label": "decimal",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:24"
+          },
+          {
+            "label": "allocationStartDate",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:25"
+          },
+          {
+            "label": "totalDollars",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:26"
+          },
+          {
+            "label": "price",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:27"
+          },
+          {
+            "label": "priceDecimal",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:28"
+          },
+          {
+            "label": "multiplier",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:29"
+          },
+          {
+            "label": "allocationTime",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:30"
+          },
+          {
+            "label": "publicTime",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:31"
+          },
+          {
+            "label": "claimPercentage",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:32"
+          },
+          {
+            "label": "totalPaid",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:33"
+          },
+          {
+            "label": "totalClaimed",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:34"
+          },
+          {
+            "label": "_startDate",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:35"
+          },
+          {
+            "label": "_duration",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:36"
+          },
+          {
+            "label": "_refundPeriodStart",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:37"
+          },
+          {
+            "label": "_refundPeriodEnd",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:38"
+          },
+          {
+            "label": "isLinear",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_bool",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:39"
+          },
+          {
+            "label": "tgeStartDate",
+            "offset": 1,
+            "slot": "19",
+            "type": "t_uint32",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:40"
+          },
+          {
+            "label": "refunded",
+            "offset": 0,
+            "slot": "20",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:41"
+          },
+          {
+            "label": "paidAmounts",
+            "offset": 0,
+            "slot": "21",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:42"
+          },
+          {
+            "label": "paidPublic",
+            "offset": 0,
+            "slot": "22",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:43"
+          },
+          {
+            "label": "claimedAmounts",
+            "offset": 0,
+            "slot": "23",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:44"
+          },
+          {
+            "label": "claimedTokens",
+            "offset": 0,
+            "slot": "24",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:45"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)136_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)197_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "9db5d01e2f31a51068b3fccd846213c4f52b696a81056c08f878bbdc6011f7a8": {
+      "address": "0x4bf4D46fBfB3d18eEDe733d2417CF274665dD683",
+      "txHash": "0xa048cb085769ec6db18d0331699bceb3176f411211046a562ff6d076f2bb8d56",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "vaultInfo",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(VaultInfo)5263_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:24"
+          },
+          {
+            "label": "IGOs",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:25"
+          },
+          {
+            "label": "maxStakeAmount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:26"
+          },
+          {
+            "label": "minStakeAmount",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:27"
+          },
+          {
+            "label": "pilgrims",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:28"
+          },
+          {
+            "label": "members_",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_struct(AddressSet)3099_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:29"
+          },
+          {
+            "label": "batchSize",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:30"
+          },
+          {
+            "label": "active_igos_",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_struct(AddressSet)3099_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)144_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)238_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)299_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3099_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)2784_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)2784_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_positions",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(VaultInfo)5263_storage": {
+            "label": "struct IGOVault.VaultInfo",
+            "members": [
+              {
+                "label": "pool",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "tokenSpin",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "5121a91d399bbcfe9a21289bda5e870b29bfa2d6aac6886e17cea5b672e0ccf7": {
+      "address": "0x59DDE3f3B4c1CC2d5345Eaa61185549d8C483059",
+      "txHash": "0x29db10011d2c6ba1fcf0b7de47d409b28b09e05a944258d50c306cccbb3bd3fc",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "gameName",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_string_storage",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:16"
+          },
+          {
+            "label": "claimContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IIGOClaim)8029",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:17"
+          },
+          {
+            "label": "IGOstate",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:18"
+          },
+          {
+            "label": "startDate",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:19"
+          },
+          {
+            "label": "rewardRate",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:20"
+          },
+          {
+            "label": "lastUpdateTime",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:21"
+          },
+          {
+            "label": "rewardPerTokenStored",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:22"
+          },
+          {
+            "label": "rewardsDuration",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:23"
+          },
+          {
+            "label": "totalDollars",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:24"
+          },
+          {
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:25"
+          },
+          {
+            "label": "userRewardPerTokenPaid",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:27"
+          },
+          {
+            "label": "rewards",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:28"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGO",
+            "src": "contracts/IGO Vault/IGO.sol:29"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)299_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_contract(IIGOClaim)8029": {
+            "label": "contract IIGOClaim",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "f01ed6c174d63c766f62844869634d9eba9a1a58b68d213e37822579879033b6": {
+      "address": "0xa5D0cc5e2b6E8FFf2407c91C1eeAE8dF8721b90c",
+      "txHash": "0xa8eb574be25965c66b09b7c0723d249644ceb123dcc2564e798dc28cd811787c",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "vault",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:20"
+          },
+          {
+            "label": "paymentToken",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:21"
+          },
+          {
+            "label": "igo",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:22"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:23"
+          },
+          {
+            "label": "decimal",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:24"
+          },
+          {
+            "label": "allocationStartDate",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:25"
+          },
+          {
+            "label": "totalDollars",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:26"
+          },
+          {
+            "label": "price",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:27"
+          },
+          {
+            "label": "priceDecimal",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:28"
+          },
+          {
+            "label": "multiplier",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:29"
+          },
+          {
+            "label": "allocationTime",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:30"
+          },
+          {
+            "label": "publicTime",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:31"
+          },
+          {
+            "label": "claimPercentage",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:32"
+          },
+          {
+            "label": "totalPaid",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:33"
+          },
+          {
+            "label": "totalClaimed",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:34"
+          },
+          {
+            "label": "_startDate",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:35"
+          },
+          {
+            "label": "_duration",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:36"
+          },
+          {
+            "label": "_refundPeriodStart",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:37"
+          },
+          {
+            "label": "_refundPeriodEnd",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_uint256",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:38"
+          },
+          {
+            "label": "isLinear",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_bool",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:39"
+          },
+          {
+            "label": "tgeStartDate",
+            "offset": 1,
+            "slot": "19",
+            "type": "t_uint32",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:40"
+          },
+          {
+            "label": "refunded",
+            "offset": 0,
+            "slot": "20",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:41"
+          },
+          {
+            "label": "paidAmounts",
+            "offset": 0,
+            "slot": "21",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:42"
+          },
+          {
+            "label": "paidPublic",
+            "offset": 0,
+            "slot": "22",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:43"
+          },
+          {
+            "label": "claimedAmounts",
+            "offset": 0,
+            "slot": "23",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:44"
+          },
+          {
+            "label": "claimedTokens",
+            "offset": 0,
+            "slot": "24",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "IGOClaim",
+            "src": "contracts/IGO Vault/IGOClaim.sol:45"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)136_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)197_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "0dacd380a62b54e799b3efb2c0e68023120c8b528bea83d8e404440ec0036a7b": {
+      "address": "0xac42C044d8ba56Cb411C6a9A752b3b037FD61659",
+      "txHash": "0x846c5969ebe5e5449420ee9185cccc79ac29881465a0aaab4ad5312f9b89a8f1",
+      "layout": {
+        "solcVersion": "0.8.23",
+        "storage": [
+          {
+            "label": "vaultInfo",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(VaultInfo)2300_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:24"
+          },
+          {
+            "label": "IGOs",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:25"
+          },
+          {
+            "label": "maxStakeAmount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:26"
+          },
+          {
+            "label": "minStakeAmount",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:27"
+          },
+          {
+            "label": "pilgrims",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:28"
+          },
+          {
+            "label": "members_",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_struct(AddressSet)1983_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:29"
+          },
+          {
+            "label": "batchSize",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:30"
+          },
+          {
+            "label": "active_igos_",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_struct(AddressSet)1983_storage",
+            "contract": "IGOVault",
+            "src": "contracts/IGO Vault/IGOVault.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)144_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)238_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)299_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)1983_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)1668_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)1668_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_positions",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(VaultInfo)2300_storage": {
+            "label": "struct IGOVault.VaultInfo",
+            "members": [
+              {
+                "label": "pool",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "tokenSpin",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
             }
           ],
           "erc7201:openzeppelin.storage.Initializable": [
