@@ -17,7 +17,7 @@ import "../Interfaces/IIGO.sol";
 contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
-//    uint public totalRefunded;
+    uint public totalRefunded;
     bytes32 public _root;
     uint32 public _startDate;
     uint32 public _duration;
@@ -35,6 +35,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         address token;
         uint8 decimal;
     }
+    uint32 public tgeStartDate;
     mapping(address => bool) public refunded;
     mapping(address => uint256) public claimedTokens;
 
@@ -132,7 +133,8 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         uint32 duration,
         uint32 refundPeriodStart,
         uint32 refundPeriodEnd,
-        uint8 percentageUnlocked
+        uint8 percentageUnlocked,
+        uint32 _tgeStartDate
     ) external onlyOwner {
         if (!isLinear) revert LinearVestingDisabled();
         _startDate = startDate;
@@ -140,6 +142,7 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         _refundPeriodStart = refundPeriodStart;
         _refundPeriodEnd = refundPeriodEnd;
         claimPercentage = percentageUnlocked;
+        tgeStartDate = _tgeStartDate;
     }
 
     function setRefundPeriod(uint32 refundPeriodStart, uint32 refundPeriodEnd) external onlyOwner {
@@ -147,8 +150,9 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
         _refundPeriodEnd = refundPeriodEnd;
     }
 
-    function notifyVesting(uint8 percentage) external onlyOwner {
+    function notifyVesting(uint8 percentage, uint32 _tgeStartDate) external onlyOwner {
         claimPercentage = percentage;
+        tgeStartDate = _tgeStartDate;
     }
 
     function setToken(address _token, uint8 _decimal) external onlyOwner {
@@ -188,6 +192,9 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
     view
     returns (uint256 _claimable)
     {
+        if (tgeStartDate == 0 || block.timestamp < tgeStartDate) {
+            return 0;
+        }
         _claimable =
             ((amount * claimPercentage) / 10000);
     }
@@ -201,15 +208,17 @@ contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeab
     }
 
     function deserved(uint256 _amount) public view returns (uint256 _deserved) {
-        if (_startDate == 0) {
-            _deserved = (_amount * claimPercentage * 1e5) / 1e7;
-        } else {
+        if (tgeStartDate == 0 || block.timestamp < tgeStartDate) {
+            return 0;
+        }
+        _deserved = (_amount * claimPercentage * 1e5) / 1e7;
+        if (_startDate > 0 && block.timestamp > _startDate) {
             uint256 _now = block.timestamp > _startDate + _duration
                 ? _startDate + _duration
                 : block.timestamp;
             uint256 timePast = (_now - _startDate);
             uint256 scaledAmount = ((timePast * _amount * (1e7 - claimPercentage * 1e5)) / _duration) / 1e7;
-            _deserved = scaledAmount + (_amount * claimPercentage * 1e5) / 1e7;
+            _deserved += scaledAmount;
         }
     }
 
