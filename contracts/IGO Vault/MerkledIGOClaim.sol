@@ -17,7 +17,7 @@ import "../Interfaces/IIGO.sol";
 contract MerkledIGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
-    uint public totalRefunded;
+//    uint public totalRefunded;
     bytes32 public _root;
     uint32 public _startDate;
     uint32 public _duration;

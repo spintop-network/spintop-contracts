@@ -1,8 +1,8 @@
 async function main() {
-  const rewardToken = "0x6c96d72b04ea665ba7147c997457d07bec973593";
-  const stakingToken = "0x6c96d72b04ea665ba7147c997457d07bec973593";
+  const rewardToken = "0x8DC0F602696De3fF03B37e19A172e5080f049C15";
+  const stakingToken = "0x8DC0F602696De3fF03B37e19A172e5080f049C15";
   const merkleRoot =
-    "0x9df10038654ecc26f3ab98aec486c1ccfd08934c58468c59a2b30aa73794389f";
+    "0xe9398ce6d1fac7d0d11987e4d27ba11e447599fa192963eedbd3637164d5a36a";
 
   const SpinStakable = await ethers.getContractFactory("MerkledStaking");
   const spinStakable = await SpinStakable.deploy(
