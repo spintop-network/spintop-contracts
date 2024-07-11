@@ -103,6 +103,21 @@ contract MerkledStaking is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
+    function compound(bytes32[] calldata proof)
+    external
+    updateReward(msg.sender)
+    onlyValid(proof)
+    {
+        uint256 reward = rewards[msg.sender];
+        if (reward == 0) revert NotEnoughTokens();
+
+        rewards[msg.sender] = 0;
+        _totalSupply += reward;
+        _balances[msg.sender] += reward;
+
+        emit Compound(msg.sender, reward);
+    }
+
     function unstake(uint256 amount)
         public
         nonReentrant
@@ -170,9 +185,9 @@ contract MerkledStaking is Ownable, ReentrancyGuard {
     }
 
     function recoverETH() external onlyOwner {
-        if (address(this).balance > 0) {
-            payable(owner()).transfer(address(this).balance);
-        }
+        if (address(this).balance == 0) revert NotEnoughTokens();
+
+        payable(owner()).transfer(address(this).balance);
     }
 
     function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {
@@ -207,6 +222,7 @@ contract MerkledStaking is Ownable, ReentrancyGuard {
 
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
+    event Compound(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
