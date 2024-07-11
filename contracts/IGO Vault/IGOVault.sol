@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "../Interfaces/ISpinStakable.sol";
 import "../Interfaces/IIGO.sol";
+import "../Interfaces/IIGOClaim.sol";
 
 /// @title Spinstarter Vault
 /// @author Spintop.Network
@@ -32,15 +33,21 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
 
     uint256 constant private MAX_INT = 2**256 - 1;
 
+    mapping(address => bool) public blacklisted;
+
     event Deposit(address indexed account, uint256 amount);
     event Withdraw(address indexed account, uint256 amount);
     event Exit(address indexed account, uint256 amount);
+    event Blacklisted(address indexed account);
+    event BlacklistRemoved(address indexed account);
+    event TransferredAccountRights(address indexed from, address indexed to);
 
     error AmountIsZero();
     error TransferNotAllowed();
     error ExceedsMaxStakeAmount();
     error ExceedsUserBalance();
     error SpinTransferFailed();
+    error UserBlacklisted();
 
     function initialize(
         string memory _shareName,
@@ -173,6 +180,67 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         IIGO(_igo).setRefundPeriod(refundPeriodStart, refundPeriodEnd);
     }
 
+    function setVaultV2 (address[] calldata _igo, address _vault) external onlyOwner {
+        for (uint256 i; i < _igo.length; i++) {
+            IIGO(_igo[i]).setVaultV2(_vault);
+        }
+    }
+
+    function setBlacklisted (address[] calldata _accounts, bool[] calldata _blacklisted) external onlyOwner {
+        require(_accounts.length == _blacklisted.length);
+        for (uint256 i; i < _accounts.length; i++) {
+            bool isBlacklisted = _blacklisted[i];
+            address account = _accounts[i];
+            blacklisted[account] = isBlacklisted;
+            if (isBlacklisted) {
+                emit Blacklisted(account);
+            } else {
+                emit BlacklistRemoved(account);
+            }
+        }
+    }
+
+    function transferAccountRights (address[] calldata _froms, address[] calldata _tos, address[] calldata _igos) external onlyOwner {
+        require(_froms.length == _tos.length);
+        for (uint256 j; j < _froms.length; j++) {
+            address _from = _froms[j];
+            address _to = _tos[j];
+            uint256 balanceOfSender = balanceOf(_from);
+            if (balanceOfSender > 0) {
+                // What happens if there is an ongoing igo allocation? EDGE CASE?
+                removeFromIGOs(balanceOfSender);
+                _burn(_from, balanceOfSender);
+                members_.remove(_from);
+
+                _mint(_to, balanceOfSender);
+                if (getUserStaked(_to) >= minStakeAmount) {
+                    addToIGOs(balanceOfSender);
+                }
+                members_.add(_to);
+            }
+
+            address[] memory igosMemory;
+            if (_igos.length == 0) {
+                igosMemory = IGOs;
+            } else {
+                igosMemory = _igos;
+            }
+
+            for (uint256 i; i< igosMemory.length; i++) {
+                IIGO _igo = IIGO(igosMemory[i]);
+                _igo.setStateVault();
+                if (_igo.IGOstate()) {
+                    _igo.unstake(_from, balanceOfSender);
+                    _igo.stake(_to, balanceOfSender);
+                }
+
+                IIGOClaim _claim = IIGOClaim(_igo.claimContract());
+                try _claim.transferAccountRights(_from, _to) {} catch {}
+            }
+            emit TransferredAccountRights(_from, _to);
+        }
+    }
+
     // Private functions //
 
     function addToIGOs (uint256 amount) private {
@@ -265,9 +333,15 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         return members_.length();
     }
 
+    // Modifier functions //
+    modifier notBlacklisted() {
+        if (blacklisted[_msgSender()]) revert UserBlacklisted();
+        _;
+    }
+
     // Public mutative functions //
 
-    function deposit(uint _amount) external nonReentrant whenNotPaused {
+    function deposit(uint _amount) external nonReentrant whenNotPaused notBlacklisted {
         compound();
         if (_amount == 0) revert AmountIsZero();
         uint256 totalAmount = _amount + getUserStaked(_msgSender());
@@ -293,7 +367,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         emit Deposit(_msgSender(), _amount);
     }
 
-    function withdraw(uint _amount) external nonReentrant whenNotPaused {
+    function withdraw(uint _amount) external nonReentrant whenNotPaused notBlacklisted {
         compound();
         if (_amount == 0) revert AmountIsZero();
         uint256 balanceOfSender = balanceOf(_msgSender()); // vault token shares count of user
@@ -322,7 +396,7 @@ contract IGOVault is Initializable, ERC20Upgradeable, PausableUpgradeable, Ownab
         emit Withdraw(_msgSender(), _amount);
     }
 
-    function exit() external nonReentrant whenNotPaused {
+    function exit() external nonReentrant whenNotPaused notBlacklisted {
         compound();
         uint256 balanceOfSender = balanceOf(_msgSender());
         uint256 requested =  balance() * balanceOfSender / totalSupply();

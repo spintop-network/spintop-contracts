@@ -43,6 +43,7 @@ interface IIGO {
         uint32 _tgeStartDate
     ) external;
     function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external;
+    function setVaultV2(address _vault) external;
 
     // Getter Functions for Public Variables
     function gameName() external view returns (string memory);
@@ -56,4 +57,5 @@ interface IIGO {
     function userRewardPerTokenPaid(address) external view returns (uint256);
     function rewards(address) external view returns (uint256);
     function _totalSupply() external view returns (uint256);
+    function claimContract() external view returns (address);
 }

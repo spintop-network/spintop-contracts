@@ -37,6 +37,8 @@ interface IIGOClaim {
     ) external;
     function setIsLinear(bool _isLinear) external;
     function setRefundPeriod(uint256 refundPeriodStart, uint256 refundPeriodEnd) external;
+    function transferAccountRights(address _from, address _to) external;
+    function setVaultV2(address _vault) external;
 
     // Getter Functions for Public Variables
     function paymentToken() external view returns (address);

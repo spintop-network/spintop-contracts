@@ -1,6 +1,7 @@
 const hardhat = require("hardhat");
 const upgrades = hardhat.upgrades;
 const CONSTANTS = require("../../constants");
+
 async function main() {
   const isBscTestnet = hardhat.network.name === "bsctestnet";
   const spinVaultInstance = await ethers.getContractFactory("IGOVault");
@@ -61,6 +62,7 @@ async function main() {
     priceBuyMultiplier, // Public buy multiplier
     isLinear, // Is linear?
     igoAddress,
+    spinVaultAddress,
   ]);
 
   await igoClaimInstance.waitForDeployment();
@@ -108,6 +110,7 @@ async function main() {
   await cmdUnpause.wait();
   console.log("Unpaused.");
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {

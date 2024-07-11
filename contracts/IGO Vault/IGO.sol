@@ -61,6 +61,10 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     // Admin functions //
 
+    function setVaultV2(address _vault) external onlyOwner {
+        claimContract.setVaultV2(_vault);
+    }
+
     function setClaimContract(address _claimContract) external onlyOwner {
         claimContract = IIGOClaim(_claimContract);
     }
@@ -146,10 +150,6 @@ contract IGO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 ? block.timestamp
                 : (startDate + rewardsDuration);
     }
-
-//    function totalRewardAdded() external view returns (uint256) {
-//        return reward_amount;
-//    }
 
     function balanceOf(address account) external view returns (uint256) {
         return _balances[account];

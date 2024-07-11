@@ -61,6 +61,7 @@ contract ContractBTest is Test {
     error NotEnoughTokens();
     error TransferFailed();
     error ExceedsUserBalance();
+    error UserBlacklisted();
 
     function setUp() public {
         skip(1704935836);
@@ -144,7 +145,8 @@ contract ContractBTest is Test {
             priceDecimals,
             multiplier,
             isLinear,
-            address(igoProxy)
+            address(igoProxy),
+            address(igoVaultProxy)
         );
 
         igoVault.setClaimContract(address(igoClaimProxy));
@@ -812,5 +814,203 @@ contract ContractBTest is Test {
         igoClaim.claimTokens();
         uint fifthClaimTokenBalance = mockToken.balanceOf(address(this));
         assertEq(fifthClaimTokenBalance, fourthClaimTokenBalance);
+    }
+
+    function test_transferAccountRights() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            block.timestamp,
+            86400,
+            block.timestamp,
+            block.timestamp + 43200,
+            10,
+            uint32(block.timestamp - 1)
+        );
+
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)) * 10);
+        assertEq(mockToken.balanceOf(address(this)), 0);
+
+        igoClaim.claimTokens();
+        uint tokenBalance = mockToken.balanceOf(address(this));
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint secondClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(secondClaimTokenBalance > tokenBalance);
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint thirdClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(thirdClaimTokenBalance > secondClaimTokenBalance);
+
+        skip(86400);
+
+        address newAddr = makeAddr("newAddr");
+        address[] memory _froms = new address[](1);
+        _froms[0] = address(this);
+
+        bool[] memory blacklistedTrue = new bool[](1);
+        blacklistedTrue[0] = true;
+        igoVault.setBlacklisted(_froms, blacklistedTrue);
+
+        address[] memory _tos = new address[](1);
+        _tos[0] = newAddr;
+
+        address[] memory igoArray = new address[](1);
+        igoArray[0] = address(igo);
+        igoVault.transferAccountRights(_froms, _tos, igoArray);
+        vm.expectRevert(UserBlacklisted.selector);
+        igoClaim.claimTokens();
+
+        bool[] memory blacklistedFalse = new bool[](1);
+        blacklistedFalse[0] = false;
+        igoVault.setBlacklisted(_froms, blacklistedFalse);
+        igoVault.transferAccountRights(_tos, _froms, igoArray);
+        igoClaim.claimTokens();
+    }
+
+    function test_transferAccountRightsAllIgos() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            block.timestamp,
+            86400,
+            block.timestamp,
+            block.timestamp + 43200,
+            10,
+            uint32(block.timestamp - 1)
+        );
+
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)) * 10);
+        assertEq(mockToken.balanceOf(address(this)), 0);
+
+        igoClaim.claimTokens();
+        uint tokenBalance = mockToken.balanceOf(address(this));
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint secondClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(secondClaimTokenBalance > tokenBalance);
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint thirdClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(thirdClaimTokenBalance > secondClaimTokenBalance);
+
+        skip(86400);
+
+        address newAddr = makeAddr("newAddr");
+        address[] memory _froms = new address[](1);
+        _froms[0] = address(this);
+
+        bool[] memory blacklistedTrue = new bool[](1);
+        blacklistedTrue[0] = true;
+        igoVault.setBlacklisted(_froms, blacklistedTrue);
+
+        address[] memory _tos = new address[](1);
+        _tos[0] = newAddr;
+
+        address[] memory emptyIgoArray;
+        igoVault.transferAccountRights(_froms, _tos, emptyIgoArray);
+        vm.expectRevert(UserBlacklisted.selector);
+        igoClaim.claimTokens();
+
+        bool[] memory blacklistedFalse = new bool[](1);
+        blacklistedFalse[0] = false;
+        igoVault.setBlacklisted(_froms, blacklistedFalse);
+        igoVault.transferAccountRights(_tos, _froms, emptyIgoArray);
+        igoClaim.claimTokens();
+    }
+
+    function test_transferAccountRightsClaimDouble() public {
+        uint balance = totalDollars + igoVault.minStakeAmount();
+        deal(address(mockToken), address(this), balance);
+        mockToken.approve(address(igoVault), balance);
+
+        igoVault.deposit(igoVault.minStakeAmount());
+
+        skip(rewardsDuration + 1);
+        uint deserved = igoClaim.deservedAllocation(address(this));
+        mockToken.approve(address(igoClaim), balance);
+
+        igoClaim.payForTokens(deserved);
+
+        skip(allocationPeriod + publicPeriod);
+
+        igoVault.setLinearParams(
+            address(igo),
+            block.timestamp,
+            86400,
+            block.timestamp,
+            block.timestamp + 43200,
+            10,
+            uint32(block.timestamp - 1)
+        );
+
+        deal(address(mockToken), address(this), igoClaim.deservedByUser(address(this)) * 10);
+
+        mockToken.transfer(address(igoClaim), igoClaim.deservedByUser(address(this)) * 10);
+        assertEq(mockToken.balanceOf(address(this)), 0);
+
+        igoClaim.claimTokens();
+        uint tokenBalance = mockToken.balanceOf(address(this));
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint secondClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(secondClaimTokenBalance > tokenBalance);
+
+        skip(1);
+        igoClaim.claimTokens();
+        uint thirdClaimTokenBalance = mockToken.balanceOf(address(this));
+        assert(thirdClaimTokenBalance > secondClaimTokenBalance);
+
+        address newAddr = makeAddr("newAddr");
+        address[] memory _froms = new address[](1);
+        _froms[0] = address(this);
+
+        bool[] memory blacklistedTrue = new bool[](1);
+        blacklistedTrue[0] = true;
+        igoVault.setBlacklisted(_froms, blacklistedTrue);
+
+        address[] memory _tos = new address[](1);
+        _tos[0] = newAddr;
+
+        address[] memory emptyIgoArray;
+        igoVault.transferAccountRights(_froms, _tos, emptyIgoArray);
+        vm.prank(newAddr);
+        vm.expectRevert(AllTokensClaimed.selector);
+        igoClaim.claimTokens();
     }
 }

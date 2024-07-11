@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../Interfaces/IIGO.sol";
+import "../Interfaces/IIGOVault.sol";
 
 /// @title Spinstarter IGO Claim
 /// @author Spintop.Network
@@ -38,6 +39,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     uint256 public _refundPeriodEnd;
     bool public isLinear;
     uint32 public tgeStartDate;
+    address private vaultV2;
     mapping(address => bool) public refunded;
     mapping(address => uint256) public paidAmounts;
     mapping(address => uint256) public paidPublic;
@@ -59,6 +61,8 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
     error AllTokensClaimed();
     error NotEnoughTokens();
     error TransferFailed();
+    error UserBlacklisted();
+    error onlyVaultAllowed();
 
     function initialize(
         address _igo,
@@ -68,7 +72,8 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         uint256 _priceDecimal,
         uint256 _multiplier,
         bool _isLinear,
-        address initialOwner
+        address initialOwner,
+        address _vault
     ) initializer public {
         __Ownable_init(initialOwner);
         allocationTime = 6 hours;
@@ -81,6 +86,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         priceDecimal = _priceDecimal;
         multiplier = _multiplier;
         isLinear = _isLinear;
+        vaultV2 = _vault;
         _pause();
     }
 
@@ -123,13 +129,59 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         _;
     }
 
+    modifier notBlacklisted() {
+        if (IIGOVault(vaultV2).blacklisted(_msgSender())) {
+            revert UserBlacklisted();
+        }
+        _;
+    }
+
     event ClaimUnlocked(address indexed igo);
     event UserPaid(address indexed user, uint256 amount);
     event UserPaidPublic(address indexed user, uint256 amount);
     event UserClaimed(address indexed user, uint256 amount);
     event Refunded(address indexed user, uint256 amount);
+    event TransferredAccountRights(
+        address indexed from,
+        address indexed to,
+        uint256 beforeFromAmount,
+        uint256 beforeFromAmountPublic,
+        uint256 beforeToAmount,
+        uint256 beforeToAmountPublic,
+        uint256 afterToAmount,
+        uint256 afterToAmountPublic
+    );
 
     // Admin functions //
+
+    function transferAccountRights(address _from, address _to) external {
+        if (_msgSender() != vaultV2) {
+            revert onlyVaultAllowed();
+        }
+        if (refunded[_from]) {
+            revert AlreadyRefunded();
+        }
+
+        uint beforeFromAmount = paidAmounts[_from];
+        uint beforeFromAmountPublic = paidPublic[_from];
+
+        uint beforeToAmount = paidAmounts[_to];
+        uint beforeToAmountPublic = paidPublic[_to];
+
+        paidAmounts[_to] += beforeFromAmount;
+        paidAmounts[_from] = 0;
+
+        paidPublic[_to] += beforeFromAmountPublic;
+        paidPublic[_from] = 0;
+
+        claimedAmounts[_to] += claimedAmounts[_from];
+        claimedAmounts[_from] = 0;
+
+        claimedTokens[_to] += claimedTokens[_from];
+        claimedTokens[_from] = 0;
+
+        emit TransferredAccountRights(_from, _to, beforeFromAmount, beforeFromAmountPublic, beforeToAmount, beforeToAmountPublic, paidAmounts[_to], paidPublic[_to]);
+    }
 
     function withdrawTokens() external onlyOwner withdrawTimer {
         uint256 leftover = IERC20(token).balanceOf(address(this));
@@ -203,6 +255,10 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
     function setMultiplier(uint256 _multiplier) external onlyOwner {
         multiplier = _multiplier;
+    }
+
+    function setVaultV2(address _vault) external onlyOwner {
+        vaultV2 = _vault;
     }
 
     // Private functions //
@@ -299,6 +355,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         nonReentrant
         allocationTimer
         whenNotPaused
+        notBlacklisted
     {
         uint256 _deserved = deservedAllocation(_msgSender());
         uint256 paid = paidAmounts[_msgSender()];
@@ -324,6 +381,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         nonReentrant
         publicTimer
         whenNotPaused
+        notBlacklisted
     {
         if ((_amount + totalPaid) > totalDollars) {
             _amount = totalDollars - totalPaid;
@@ -344,7 +402,7 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
         emit UserPaidPublic(_msgSender(), _amount);
     }
 
-    function askForRefund() external nonReentrant whenNotPaused {
+    function askForRefund() external nonReentrant whenNotPaused notBlacklisted {
         if (claimedTokens[_msgSender()] > 0 || claimedAmounts[_msgSender()] > 0) revert AlreadyClaimed();
         if (isRefunded(_msgSender())) revert AlreadyRefunded();
         if (_refundPeriodStart >= block.timestamp || _refundPeriodStart == 0) revert RefundPeriodNotStarted();
@@ -355,10 +413,10 @@ contract IGOClaim is Initializable, ContextUpgradeable, PausableUpgradeable, Own
 
         refunded[_msgSender()] = true;
         IERC20(paymentToken).safeTransfer(_msgSender(), _amount);
-        emit Refunded(msg.sender, _amount);
+        emit Refunded(_msgSender(), _amount);
     }
 
-    function claimTokens() external nonReentrant whenNotPaused {
+    function claimTokens() external nonReentrant whenNotPaused notBlacklisted {
         if (isRefunded(_msgSender())) revert AlreadyRefunded();
         if (isLinear) {
             _claimTokensLinear();

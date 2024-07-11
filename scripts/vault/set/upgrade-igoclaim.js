@@ -4,7 +4,7 @@ const { ethers, upgrades } = hardhat;
 async function main() {
   const igoClaimContract = await ethers.getContractFactory("IGOClaim");
   const igoClaimContractInstance = await upgrades.upgradeProxy(
-    "0xFD4122c5D3c2876a04131F81005b5d323ddB798F", // Proxy address
+    "0xbb4859eC1A3391A80113116A6570031A72F0FE58", // Proxy address
     igoClaimContract,
   );
   // await spinVault.waitForDeployment();
