@@ -107,9 +107,9 @@ module.exports = {
     constructorArgsPath: "./scripts/swapargs.js", // optional; default value is `undefined`
     salt: "SPINTOP",
     signer: process.env.PRIVATE_KEY,
-    networks: ["bscTestnet"],
-    rpcUrls: ["https://data-seed-prebsc-1-s1.binance.org:8545"],
-    gasLimit: 1_500_000, // optional; default value is `1.5e6`
+    networks: ["polygon"],
+    rpcUrls: ["https://polygon-rpc.com"],
+    gasLimit: 2_500_000, // optional; default value is `1.5e6`
   },
   etherscan: {
     apiKey: {
